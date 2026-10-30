@@ -237,6 +237,26 @@ class ModelTests(unittest.TestCase):
             (report/'report.md').write_text('tampered')
             with self.assertRaisesRegex(ValueError, 'modified'):
                 publish_report(run, transport=lambda *a: None)
+            # Complete assignment path: persist the validation winner and generate
+            # five initial noises without touching training data or source weights.
+            from sokolov.synthesize import select_best_model, generate_best, validate_synthesis
+            select_best_model(run)
+            self.assertEqual(read_json(run/'best_model.json')['architecture'], 'resnet18')
+            Path(config.data.raw_manifest).unlink()
+            generation = replace(config.generation, steps=3, snapshot_every=2, seeds=(0, 1, 2, 3, 4))
+            generate_best(run, generation=generation, device='cpu')
+            synthesis = validate_synthesis(run/'synthesis')
+            self.assertEqual(synthesis['seeds'], [0, 1, 2, 3, 4])
+            self.assertTrue(all(r['weights_unchanged'] for r in synthesis['results']))
+            report = make_report(run)
+            self.assertIn('Генерация из случайного шума', (report/'report.md').read_text())
+            self.assertTrue((report/'synthesis/seed_4/progression.png').exists())
+            with self.assertRaisesRegex(ValueError, 'real pretrained'):
+                publish_report(run, transport=lambda *a: None)
+            if output:
+                shutil.copytree(report, output/'report', dirs_exist_ok=True)
+                shutil.copy2(run/'best_model.json', output/'best_model.json')
+
 
 
 if __name__ == '__main__':

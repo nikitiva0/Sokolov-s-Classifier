@@ -12,10 +12,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog='sokolov')
     commands = parser.add_subparsers(dest='command', required=True)
     names = ['check-config', 'download-data', 'prepare', 'train', 'evaluate', 'report',
-             'run-all', 'publish-report', 'check-weights']
+             'run-all', 'publish-report', 'check-weights', 'select-best', 'synthesize']
     for name in names:
         sub = commands.add_parser(name)
-        if name not in ('report', 'publish-report'):
+        if name not in ('report', 'publish-report', 'select-best', 'synthesize'):
             sub.add_argument('--config', type=Path, default=Path('configs/resnet18_face.toml'))
             sub.add_argument('--fairface-dir', type=Path)
             sub.add_argument('--arcface-checkpoint', type=Path)
@@ -23,12 +23,25 @@ def main(argv=None):
         if name in ('run-all', 'check-weights'):
             sub.add_argument('--configs', type=Path, nargs='+', default=[
                 Path('configs/resnet18_face.toml'), Path('configs/arcface_face.toml')])
-        if name in ('train', 'evaluate', 'report', 'run-all', 'publish-report'):
+        if name in ('train', 'evaluate', 'report', 'run-all', 'publish-report', 'select-best', 'synthesize'):
             sub.add_argument('--run-dir', type=Path, required=True)
+        if name == 'synthesize':
+            sub.add_argument('--generation-config', type=Path)
+            sub.add_argument('--device', choices=['auto', 'cpu', 'cuda', 'mps'])
+            sub.add_argument('--output-dir', type=Path)
         if name in ('train', 'run-all'):
             sub.add_argument('--resume', action='store_true')
     args = parser.parse_args(argv)
     try:
+        if args.command == 'select-best':
+            from .synthesize import select_best_model
+            print(select_best_model(args.run_dir))
+            return 0
+        if args.command == 'synthesize':
+            from .synthesize import generate_best
+            generation = load_config(args.generation_config).generation if args.generation_config else None
+            print(generate_best(args.run_dir, generation=generation, device=args.device, output_dir=args.output_dir))
+            return 0
         if args.command == 'publish-report':
             from .report import publish_report
             print(publish_report(args.run_dir))

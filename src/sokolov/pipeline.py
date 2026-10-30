@@ -10,6 +10,7 @@ def run_all(configs, run_dir, *, resume=False):
     from .train import train
     from .evaluate import evaluate_test
     from .report import make_report
+    from .synthesize import select_best_model, generate_best
     run = Path(run_dir)
     if run.exists() and not resume:
         raise ValueError('Run directory already exists. Use --resume or a new run ID')
@@ -31,6 +32,8 @@ def run_all(configs, run_dir, *, resume=False):
                 train(config, run, resume=resume and (folder/'last.pt').is_file())
             # evaluate validates checkpoint/config/data even on resumed complete runs.
             evaluate_test(config, folder/'best.pt')
+        select_best_model(run)
+        generate_best(run)
         result = make_report(run)
         write_json(run/'status.json', {'status': 'completed'})
         return result

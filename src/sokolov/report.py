@@ -102,6 +102,42 @@ def make_report(run_dir):
                 x, y = i % 5 * 160, i // 5 * 150
                 sheet.paste(im, (x, y)); draw.text((x, y+118), f"{row['error_type']} {float(row['score']):.3f}", fill='black')
         sheet.save(folder/'error_examples.jpg')
+    synthesis_summary = None
+    if (run/'best_model.json').exists():
+        winner = read_json(run/'best_model.json')
+        write_json(report/'best_model.json', winner)
+        lines += ['', '## Лучшая сохранённая модель', '',
+                  f"Победитель: **{winner['architecture']}**, validation AP={winner['validation_ap']:.6f}, эпоха {winner['epoch']}.",
+                  'Выбор выполнен по validation, без использования test. Полный checkpoint сохранён локально в best_model.pt.', '']
+    if (run/'synthesis').exists():
+        from .synthesize import validate_synthesis
+        synthesis_summary = validate_synthesis(run/'synthesis')
+        if synthesis_summary['technical_test'] != technical:
+            raise ValueError('Synthesis and classifier reports have different technical-test status')
+        winner = read_json(run/'best_model.json')
+        if synthesis_summary['checkpoint_sha256'] != winner['checkpoint_sha256']:
+            raise ValueError('Synthesis used a different winner checkpoint')
+        destination = report/'synthesis'
+        destination.mkdir(exist_ok=True)
+        write_json(destination/'summary.json', synthesis_summary)
+        lines += ['', '## Генерация из случайного шума', '',
+                  'Веса выбранной модели фиксированы. Adam изменяет только пиксели входной картинки.',
+                  'Максимизируется логит «Соколов» с TV- и L2-регуляризацией. После каждого шага пиксели ограничены диапазоном [0,1].',
+                  'Оценки на графике рассчитаны по сохранённым 8-битным пикселям. Детектор лиц в оптимизации не участвует.',
+                  'Высокая оценка не гарантирует узнаваемое лицо. Показаны все начальные шумы; рост оценки не обязан быть монотонным.', '',
+                  '```json', json.dumps(synthesis_summary, ensure_ascii=False, indent=2), '```', '']
+        for image in ('seed_comparison.png', 'scores.png'):
+            shutil.copy2(run/'synthesis'/image, destination/image)
+            lines.append(f'![Synthesis {image}](synthesis/{image})')
+        for seed in synthesis_summary['seeds']:
+            target = destination/f'seed_{seed}'
+            target.mkdir(exist_ok=True)
+            for name in ('progression.png', 'trajectory.csv'):
+                shutil.copy2(run/'synthesis'/f'seed_{seed}'/name, target/name)
+            lines += ['', f'### Начальный шум {seed}', '',
+                      f'![Steps for seed {seed}](synthesis/seed_{seed}/progression.png)', '']
+    else:
+        lines += ['', '## Генерация', '', 'В этом отчёте генерация ещё не запускалась.', '']
     lines += ['', '## Воспроизводимость', '',
               'FairFace: https://github.com/joojs/fairface (CC BY 4.0).',
               'Параметры, состояния обучения, исходные предсказания и аудит сохранены в файлах запуска.',
@@ -121,7 +157,8 @@ def make_report(run_dir):
     manifest = {p.relative_to(report).as_posix(): sha256(p) for p in sorted(report.rglob('*'))
                 if p.is_file() and p.name != 'completed.json'}
     write_json(report/'completed.json', {'status': 'completed', 'technical_test': technical,
-        'models': list(MODELS), 'files': manifest})
+        'models': list(MODELS), 'synthesis': synthesis_summary,
+        'best_model': (report/'best_model.json').exists(), 'files': manifest})
     return report
 
 
@@ -132,6 +169,17 @@ def validate_publication(run_dir):
         raise ValueError('Only a completed real pretrained-model run can be published')
     allowed = {'report.md', 'report.html', 'metrics.json', 'metrics.csv', 'data_audit_summary.json'}
     allowed |= {f'{name}/{plot}.png' for name in MODELS for plot in ('training', 'curves', 'confusion_matrix', 'scores')}
+    if completed.get('best_model'):
+        allowed.add('best_model.json')
+    synthesis = completed.get('synthesis')
+    if synthesis is not None:
+        seeds = synthesis['seeds']
+        if (not seeds or len(seeds) != len(set(seeds)) or
+                any(type(s) is not int or s < 0 for s in seeds) or synthesis['technical_test']):
+            raise ValueError('Invalid completed synthesis experiment')
+        allowed |= {'synthesis/summary.json', 'synthesis/seed_comparison.png', 'synthesis/scores.png'}
+        allowed |= {f'synthesis/seed_{seed}/{name}' for seed in seeds
+                    for name in ('progression.png', 'trajectory.csv')}
     if set(completed['files']) != allowed or completed['models'] != list(MODELS):
         raise ValueError('Unexpected publication artifact list')
     for relative, digest in completed['files'].items():
