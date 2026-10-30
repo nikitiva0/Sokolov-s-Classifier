@@ -20,6 +20,9 @@ class ResultView(context: Context, attrs: AttributeSet? = null): View(context,at
         if(previous!==bitmap)previous?.recycle()
         invalidate()
     }
+    fun clear() {
+        image?.recycle(); image=null; result=null; invalidate()
+    }
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawColor(Color.rgb(18,24,35))

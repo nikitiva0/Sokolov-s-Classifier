@@ -15,6 +15,7 @@ android {
     kotlinOptions { jvmTarget = "17" }
     androidResources { noCompress += "onnx" }
     packaging { jniLibs.useLegacyPackaging = false }
+    sourceSets.getByName("androidTest").assets.srcDir(rootProject.file("../work/android-test-assets"))
 }
 dependencies {
     implementation("androidx.activity:activity-ktx:1.9.3")
@@ -26,4 +27,10 @@ dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
+
 }

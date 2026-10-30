@@ -21,6 +21,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.exifinterface.media.ExifInterface
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
@@ -28,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong
 class MainActivity: ComponentActivity() {
     private val worker=Executors.newSingleThreadExecutor()
     private val epoch=AtomicLong(0)
+    private val modelEpoch=AtomicLong(0)
     private lateinit var store: ModelStore
     private var engine: Engine?=null // accessed only on worker
     private var provider: ProcessCameraProvider?=null
@@ -59,8 +62,9 @@ class MainActivity: ComponentActivity() {
         root.addView(TextView(this).apply { text="Классификатор Соколова"; textSize=24f; setTextColor(Color.rgb(20,30,45)) })
         root.addView(TextView(this).apply { text="Камера и фотографии · обработка на телефоне"; textSize=14f })
         status=TextView(this).apply { textSize=14f; setPadding(0,12,0,12); accessibilityLiveRegion=View.ACCESSIBILITY_LIVE_REGION_POLITE }
+        status.id=R.id.status
         root.addView(status)
-        picture=ResultView(this)
+        picture=ResultView(this).apply { id=R.id.result_image }
         root.addView(picture,LinearLayout.LayoutParams(-1,0,1f))
         val buttons=LinearLayout(this)
         buttons.addView(Button(this).apply { text="Камера"; setOnClickListener { startCamera() } },LinearLayout.LayoutParams(0,-2,1f))
@@ -77,6 +81,12 @@ class MainActivity: ComponentActivity() {
         root.addView(Button(this).apply { text="Загрузить модели (.zip)"; setOnClickListener {
             stopCamera(); bundlePicker.launch(arrayOf("application/zip","application/octet-stream","application/x-zip-compressed"))
         } })
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view,insets ->
+            val bars=insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            val spacing=(16*resources.displayMetrics.density).toInt()
+            view.setPadding(bars.left+spacing,bars.top+spacing,bars.right+spacing,bars.bottom+spacing)
+            insets
+        }
         setContentView(root)
         loadModel()
     }
@@ -86,21 +96,23 @@ class MainActivity: ComponentActivity() {
         lastDisplayed=0
     }
     private fun loadModel() {
+        picture.clear()
         ready=false; modelButton.text="Модель: $modelId"; message("Открываю модель…")
-        val token=epoch.incrementAndGet()
+        epoch.incrementAndGet()
+        val token=modelEpoch.incrementAndGet()
         worker.execute {
             try {
                 engine?.close(); engine=null
                 val manifest=store.manifest() ?: error("Сначала обучите модели в Kaggle и загрузите файл mobile_models.zip.")
                 engine=Engine(store.folder,manifest,modelId)
-                runOnUiThread { if(epoch.get()==token){ready=true; message(
+                runOnUiThread { if(!isDestroyed && modelEpoch.get()==token){ready=true; message(
                     if(engine!!.technical)"ТЕХНИЧЕСКИЕ ВЕСА — распознавание личности недостоверно."
                     else "Готово. Наведите камеру или выберите фотографию.")} }
-            } catch(error: Exception) { runOnUiThread { if(epoch.get()==token)message(error.message ?: "Не удалось загрузить модель") } }
+            } catch(error: Exception) { runOnUiThread { if(modelEpoch.get()==token)message(error.message ?: "Не удалось загрузить модель") } }
         }
     }
     private fun importModels(uri: Uri) {
-        stopCamera(); ready=false; message("Проверяю и устанавливаю модели…")
+        stopCamera(); modelEpoch.incrementAndGet(); ready=false; message("Проверяю и устанавливаю модели…")
         worker.execute {
             try {
                 engine?.close(); engine=null; store.importBundle(uri)
@@ -201,8 +213,14 @@ class MainActivity: ComponentActivity() {
             }
         } catch(error: Exception) { bitmap.recycle(); throw error }
     }
-    override fun onPause() { stopCamera(); super.onPause() }
+    override fun onPause() {
+        val wasCamera=cameraActive
+        stopCamera()
+        if(wasCamera)message("Камера остановлена. Нажмите «Камера», чтобы продолжить.")
+        super.onPause()
+    }
     override fun onDestroy() {
+        modelEpoch.incrementAndGet()
         worker.execute { engine?.close();engine=null }; worker.shutdown(); super.onDestroy()
     }
 }
