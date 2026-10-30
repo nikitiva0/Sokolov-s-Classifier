@@ -1,0 +1,33 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Local datasets, downloaded weights, and generated experiment artifacts
+data/raw/
+data/processed/
+data/manifests/raw.csv
+data/manifests/*.local.csv
+outputs/runs/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+.cache/
+work/
+
+# Machine-local files
+.DS_Store
+.env
+.env.*
+!.env.example
+.ipynb_checkpoints/
