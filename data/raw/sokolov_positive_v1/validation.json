@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "image_count": 1000,
+  "unique_jpeg_files": 1000,
+  "unique_source_crops": 1000,
+  "image_size": [
+    240,
+    116
+  ],
+  "labels": {
+    "1": "sokolov"
+  },
+  "counts_by_source": {
+    "лекция-01.mp4": 250,
+    "лекция-03.mp4": 250,
+    "лекция-04.mp4": 250,
+    "лекция-11.mp4": 250
+  },
+  "checks": [
+    "all images decode",
+    "all dimensions match",
+    "all positive labels",
+    "250 per lecture",
+    "no exact duplicate JPEGs",
+    "manifest matches directory"
+  ]
+}

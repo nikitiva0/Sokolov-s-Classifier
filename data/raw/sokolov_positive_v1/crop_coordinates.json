@@ -1,0 +1,83 @@
+{
+  "coordinate_system": "0-based pixels, x right, y down; right and bottom bounds exclusive",
+  "positive_label": 1,
+  "class_name": "sokolov",
+  "sources": [
+    {
+      "file": "лекция-01.mp4",
+      "width": 1888,
+      "height": 1150,
+      "duration_seconds": 4248.298667,
+      "webcam": {
+        "x": 1648,
+        "y": 0,
+        "width": 240,
+        "height": 134
+      },
+      "dataset_crop": {
+        "x": 1648,
+        "y": 0,
+        "width": 240,
+        "height": 116
+      },
+      "count": 250
+    },
+    {
+      "file": "лекция-03.mp4",
+      "width": 1772,
+      "height": 1070,
+      "duration_seconds": 4086.485333,
+      "webcam": {
+        "x": 1520,
+        "y": 0,
+        "width": 240,
+        "height": 134
+      },
+      "dataset_crop": {
+        "x": 1520,
+        "y": 0,
+        "width": 240,
+        "height": 116
+      },
+      "count": 250
+    },
+    {
+      "file": "лекция-04.mp4",
+      "width": 1648,
+      "height": 984,
+      "duration_seconds": 4295.125333,
+      "webcam": {
+        "x": 1408,
+        "y": 0,
+        "width": 240,
+        "height": 134
+      },
+      "dataset_crop": {
+        "x": 1408,
+        "y": 0,
+        "width": 240,
+        "height": 116
+      },
+      "count": 250
+    },
+    {
+      "file": "лекция-11.mp4",
+      "width": 1652,
+      "height": 986,
+      "duration_seconds": 4821.653333,
+      "webcam": {
+        "x": 1412,
+        "y": 0,
+        "width": 240,
+        "height": 134
+      },
+      "dataset_crop": {
+        "x": 1412,
+        "y": 0,
+        "width": 240,
+        "height": 116
+      },
+      "count": 250
+    }
+  ]
+}

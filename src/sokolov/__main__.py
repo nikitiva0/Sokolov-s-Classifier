@@ -13,7 +13,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="sokolov")
     commands = parser.add_subparsers(dest="command", required=True)
     check = commands.add_parser("check-config", help="Проверить TOML без запуска ML")
-    check.add_argument("--config", type=Path, default=Path("configs/baseline.toml"))
+    check.add_argument("--config", type=Path, default=Path("configs/resnet18_face.toml"))
     args = parser.parse_args(argv)
     try:
         config = load_config(args.config)

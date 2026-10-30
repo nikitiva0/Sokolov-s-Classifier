@@ -20,28 +20,29 @@ class ExperimentConfigTests(unittest.TestCase):
             path.write_text(source.replace(old, new))
             return load_config(path)
 
-    def test_three_supported_experiments_share_source_and_split(self):
+    def test_two_face_experiments_share_source_and_split(self):
         configs = [
             load_config(ROOT / "configs" / filename)
-            for filename in ("baseline.toml", "resnet18_face.toml", "arcface_face.toml")
+            for filename in ("resnet18_face.toml", "arcface_face.toml")
         ]
         self.assertEqual(
             [(c.model.architecture, c.data.variant) for c in configs],
-            [("resnet18", "full_image"), ("resnet18", "face_crop"), ("arcface", "face_crop")],
+            [("resnet18", "face_crop"), ("arcface", "face_crop")],
         )
         self.assertEqual({c.data.raw_manifest for c in configs}, {"data/manifests/raw.csv"})
         self.assertTrue(all(c.split == configs[0].split for c in configs))
         self.assertTrue(all(c.generation == configs[0].generation for c in configs))
         self.assertEqual(configs[0].split.validation_fraction, 0.2)
-        self.assertEqual(configs[2].training.finetune_epochs, 0)
+        self.assertEqual(configs[1].training.finetune_epochs, 0)
 
-    def test_arcface_rejects_full_image(self):
-        with self.assertRaisesRegex(ValueError, "face_crop"):
-            self.load_changed("arcface_face.toml", 'variant = "face_crop"', 'variant = "full_image"')
+    def test_both_models_reject_full_image(self):
+        for filename in ("resnet18_face.toml", "arcface_face.toml"):
+            with self.subTest(filename=filename), self.assertRaisesRegex(ValueError, "face_crop"):
+                self.load_changed(filename, 'variant = "face_crop"', 'variant = "full_image"')
 
     def test_models_reject_wrong_input_size(self):
         for filename, old, new in (
-            ("baseline.toml", "image_size = 224", "image_size = 112"),
+            ("resnet18_face.toml", "image_size = 224", "image_size = 112"),
             ("arcface_face.toml", "image_size = 112", "image_size = 224"),
         ):
             with self.subTest(filename=filename), self.assertRaises(ValueError):
@@ -53,20 +54,20 @@ class ExperimentConfigTests(unittest.TestCase):
 
     def test_unknown_model_rejected(self):
         with self.assertRaisesRegex(ValueError, "architecture"):
-            self.load_changed("baseline.toml", 'architecture = "resnet18"', 'architecture = "efficientnet_b0"')
+            self.load_changed("resnet18_face.toml", 'architecture = "resnet18"', 'architecture = "efficientnet_b0"')
 
     def test_unknown_dataset_rejected(self):
         with self.assertRaisesRegex(ValueError, "variant"):
-            self.load_changed("baseline.toml", 'variant = "full_image"', 'variant = "background_removed"')
+            self.load_changed("resnet18_face.toml", 'variant = "face_crop"', 'variant = "background_removed"')
 
     def test_validation_fraction_is_a_proper_fraction(self):
         for invalid in ("0", "1", "-0.2", "1.1", "true", "nan"):
             with self.subTest(value=invalid), self.assertRaises(ValueError):
-                self.load_changed("baseline.toml", "validation_fraction = 0.2", f"validation_fraction = {invalid}")
+                self.load_changed("resnet18_face.toml", "validation_fraction = 0.2", f"validation_fraction = {invalid}")
 
     def test_imported_test_cannot_be_configured_as_a_new_fraction(self):
         with self.assertRaisesRegex(ValueError, "split"):
-            self.load_changed("baseline.toml", "validation_fraction = 0.2", "train = 0.7\nval = 0.15\ntest = 0.15")
+            self.load_changed("resnet18_face.toml", "validation_fraction = 0.2", "train = 0.7\nval = 0.15\ntest = 0.15")
 
     def test_other_person_crop_can_have_negative_label_on_positive_parent(self):
         parent = RawSample("image-1", Path("data/raw/photo.jpg"), 1, "session-1", "", "test")

@@ -119,8 +119,8 @@ def load_config(path: str | Path) -> Config:
         value = getattr(data, field)
         if not isinstance(value, str) or not value.strip():
             raise ValueError(f"data.{field}: ожидается непустой путь")
-    if data.variant not in ("full_image", "face_crop"):
-        raise ValueError("data.variant: предусмотрены full_image и face_crop")
+    if data.variant != "face_crop":
+        raise ValueError("data.variant: поддерживается только face_crop (вырезанное лицо)")
     _integer("data.phash_max_distance", data.phash_max_distance)
     if data.phash_max_distance > 64:
         raise ValueError("data.phash_max_distance: максимум 64 для 64-битного pHash")
@@ -130,8 +130,6 @@ def load_config(path: str | Path) -> Config:
             raise ValueError("model.checkpoint: для ResNet18 используем torchvision weights, пустой путь")
     elif model.architecture == "arcface":
         expected_model = ("iresnet50", "MS1MV3", 112, 512)
-        if data.variant != "face_crop":
-            raise ValueError("ArcFace поддерживает только data.variant=face_crop")
         if not isinstance(model.checkpoint, str) or not model.checkpoint.strip():
             raise ValueError("model.checkpoint: для ArcFace нужен путь к локальному PyTorch checkpoint")
         if Path(model.checkpoint).suffix not in (".pt", ".pth"):

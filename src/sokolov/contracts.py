@@ -9,7 +9,7 @@ from typing import Literal
 Label = Literal[0, 1]
 Split = Literal["train", "val", "test"]
 Partition = Literal["train", "test"]
-DatasetVariant = Literal["full_image", "face_crop"]
+DatasetVariant = Literal["face_crop"]
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class RawSample:
 
 @dataclass(frozen=True)
 class ParentAssignment:
-    """Общий split исходного изображения; создаётся до вариантов и детекции лиц.
+    """Общий split исходного изображения; создаётся до детекции лиц.
 
     Test сохраняется, val выделяется только из внешнего train. Один group_id
     не может принадлежать нескольким partition или split; конфликт — ошибка.
