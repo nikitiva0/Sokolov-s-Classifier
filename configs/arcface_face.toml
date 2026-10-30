@@ -5,6 +5,13 @@ raw_manifest = "data/manifests/raw.csv"
 prepared_manifest = "data/processed/face_crop/manifest.csv"
 artifacts_dir = "outputs/runs"
 phash_max_distance = 6
+positive_dir = "data/raw/sokolov_positive_v1"
+fairface_handle = "mehmoodsheikh/fairface-dataset"
+fairface_dir = ""
+negative_count = 5000
+detector_root = "checkpoints/insightface"
+detector_name = "buffalo_l"
+detector_threshold = 0.5
 
 [model]
 architecture = "arcface"
@@ -13,9 +20,13 @@ weights = "MS1MV3"
 image_size = 112
 embedding_dim = 512
 checkpoint = "checkpoints/arcface/iresnet50_ms1mv3.pt"
+checkpoint_url = ""
+checkpoint_sha256 = ""
 
 [split]
-validation_fraction = 0.2
+validation_fraction = 0.15
+test_fraction = 0.15
+mode = "random_stratified"
 seed = 42
 
 [training]
@@ -26,6 +37,8 @@ head_lr = 0.001
 finetune_lr = 0.0001
 weight_decay = 0.0001
 selection_metric = "average_precision"
+device = "auto"
+num_workers = 2
 
 [generation]
 steps = 500

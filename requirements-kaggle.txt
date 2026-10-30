@@ -1,0 +1,19 @@
+# Python 3.11/3.12. Core CPU training versions exercised locally; GPU execution is user-run.
+torch==2.5.1
+torchvision==0.20.1
+numpy==1.26.4
+scipy==1.15.2
+scikit-learn==1.6.1
+Pillow==11.1.0
+ImageHash==4.3.2
+matplotlib==3.10.0
+Markdown==3.7
+opencv-python-headless==4.10.0.84
+scikit-image==0.25.2
+insightface==0.7.3
+onnxruntime==1.20.1
+onnx==1.17.0
+albumentations==1.4.3
+kagglehub==0.3.12
+tifffile==2025.2.18
+imageio==2.37.0

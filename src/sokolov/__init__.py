@@ -1,3 +1,3 @@
-"""Архитектурный каркас проекта; ML-стадии ещё не реализованы."""
+"""Face-only classifier training, evaluation and reproducible reporting."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

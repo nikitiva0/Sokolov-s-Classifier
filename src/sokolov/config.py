@@ -16,6 +16,13 @@ class DataConfig:
     prepared_manifest: str
     artifacts_dir: str
     phash_max_distance: int
+    positive_dir: str = "data/raw/sokolov_positive_v1"
+    fairface_handle: str = "mehmoodsheikh/fairface-dataset"
+    fairface_dir: str = ""
+    negative_count: int = 5000
+    detector_root: str = "checkpoints/insightface"
+    detector_name: str = "buffalo_l"
+    detector_threshold: float = 0.5
 
 
 @dataclass(frozen=True)
@@ -26,12 +33,16 @@ class ModelConfig:
     image_size: int
     embedding_dim: int
     checkpoint: str
+    checkpoint_url: str = ""
+    checkpoint_sha256: str = ""
 
 
 @dataclass(frozen=True)
 class SplitConfig:
     validation_fraction: float
     seed: int
+    test_fraction: float = 0.15
+    mode: str = "random_stratified"
 
 
 @dataclass(frozen=True)
@@ -43,6 +54,8 @@ class TrainingConfig:
     finetune_lr: float
     weight_decay: float
     selection_metric: str
+    device: str = "auto"
+    num_workers: int = 2
 
 
 @dataclass(frozen=True)
@@ -143,6 +156,27 @@ def load_config(path: str | Path) -> Config:
     _number("split.validation_fraction", split.validation_fraction, positive=True)
     if split.validation_fraction >= 1:
         raise ValueError("split.validation_fraction должна быть строго между 0 и 1")
+    if split.mode not in ("random_stratified", "external"):
+        raise ValueError("split.mode: random_stratified or external")
+    _number("split.test_fraction", split.test_fraction, positive=True)
+    if split.validation_fraction + split.test_fraction >= 1:
+        raise ValueError("split: train fraction must be positive")
+    _integer("data.negative_count", data.negative_count, 1)
+    _number("data.detector_threshold", data.detector_threshold, positive=True)
+    if data.detector_threshold > 1:
+        raise ValueError("data.detector_threshold must be <= 1")
+    if data.detector_name != "buffalo_l":
+        raise ValueError("data.detector_name: supported SCRFD pack is buffalo_l")
+    if model.checkpoint_sha256 and (len(model.checkpoint_sha256) != 64 or
+            any(c not in "0123456789abcdef" for c in model.checkpoint_sha256)):
+        raise ValueError("model.checkpoint_sha256: expected lowercase SHA-256")
+    if model.checkpoint_url and not model.checkpoint_sha256:
+        raise ValueError("model.checkpoint_url requires checkpoint_sha256")
+    if model.checkpoint_url and not model.checkpoint_url.startswith("https://"):
+        raise ValueError("model.checkpoint_url requires HTTPS")
+    if training.device not in ("auto", "cpu", "cuda", "mps"):
+        raise ValueError("training.device: auto/cpu/cuda/mps")
+    _integer("training.num_workers", training.num_workers)
     _integer("split.seed", split.seed)
     for field in ("batch_size", "head_epochs"):
         _integer(f"training.{field}", getattr(training, field), 1)

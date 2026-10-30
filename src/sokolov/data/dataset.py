@@ -1,23 +1,37 @@
-"""План: Dataset вырезанных лиц и transforms под выбранную модель.
-
-Train: умеренные аугментации, сохраняющие идентичность и присутствие человека.
-ResNet18: выровненное по пяти точкам лицо масштабируется до 224x224, затем
-нормализация ImageNet. ArcFace: то же лицо 112x112, RGB [0,1]
-нормализуется mean=std=(0.5,0.5,0.5). Детекция и выравнивание выполняются заранее,
-их параметры и версия сохраняются. Val/test без случайных аугментаций.
-Crop не должен незаметно удалить человека при сохранении положительной метки.
-"""
-
-from typing import Any
-
-from ..config import Config
-from ..contracts import Split
+"""Shared face crops; only model-specific size/normalization differs."""
+from PIL import Image
+from ..io import read_csv
 
 
-def build_dataset(config: Config, split: Split) -> Any:
-    """Вернуть Dataset с (image_tensor, label, sample_id, parent_image_id).
+def transforms(config, train=False):
+    from torchvision import transforms as T
+    steps = [T.Resize((config.model.image_size, config.model.image_size), antialias=True)]
+    if train:
+        steps += [T.RandomHorizontalFlip(), T.ColorJitter(brightness=.1, contrast=.1, saturation=.1)]
+    if config.model.architecture == 'resnet18':
+        mean, std = (.485, .456, .406), (.229, .224, .225)
+    else:
+        mean = std = (.5, .5, .5)
+    return T.Compose(steps + [T.ToTensor(), T.Normalize(mean, std)])
 
-    В face_crop метки проверяются по каждому лицу; метку исходного изображения нельзя
-    автоматически назначать каждому обнаруженному лицу.
-    """
-    raise NotImplementedError("Dataset и transforms ещё не реализованы")
+
+class FaceDataset:
+    def __init__(self, rows, transform):
+        self.rows, self.transform = rows, transform
+
+    def __len__(self):
+        return len(self.rows)
+
+    def __getitem__(self, index):
+        import torch
+        row = self.rows[index]
+        with Image.open(row['crop_path']) as im:
+            image = self.transform(im.convert('RGB'))
+        return image, torch.tensor(float(row['label'])), row['image_id']
+
+
+def build_dataset(config, split):
+    rows = [r for r in read_csv(config.data.prepared_manifest) if r['split'] == split and r['status'] == 'ok']
+    if not rows:
+        raise ValueError(f'No prepared faces in {split}')
+    return FaceDataset(rows, transforms(config, train=split == 'train'))

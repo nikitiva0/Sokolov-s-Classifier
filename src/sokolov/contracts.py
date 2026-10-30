@@ -1,4 +1,4 @@
-"""Контракты границ стадий; реализованные стадии будут возвращать эти типы."""
+"""Типы исходников, разбиения и артефактов моделей."""
 
 from __future__ import annotations
 
@@ -19,20 +19,20 @@ class RawSample:
     label: Label
     source_id: str
     source_url: str
-    partition: Partition
+    partition: Partition | None
 
 
 @dataclass(frozen=True)
 class ParentAssignment:
-    """Общий split исходного изображения; создаётся до детекции лиц.
+    """Split исходного изображения; создаётся до детекции лиц.
 
-    Test сохраняется, val выделяется только из внешнего train. Один group_id
-    не может принадлежать нескольким partition или split; конфликт — ошибка.
+    В random_stratified источники могут пересекаться между split. В external
+    сохраняются train/test и целостность групп; val выделяется из train.
     """
 
     image_id: str
     group_id: str
-    partition: Partition
+    partition: Partition | None
     split: Split
 
 

@@ -32,7 +32,7 @@ class ExperimentConfigTests(unittest.TestCase):
         self.assertEqual({c.data.raw_manifest for c in configs}, {"data/manifests/raw.csv"})
         self.assertTrue(all(c.split == configs[0].split for c in configs))
         self.assertTrue(all(c.generation == configs[0].generation for c in configs))
-        self.assertEqual(configs[0].split.validation_fraction, 0.2)
+        self.assertEqual(configs[0].split.validation_fraction, 0.15)
         self.assertEqual(configs[1].training.finetune_epochs, 0)
 
     def test_both_models_reject_full_image(self):
@@ -63,11 +63,11 @@ class ExperimentConfigTests(unittest.TestCase):
     def test_validation_fraction_is_a_proper_fraction(self):
         for invalid in ("0", "1", "-0.2", "1.1", "true", "nan"):
             with self.subTest(value=invalid), self.assertRaises(ValueError):
-                self.load_changed("resnet18_face.toml", "validation_fraction = 0.2", f"validation_fraction = {invalid}")
+                self.load_changed("resnet18_face.toml", "validation_fraction = 0.15", f"validation_fraction = {invalid}")
 
     def test_imported_test_cannot_be_configured_as_a_new_fraction(self):
         with self.assertRaisesRegex(ValueError, "split"):
-            self.load_changed("resnet18_face.toml", "validation_fraction = 0.2", "train = 0.7\nval = 0.15\ntest = 0.15")
+            self.load_changed("resnet18_face.toml", "validation_fraction = 0.15", "train = 0.7\nval = 0.15\ntest = 0.15")
 
     def test_other_person_crop_can_have_negative_label_on_positive_parent(self):
         parent = RawSample("image-1", Path("data/raw/photo.jpg"), 1, "session-1", "", "test")
