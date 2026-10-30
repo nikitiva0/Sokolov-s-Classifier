@@ -196,7 +196,9 @@ class ModelTests(unittest.TestCase):
             self.assertEqual(len(resumed['history']), 2)
             best = torch.load(run/'resnet18/best.pt', weights_only=False, map_location='cpu')
             self.assertEqual(best['epoch'], 0)  # AP tie keeps the earlier checkpoint.
-            del best
+            weights = torch.load(run/'resnet18/best_weights.pt', weights_only=True)
+            self.assertTrue(all(torch.equal(v, weights[k]) for k, v in best['model'].items()))
+            del best, weights
             # An uninterrupted run must match resume exactly, including training augmentations.
             train(config, folder/'uninterrupted', pretrained=False)
             full = torch.load(folder/'uninterrupted/resnet18/last.pt', weights_only=False, map_location='cpu')
@@ -208,6 +210,7 @@ class ModelTests(unittest.TestCase):
                           training=replace(config.training, head_epochs=1))
             train(arc, run, pretrained=False)
             evaluate_test(arc, run/'arcface/best.pt')
+            self.assertTrue((run/'arcface/best_weights.pt').is_file())
             import shutil
             self.assertTrue((run/'data/data_audit.json').is_file())
             report = make_report(run)

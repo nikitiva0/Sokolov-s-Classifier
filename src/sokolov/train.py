@@ -193,6 +193,7 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
         if improved:
             import shutil
             shutil.copyfile(folder / 'last.pt', folder / 'best.pt')
+            torch.save(model.state_dict(), folder / 'best_weights.pt')
         write_csv(folder / 'training.csv', history)
         print(f'{config.model.architecture} epoch {epoch+1}/{total_epochs}: loss={loss_sum/count:.4f} val_AP={ap:.4f}', flush=True)
         if stop_after_epoch and epoch+1 >= stop_after_epoch and epoch+1 < total_epochs:

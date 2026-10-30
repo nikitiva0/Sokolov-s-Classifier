@@ -32,3 +32,10 @@ work/
 .env.*
 !.env.example
 .ipynb_checkpoints/
+
+# Android local toolchains and builds
+.gradle/
+android/local.properties
+android/**/build/
+*.apk
+android/.kotlin/
