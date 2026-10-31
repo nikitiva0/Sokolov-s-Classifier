@@ -17,6 +17,7 @@ data/raw/*
 !data/raw/sokolov_positive_v1/
 data/processed/
 data/manifests/raw.csv
+data/manifests/local_mps/
 data/manifests/*.local.csv
 outputs/runs/
 checkpoints/

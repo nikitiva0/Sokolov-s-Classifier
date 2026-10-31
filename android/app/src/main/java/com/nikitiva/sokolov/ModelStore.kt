@@ -24,7 +24,8 @@ class ModelStore(private val context: Context) {
         val manifestFile=File(directory,"manifest.json")
         require(manifestFile.length() in 1..65536) { "Некорректный manifest.json" }
         val manifest=JSONObject(manifestFile.readText())
-        require(manifest.getInt("schema_version")==1)
+        val schema=manifest.getInt("schema_version")
+        require(schema in 1..2)
         manifest.getBoolean("technical_test")
         require(manifest.getJSONArray("class_names").toString()=="[\"not_sokolov\",\"sokolov\"]")
         require(manifest.getString("default_model")=="resnet18")
@@ -42,6 +43,9 @@ class ModelStore(private val context: Context) {
         }
         val detector=manifest.getJSONObject("detector")
         require(detector.getString("file")=="detector.onnx" && detector.getInt("input_size")==640)
+        val policy=detector.optString("resize_policy","upscale_top_left_pad_v1")
+        require(policy in setOf("upscale_top_left_pad_v1","shrink_only_top_left_pad_v1"))
+        require(schema!=2 || policy=="shrink_only_top_left_pad_v1")
         require(detector.getDouble("threshold") in 0.0..1.0 && detector.getDouble("nms_threshold") in 0.0..1.0)
         require(sha256(File(directory,"detector.onnx"))==detector.getString("sha256")) { "Повреждён детектор" }
         return manifest

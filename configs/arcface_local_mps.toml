@@ -1,0 +1,50 @@
+# Локальный запуск Apple Silicon: строго MPS, без CPU fallback.
+[data]
+variant = "face_crop"
+raw_manifest = "data/manifests/local_mps/raw.csv"
+prepared_manifest = "data/processed/local_mps_v2/manifest.csv"
+artifacts_dir = "outputs/runs"
+phash_max_distance = 6
+positive_dir = "data/raw/sokolov_positive_v1"
+fairface_handle = "mehmoodsheikh/fairface-dataset"
+fairface_dir = "work/kaggle-cache/datasets/mehmoodsheikh/fairface-dataset/versions/1"
+negative_count = 5000
+detector_root = "checkpoints/insightface"
+detector_name = "buffalo_l"
+detector_threshold = 0.5
+min_detector_coverage = 0.8
+
+[model]
+architecture = "arcface"
+backbone = "iresnet50"
+weights = "MS1MV3"
+image_size = 112
+embedding_dim = 512
+checkpoint = "checkpoints/arcface/iresnet50_ms1mv3.pt"
+checkpoint_url = ""
+checkpoint_sha256 = "ef005ba502a2d0f40e7b94245054d3a23e375776f7035080fcbce45ae49cfb01"
+
+[split]
+validation_fraction = 0.15
+test_fraction = 0.15
+mode = "random_stratified"
+seed = 42
+
+[training]
+batch_size = 32
+head_epochs = 5
+finetune_epochs = 0
+head_lr = 0.001
+finetune_lr = 0.0001
+weight_decay = 0.0001
+selection_metric = "average_precision"
+device = "mps"
+num_workers = 0
+
+[generation]
+steps = 500
+lr = 0.05
+tv_weight = 0.0001
+l2_weight = 0.00001
+seeds = [0, 1, 2, 3, 4]
+snapshot_every = 25

@@ -40,6 +40,12 @@ class ExperimentConfigTests(unittest.TestCase):
             with self.subTest(filename=filename), self.assertRaisesRegex(ValueError, "face_crop"):
                 self.load_changed(filename, 'variant = "face_crop"', 'variant = "full_image"')
 
+    def test_detector_coverage_must_be_a_positive_fraction(self):
+        for invalid in ('0', '1.1', '-0.1', 'true', 'nan'):
+            with self.subTest(value=invalid), self.assertRaises(ValueError):
+                self.load_changed('resnet18_face.toml', 'detector_threshold = 0.5',
+                    'detector_threshold = 0.5\nmin_detector_coverage = '+invalid)
+
     def test_models_reject_wrong_input_size(self):
         for filename, old, new in (
             ("resnet18_face.toml", "image_size = 224", "image_size = 112"),

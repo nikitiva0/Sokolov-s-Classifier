@@ -79,6 +79,7 @@ def fixtures(folder, count=40):
     config = load_config(ROOT/'configs/resnet18_face.toml')
     return replace(config, data=replace(config.data,
         positive_dir=str(positive), fairface_dir=str(fairface), negative_count=count//2,
+        min_detector_coverage=.3,  # Tiny fixture intentionally loses two of three faces in one split.
         raw_manifest=str(folder/'raw.csv'), prepared_manifest=str(folder/'prepared/manifest.csv')),
         training=replace(config.training, num_workers=0, device='cpu', batch_size=4,
                          head_epochs=2, finetune_epochs=0))

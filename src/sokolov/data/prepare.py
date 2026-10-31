@@ -19,31 +19,73 @@ WARNINGS = [
     'Test is not an independent new-lecture benchmark.',
 ]
 
+DETECTOR_INPUT_SIZE = 640
+DETECTOR_RESIZE_POLICY = 'shrink_only_top_left_pad_v1'
+
+
+def detector_input(image, size=DETECTOR_INPUT_SIZE):
+    """Keep small faces at their native scale; shrink large images and pad black.
+
+    Return BGR input and the exact height scale used by InsightFace's decoder.
+    Enlarging a tight 224px FairFace crop to 640px makes its face too large for
+    this detector. This policy depends on image geometry, never on its label.
+    """
+    import cv2
+    import numpy as np
+    bgr = np.asarray(image)[:, :, ::-1].copy()
+    height, width = bgr.shape[:2]
+    scale = min(1., size/width, size/height)
+    new_width, new_height = max(1, int(width*scale)), max(1, int(height*scale))
+    resized = cv2.resize(bgr, (new_width, new_height))
+    padded = np.zeros((size, size, 3), dtype=np.uint8)
+    padded[:new_height, :new_width] = resized
+    return padded, new_height/height
+
+
+def validate_detector_coverage(audit, minimum):
+    """Fail before training when either class is mostly lost to preprocessing."""
+    failures = []
+    for split, counts in audit['counts'].items():
+        for label, name in [('0', 'not_sokolov'), ('1', 'sokolov')]:
+            total = counts['labels_original'].get(label, 0)
+            usable = counts['labels_usable'].get(label, 0)
+            if not total or usable/total < minimum:
+                failures.append(f'{split}/{name}: {usable}/{total}')
+    if failures:
+        raise ValueError(f'Detector coverage below {minimum:.0%}: ' + ', '.join(failures)
+                         + '. See data_audit.json; fix preprocessing before training.')
+
 
 class SCRFDDetector:
     def __init__(self, data):
-        import insightface
-        from insightface.model_zoo import get_model
+        import onnxruntime as ort
+        from insightface.model_zoo.scrfd import SCRFD
         from insightface.utils.storage import ensure_available
         root = Path(ensure_available('models', data.detector_name, root=data.detector_root))
         path = root / 'det_10g.onnx'
         if not path.is_file():
             raise FileNotFoundError('buffalo_l SCRFD det_10g.onnx missing')
-        self.model = get_model(str(path), providers=['CPUExecutionProvider'])
-        self.model.prepare(ctx_id=-1, input_size=(640, 640), det_thresh=data.detector_threshold)
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = 4
+        self.model = SCRFD(str(path), session=ort.InferenceSession(
+            str(path), sess_options=options, providers=['CPUExecutionProvider']))
+        self.model.prepare(ctx_id=-1, input_size=(DETECTOR_INPUT_SIZE, DETECTOR_INPUT_SIZE),
+                           det_thresh=data.detector_threshold)
         self.metadata = {'name': 'SCRFD/det_10g.onnx', 'insightface': version('insightface'),
                          'sha256': sha256(path), 'threshold': data.detector_threshold,
-                         'input_size': [640, 640], 'provider': 'CPUExecutionProvider'}
+                         'input_size': [DETECTOR_INPUT_SIZE, DETECTOR_INPUT_SIZE],
+                         'resize_policy': DETECTOR_RESIZE_POLICY, 'provider': 'CPUExecutionProvider',
+                         'intra_op_num_threads': 4}
 
     def __call__(self, image):
-        import numpy as np
-        boxes, landmarks = self.model.detect(np.asarray(image)[:, :, ::-1].copy(), max_num=0)
+        padded, scale = detector_input(image)
+        boxes, landmarks = self.model.detect(padded, max_num=0)
         if len(boxes) == 0:
             return []
         if landmarks is None:
             raise RuntimeError('SCRFD model did not return five-point landmarks')
-        return [{'bbox': box[:4].tolist(), 'confidence': float(box[4]),
-                 'landmarks': points.tolist()} for box, points in zip(boxes, landmarks)]
+        return [{'bbox': (box[:4]/scale).tolist(), 'confidence': float(box[4]),
+                 'landmarks': (points/scale).tolist()} for box, points in zip(boxes, landmarks)]
 
 
 def align_face(image, landmarks):
@@ -72,7 +114,9 @@ def prepare(config, assignments=None, *, detector=None):
     signature = {'raw_sha256': sha256(raw_path), 'split': asdict(config.split),
                  'detector_name': config.data.detector_name,
                  'detector_threshold': config.data.detector_threshold,
-                 'phash_max_distance': config.data.phash_max_distance, 'schema_version': 1}
+                 'phash_max_distance': config.data.phash_max_distance,
+                 'detector_resize_policy': DETECTOR_RESIZE_POLICY,
+                 'min_detector_coverage': config.data.min_detector_coverage, 'schema_version': 2}
     completion = folder / 'prepared.json'
     if completion.exists():
         saved = read_json(completion)
@@ -86,9 +130,12 @@ def prepare(config, assignments=None, *, detector=None):
             if row['status'] == 'ok' and (not Path(row['crop_path']).is_file() or
                     sha256(row['crop_path']) != row['crop_sha256']):
                 raise ValueError('Prepared crop missing or modified; choose a new preparation directory')
+        validate_detector_coverage(read_json(folder / 'data_audit.json'), config.data.min_detector_coverage)
         return dest
     samples, seen, phashes, exclusions = [], {}, [], []
     raw_rows = read_csv(raw_path)
+    write_json(folder / 'prepare_progress.json', {
+        'phase': 'audit', 'processed': 0, 'total': len(raw_rows), 'completed': False})
     ids = set()
     for row in raw_rows:
         image_id = row['image_id']
@@ -141,6 +188,8 @@ def prepare(config, assignments=None, *, detector=None):
     detector = detector or SCRFDDetector(config.data)
     rows = []
     start = time.perf_counter()
+    write_json(folder / 'prepare_progress.json', {
+        'phase': 'detection', 'processed': 0, 'total': len(samples), 'completed': False})
     for i, sample in enumerate(samples):
         assignment = mapping[sample.image_id]
         # IDs may originate in an external manifest: never use them as filesystem paths.
@@ -168,6 +217,10 @@ def prepare(config, assignments=None, *, detector=None):
             'pixel_sha256': digest, 'crop_path': str(crop.resolve()) if status == 'ok' else '',
             'crop_sha256': sha256(crop) if status == 'ok' else '', 'face_count': len(faces),
             'face_metadata': json.dumps(faces), 'detection_seconds': detection_seconds})
+        if (i+1) % 25 == 0 or i+1 == len(samples):
+            write_json(folder / 'prepare_progress.json', {
+                'phase': 'detection', 'processed': i+1, 'total': len(samples),
+                'completed': False, 'statuses': dict(Counter(r['status'] for r in rows))})
         if (i+1) % 100 == 0:
             print(f'Prepared {i+1}/{len(samples)}', flush=True)
     stats = {}
@@ -178,6 +231,9 @@ def prepare(config, assignments=None, *, detector=None):
             'labels_original': dict(Counter(str(r['label']) for r in subset)),
             'labels_usable': dict(Counter(str(r['label']) for r in usable)),
             'statuses': dict(Counter(r['status'] for r in subset))}
+        stats[split]['coverage_by_label'] = {label:
+            stats[split]['labels_usable'].get(label, 0)/total
+            for label, total in stats[split]['labels_original'].items()}
     source_splits = defaultdict(set)
     for row in rows:
         source_splits[row['source_id']].add(row['split'])
@@ -192,6 +248,9 @@ def prepare(config, assignments=None, *, detector=None):
     for split in ('train', 'val', 'test'):
         if set(stats[split]['labels_usable']) != {'0', '1'}:
             raise ValueError(f'Need both usable face classes in {split}; see data_audit.json')
+    validate_detector_coverage(audit, config.data.min_detector_coverage)
     write_json(completion, {'signature': signature, 'manifest_sha256': sha256(dest),
                             'split_sha256': sha256(split_path), 'detector': detector.metadata})
+    write_json(folder / 'prepare_progress.json', {
+        'phase': 'completed', 'processed': len(samples), 'total': len(samples), 'completed': True})
     return dest

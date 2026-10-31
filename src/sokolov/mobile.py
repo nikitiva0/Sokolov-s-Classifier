@@ -39,6 +39,9 @@ def export_mobile(run_dir, output, *, detector=None, allow_technical=False):
     if not detector.is_file():
         raise FileNotFoundError('Training SCRFD det_10g.onnx required; pass --detector')
     expected = read_json(run/'data/data_audit.json')['detector']
+    resize_policy = expected.get('resize_policy', 'upscale_top_left_pad_v1')
+    if resize_policy not in ('upscale_top_left_pad_v1', 'shrink_only_top_left_pad_v1'):
+        raise ValueError('Unsupported training detector resize policy')
     if sha256(detector) != expected['sha256']:
         raise ValueError('Detector differs from the one used to prepare training data')
     detector_session = ort.InferenceSession(str(detector), providers=['CPUExecutionProvider'])
@@ -53,12 +56,15 @@ def export_mobile(run_dir, output, *, detector=None, allow_technical=False):
         if any(detector_outputs[i+j*3].size != count*width for j, width in enumerate((1, 4, 10))):
             raise ValueError('SCRFD output layout incompatible with Android decoder')
     del detector_session
-    manifest = {'schema_version': 1, 'technical_test': checkpoints[0][3]['technical_test'],
+    # Older APKs reject v2 rather than silently upscaling new shrink-only bundles.
+    manifest = {'schema_version': 2 if resize_policy == 'shrink_only_top_left_pad_v1' else 1,
+        'technical_test': checkpoints[0][3]['technical_test'],
         'default_model': 'resnet18', 'class_names': ['not_sokolov', 'sokolov'],
         'preprocessing': 'RGB NCHW float32 [0,1]; model-specific normalization is inside ONNX',
         'alignment': 'five-point ArcFace similarity transform to 224x224; resize to classifier input',
         'models': [], 'detector': {'file': 'detector.onnx', 'sha256': sha256(detector),
-            'input_size': 640, 'threshold': data.detector_threshold, 'nms_threshold': .4,
+            'input_size': 640, 'resize_policy': resize_policy,
+            'threshold': data.detector_threshold, 'nms_threshold': .4,
             'input_name': detector_input_name, 'strides': [8, 16, 32], 'anchors': 2},
         'note': 'Thresholds selected on validation. Mobile latency must be measured on the target phone.'}
     with tempfile.TemporaryDirectory(prefix='sokolov-mobile-') as temporary:

@@ -11,7 +11,6 @@ import android.graphics.Paint
 import org.json.JSONObject
 import java.io.File
 import java.nio.FloatBuffer
-import kotlin.math.min
 
 /** All calls are serialized by MainActivity's analysis executor. */
 class Engine(private val folder: File, private val manifest: JSONObject, val modelId: String): AutoCloseable {
@@ -56,7 +55,9 @@ class Engine(private val folder: File, private val manifest: JSONObject, val mod
     }
     fun analyze(bitmap: Bitmap): Result {
         val start=System.nanoTime()
-        val scale=min(detectorSize.toFloat()/bitmap.width,detectorSize.toFloat()/bitmap.height)
+        val shrinkOnly=detectorConfig.optString("resize_policy","upscale_top_left_pad_v1")==
+            "shrink_only_top_left_pad_v1"
+        val scale=FaceMath.detectorScale(bitmap.width,bitmap.height,detectorSize,shrinkOnly)
         val width=(bitmap.width*scale).toInt().coerceAtLeast(1)
         val height=(bitmap.height*scale).toInt().coerceAtLeast(1)
         // SCRFD pads bottom/right with black, preserving the upstream top-left origin.

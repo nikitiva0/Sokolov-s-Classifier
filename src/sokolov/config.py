@@ -23,6 +23,7 @@ class DataConfig:
     detector_root: str = "checkpoints/insightface"
     detector_name: str = "buffalo_l"
     detector_threshold: float = 0.5
+    min_detector_coverage: float = 0.8
 
 
 @dataclass(frozen=True)
@@ -165,6 +166,9 @@ def load_config(path: str | Path) -> Config:
     _number("data.detector_threshold", data.detector_threshold, positive=True)
     if data.detector_threshold > 1:
         raise ValueError("data.detector_threshold must be <= 1")
+    _number("data.min_detector_coverage", data.min_detector_coverage, positive=True)
+    if data.min_detector_coverage > 1:
+        raise ValueError("data.min_detector_coverage must be <= 1")
     if data.detector_name != "buffalo_l":
         raise ValueError("data.detector_name: supported SCRFD pack is buffalo_l")
     if model.checkpoint_sha256 and (len(model.checkpoint_sha256) != 64 or

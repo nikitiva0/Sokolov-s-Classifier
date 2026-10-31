@@ -12,6 +12,7 @@ negative_count = 5000
 detector_root = "checkpoints/insightface"
 detector_name = "buffalo_l"
 detector_threshold = 0.5
+min_detector_coverage = 0.8
 
 [model]
 architecture = "arcface"

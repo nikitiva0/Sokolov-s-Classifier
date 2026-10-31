@@ -5,6 +5,11 @@ import kotlin.math.min
 
 /** Similarity least squares matching the ArcFace five-point template; no Android dependency. */
 object FaceMath {
+    fun detectorScale(width: Int, height: Int, inputSize: Int, shrinkOnly: Boolean): Float {
+        require(width>0 && height>0 && inputSize>0)
+        val scale=min(inputSize.toFloat()/width,inputSize.toFloat()/height)
+        return if(shrinkOnly) min(1f,scale) else scale
+    }
     val template = doubleArrayOf(38.2946,51.6963,73.5318,51.5014,56.0252,71.7366,
         41.5493,92.3655,70.7299,92.2041).map { it * 2 }.toDoubleArray()
     // Returns x'=a*x-b*y+tx, y'=b*x+a*y+ty. This is the same non-reflective

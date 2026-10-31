@@ -31,7 +31,8 @@ class MobileExportTests(unittest.TestCase):
                 outputs.append(helper.make_tensor_value_info(f'out{i}',TensorProto.FLOAT,list(data.shape)))
             graph=helper.make_graph(nodes,'fixture-SCRFD',[helper.make_tensor_value_info('pixels',TensorProto.FLOAT,[1,3,640,640])],outputs)
             onnx.save(helper.make_model(graph,opset_imports=[helper.make_opsetid('',17)],ir_version=9),detector)
-            write_json(root/'data/data_audit.json',{'detector':{'sha256':sha256(detector)}})
+            write_json(root/'data/data_audit.json',{'detector':{'sha256':sha256(detector),
+                'resize_policy':'shrink_only_top_left_pad_v1'}})
             for name in ('resnet18','arcface'):
                 config=load_config(ROOT/f'configs/{name}_face.toml')
                 config=replace(config,training=replace(config.training,device='cpu'))
@@ -48,6 +49,8 @@ class MobileExportTests(unittest.TestCase):
             output=export_mobile(root,root/'test-mobile.zip',detector=detector,allow_technical=True)
             manifest=read_json(output.with_suffix('.json'))
             self.assertTrue(manifest['technical_test'])
+            self.assertEqual(manifest['schema_version'],2)
+            self.assertEqual(manifest['detector']['resize_policy'],'shrink_only_top_left_pad_v1')
             self.assertEqual([m['input_size'] for m in manifest['models']],[224,112])
             self.assertTrue(all(m['max_parity_error']<=1e-4 for m in manifest['models']))
             self.assertTrue(all(m['threshold']==.63 for m in manifest['models']))

@@ -46,6 +46,7 @@ def training_fingerprint(config):
 
 
 def validate_prepared(config):
+    from .data.prepare import DETECTOR_RESIZE_POLICY, validate_detector_coverage
     path = Path(config.data.prepared_manifest)
     metadata = read_json(path.parent / 'prepared.json')
     if metadata['manifest_sha256'] != sha256(path):
@@ -53,13 +54,17 @@ def validate_prepared(config):
     if metadata['split_sha256'] != sha256(path.parent / 'split.csv'):
         raise ValueError('Split fingerprint mismatch')
     signature = metadata['signature']
-    if (signature['raw_sha256'] != sha256(config.data.raw_manifest) or
+    if (signature.get('schema_version') != 2 or
+            signature.get('detector_resize_policy') != DETECTOR_RESIZE_POLICY or
+            signature.get('min_detector_coverage') != config.data.min_detector_coverage or
+            signature['raw_sha256'] != sha256(config.data.raw_manifest) or
             signature['detector_name'] != config.data.detector_name or
             signature['detector_threshold'] != config.data.detector_threshold or
             signature['phash_max_distance'] != config.data.phash_max_distance):
         raise ValueError('Preparation config/input differs from training config')
     if metadata['signature']['split'] != asdict(config.split):
         raise ValueError('Prepared split settings differ from training config')
+    validate_detector_coverage(read_json(path.parent / 'data_audit.json'), config.data.min_detector_coverage)
     for row in read_csv(path):
         if row['status'] == 'ok' and sha256(row['crop_path']) != row['crop_sha256']:
             raise ValueError('Prepared crop fingerprint mismatch')
@@ -158,7 +163,15 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
                             drop_last=(config.model.architecture == 'arcface' and finetune))
         loss_sum = 0.
         count = 0
-        for images, targets, _ in loader:
+        def progress(batch, phase):
+            write_json(folder / 'progress.json', {
+                'epoch': epoch+1, 'total_epochs': total_epochs,
+                'batch': batch, 'batches': len(loader), 'phase': phase,
+                'overall_percent': 100*(epoch+batch/max(1, len(loader)))/total_epochs,
+                'loss': loss_sum/count if count else None, 'device': str(device),
+                'updated': time.time()})
+        progress(0, 'training')
+        for batch_index, (images, targets, _) in enumerate(loader, 1):
             images, targets = images.to(device), targets.to(device)
             optimizer.zero_grad(set_to_none=True)
             loss = loss_fn(model(images).flatten(), targets)
@@ -168,8 +181,11 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
             optimizer.step()
             loss_sum += loss.item()*len(images)
             count += len(images)
+            if batch_index % 5 == 0 or batch_index == len(loader):
+                progress(batch_index, 'training')
         if not count:
             raise ValueError('No training batches; reduce batch_size for this training stage')
+        progress(len(loader), 'validation')
         val = predict(config, model, device, 'val')
         ap = float(average_precision_score([int(r['label']) for r in val], [r['score'] for r in val]))
         history.append({'epoch': epoch+1, 'stage': 'finetune' if finetune else 'head',

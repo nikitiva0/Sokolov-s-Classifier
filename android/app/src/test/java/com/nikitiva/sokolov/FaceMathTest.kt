@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class FaceMathTest {
+    @Test fun detectorKeepsTightCropsAtNativeScale() {
+        assertEquals(1f,FaceMath.detectorScale(224,224,640,true),0f)
+        assertEquals(1f,FaceMath.detectorScale(240,116,640,true),0f)
+        assertEquals(640f/1920,FaceMath.detectorScale(1920,1080,640,true),1e-6f)
+        assertEquals(640f/224,FaceMath.detectorScale(224,224,640,false),1e-6f)
+    }
     @Test fun similarityRecoversKnownTransform() {
         val template=FaceMath.template
         val input=FloatArray(10) { i -> ((template[i]-(if(i%2==0)10 else 20))/2).toFloat() }
