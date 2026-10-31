@@ -1,0 +1,106 @@
+{
+  "input_count": 3539,
+  "audited_count": 3539,
+  "counts": {
+    "train": {
+      "originals": 2281,
+      "usable": 2259,
+      "labels_original": {
+        "1": 519,
+        "0": 1762
+      },
+      "labels_usable": {
+        "1": 516,
+        "0": 1743
+      },
+      "statuses": {
+        "ok": 2259,
+        "no_face": 5,
+        "multiple_faces": 17
+      },
+      "coverage_by_label": {
+        "1": 0.9942196531791907,
+        "0": 0.9892167990919409
+      },
+      "web_by_label": {},
+      "web_groups_by_label": {
+        "0": 0,
+        "1": 0
+      }
+    },
+    "val": {
+      "originals": 628,
+      "usable": 625,
+      "labels_original": {
+        "1": 250,
+        "0": 378
+      },
+      "labels_usable": {
+        "1": 250,
+        "0": 375
+      },
+      "statuses": {
+        "ok": 625,
+        "no_face": 1,
+        "multiple_faces": 2
+      },
+      "coverage_by_label": {
+        "1": 1.0,
+        "0": 0.9920634920634921
+      },
+      "web_by_label": {},
+      "web_groups_by_label": {
+        "0": 0,
+        "1": 0
+      }
+    },
+    "test": {
+      "originals": 630,
+      "usable": 628,
+      "labels_original": {
+        "1": 250,
+        "0": 380
+      },
+      "labels_usable": {
+        "1": 250,
+        "0": 378
+      },
+      "statuses": {
+        "ok": 628,
+        "multiple_faces": 1,
+        "no_face": 1
+      },
+      "coverage_by_label": {
+        "1": 1.0,
+        "0": 0.9947368421052631
+      },
+      "web_by_label": {},
+      "web_groups_by_label": {
+        "0": 0,
+        "1": 0
+      }
+    }
+  },
+  "overlapping_sources": {},
+  "warnings": [
+    "FairFace identity-disjoint splits are not guaranteed.",
+    "Positive and negative classes come from different sources; domain shortcuts are possible."
+  ],
+  "near_duplicate_cross_split": [],
+  "reused_detections": 0,
+  "detector": {
+    "name": "SCRFD/det_10g.onnx",
+    "insightface": "0.7.3",
+    "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+    "threshold": 0.5,
+    "input_size": [
+      640,
+      640
+    ],
+    "resize_policy": "shrink_only_top_left_pad_v1",
+    "provider": "CPUExecutionProvider",
+    "intra_op_num_threads": 4
+  },
+  "detection_seconds": 700.6294364631176,
+  "preparation_seconds": 718.0506583340466
+}

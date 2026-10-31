@@ -1,0 +1,454 @@
+{
+  "resnet18": {
+    "evaluation": {
+      "image_level": {
+        "count": 630,
+        "threshold": 0.9182406067848206,
+        "metrics": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "mcc": 1.0,
+          "specificity": 1.0,
+          "roc_auc": 1.0,
+          "average_precision": 1.0000000000000002,
+          "log_loss": 0.007369916227706903,
+          "brier_score": 0.0025536734949897525
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 380
+          },
+          "sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 250
+          }
+        },
+        "confusion_matrix": [
+          [
+            380,
+            0
+          ],
+          [
+            0,
+            250
+          ]
+        ],
+        "undefined": {}
+      },
+      "face_level": {
+        "count": 628,
+        "threshold": 0.9182406067848206,
+        "metrics": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "mcc": 1.0,
+          "specificity": 1.0,
+          "roc_auc": 1.0,
+          "average_precision": 1.0000000000000002,
+          "log_loss": 0.007393386980024424,
+          "brier_score": 0.002561806213126663
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 378
+          },
+          "sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 250
+          }
+        },
+        "confusion_matrix": [
+          [
+            378,
+            0
+          ],
+          [
+            0,
+            250
+          ]
+        ],
+        "undefined": {}
+      },
+      "by_positive_domain": {
+        "lecture": {
+          "count": 630,
+          "threshold": 0.9182406067848206,
+          "metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "mcc": 1.0,
+            "specificity": 1.0,
+            "roc_auc": 1.0,
+            "average_precision": 1.0000000000000002,
+            "log_loss": 0.007369916227706903,
+            "brier_score": 0.0025536734949897525
+          },
+          "classes": {
+            "not_sokolov": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 380
+            },
+            "sokolov": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 250
+            }
+          },
+          "confusion_matrix": [
+            [
+              380,
+              0
+            ],
+            [
+              0,
+              250
+            ]
+          ],
+          "undefined": {}
+        }
+      },
+      "coverage": {
+        "total": 630,
+        "usable_faces": 628,
+        "fraction": 0.9968253968253968,
+        "no_face": 1,
+        "multiple_faces": 1,
+        "alignment_failed": 0
+      },
+      "benchmark": {
+        "device": "mps",
+        "batch_size": 32,
+        "warmup_batches": 5,
+        "measured_batches": 20,
+        "images_per_second": 562.9956384149184,
+        "milliseconds_per_image": 1.7762126946763601,
+        "scope": "classifier forward only; excludes detection, decoding and transfer"
+      },
+      "checkpoint_bytes": 111963520,
+      "checkpoint_sha256": "0c9e51f88c0f5c8e9b4a64125dd039e6dbdc49fe584c23aad40e13ac9f4f2faf",
+      "technical_test": false
+    },
+    "training": {
+      "epochs": 8,
+      "selection_metric": "source_macro_ap",
+      "best_validation_ap": 0.999968253968254,
+      "training_seconds": 332.3062662919983,
+      "pos_weight": 3.377906976744186,
+      "parameters": 11177025,
+      "pretrained_provenance": {
+        "source": "https://download.pytorch.org/models/resnet18-f37072fd.pth",
+        "state_sha256": "2aead97338b5855cf4b9a3ae47ce15f4fc38b970f800ba309d50d4b7784ac0ee"
+      },
+      "technical_test": false,
+      "data_fingerprint": {
+        "signature": {
+          "raw_sha256": "0da8d4e7ed2d847e3e9c479dfa215821374356eb6af1589a38fda52d98e58911",
+          "split": {
+            "validation_fraction": 0.15,
+            "seed": 42,
+            "test_fraction": 0.15,
+            "mode": "group_stratified",
+            "train_only_sources": [
+              "user_v3:g01_podcast_dark_sokolov",
+              "user_v3:g02_studio_light_sokolov",
+              "user_v3:g03_stage_talk",
+              "user_v3:g08_photo_036",
+              "user_v3:g09_photo_037",
+              "user_v3:g10_podcast_dark_others",
+              "user_v3:g11_studio_light_016",
+              "user_v3:g13_studio_light_019"
+            ]
+          },
+          "detector_name": "buffalo_l",
+          "detector_threshold": 0.5,
+          "phash_max_distance": 6,
+          "detector_resize_policy": "shrink_only_top_left_pad_v1",
+          "min_detector_coverage": 0.8,
+          "schema_version": 2
+        },
+        "manifest_sha256": "cc69890179b3a055bd5ae1d06497574dc7682645818f76707db60456c7e49ea2",
+        "split_sha256": "285651c2af62c00fc89d16af1d35ff0d40a2280d09f9318080e2c83776e78860",
+        "detector": {
+          "name": "SCRFD/det_10g.onnx",
+          "insightface": "0.7.3",
+          "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+          "threshold": 0.5,
+          "input_size": [
+            640,
+            640
+          ],
+          "resize_policy": "shrink_only_top_left_pad_v1",
+          "provider": "CPUExecutionProvider",
+          "intra_op_num_threads": 4
+        }
+      }
+    },
+    "environment": {
+      "source_sha256": "2de26c5cce6eaa23931eff6ca7f88949104cbb23587a7d16f89dcef19c03b982",
+      "python": "3.12.16",
+      "platform": "macOS-26.1-arm64-arm-64bit",
+      "packages": {
+        "torch": "2.5.1",
+        "torchvision": "0.20.1",
+        "numpy": "1.26.4",
+        "scikit-learn": "1.6.1",
+        "Pillow": "11.1.0",
+        "ImageHash": "4.3.2",
+        "matplotlib": "3.10.0",
+        "insightface": "0.7.3",
+        "onnxruntime": "1.20.1",
+        "kagglehub": "0.3.12",
+        "scipy": "1.15.2",
+        "scikit-image": "0.25.2",
+        "opencv-python-headless": "4.10.0.84",
+        "Markdown": "3.7",
+        "onnx": "1.17.0"
+      },
+      "git_commit": "dc4ab44987d18f6d5d58bf4836ee051279045f0f",
+      "git_dirty": true,
+      "device": "mps"
+    }
+  },
+  "arcface": {
+    "evaluation": {
+      "image_level": {
+        "count": 630,
+        "threshold": 0.5477969646453857,
+        "metrics": {
+          "accuracy": 0.9682539682539683,
+          "balanced_accuracy": 0.963421052631579,
+          "macro_f1": 0.9666048237476809,
+          "mcc": 0.9337478896669539,
+          "specificity": 0.9868421052631579,
+          "roc_auc": 0.9941894736842105,
+          "average_precision": 0.9933689797843626,
+          "log_loss": 0.6253536592097033,
+          "brier_score": 0.21689199499439205
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 0.9615384615384616,
+            "recall": 0.9868421052631579,
+            "f1": 0.974025974025974,
+            "support": 380
+          },
+          "sokolov": {
+            "precision": 0.9791666666666666,
+            "recall": 0.94,
+            "f1": 0.9591836734693877,
+            "support": 250
+          }
+        },
+        "confusion_matrix": [
+          [
+            375,
+            5
+          ],
+          [
+            15,
+            235
+          ]
+        ],
+        "undefined": {}
+      },
+      "face_level": {
+        "count": 628,
+        "threshold": 0.5477969646453857,
+        "metrics": {
+          "accuracy": 0.9681528662420382,
+          "balanced_accuracy": 0.9633862433862433,
+          "macro_f1": 0.9665370064474876,
+          "mcc": 0.9336144243636554,
+          "specificity": 0.9867724867724867,
+          "roc_auc": 0.9941587301587301,
+          "average_precision": 0.9933689797843627,
+          "log_loss": 0.6273452310543202,
+          "brier_score": 0.2175827338319538
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 0.961340206185567,
+            "recall": 0.9867724867724867,
+            "f1": 0.9738903394255874,
+            "support": 378
+          },
+          "sokolov": {
+            "precision": 0.9791666666666666,
+            "recall": 0.94,
+            "f1": 0.9591836734693877,
+            "support": 250
+          }
+        },
+        "confusion_matrix": [
+          [
+            373,
+            5
+          ],
+          [
+            15,
+            235
+          ]
+        ],
+        "undefined": {}
+      },
+      "by_positive_domain": {
+        "lecture": {
+          "count": 630,
+          "threshold": 0.5477969646453857,
+          "metrics": {
+            "accuracy": 0.9682539682539683,
+            "balanced_accuracy": 0.963421052631579,
+            "macro_f1": 0.9666048237476809,
+            "mcc": 0.9337478896669539,
+            "specificity": 0.9868421052631579,
+            "roc_auc": 0.9941894736842105,
+            "average_precision": 0.9933689797843626,
+            "log_loss": 0.6253536592097033,
+            "brier_score": 0.21689199499439205
+          },
+          "classes": {
+            "not_sokolov": {
+              "precision": 0.9615384615384616,
+              "recall": 0.9868421052631579,
+              "f1": 0.974025974025974,
+              "support": 380
+            },
+            "sokolov": {
+              "precision": 0.9791666666666666,
+              "recall": 0.94,
+              "f1": 0.9591836734693877,
+              "support": 250
+            }
+          },
+          "confusion_matrix": [
+            [
+              375,
+              5
+            ],
+            [
+              15,
+              235
+            ]
+          ],
+          "undefined": {}
+        }
+      },
+      "coverage": {
+        "total": 630,
+        "usable_faces": 628,
+        "fraction": 0.9968253968253968,
+        "no_face": 1,
+        "multiple_faces": 1,
+        "alignment_failed": 0
+      },
+      "benchmark": {
+        "device": "mps",
+        "batch_size": 32,
+        "warmup_batches": 5,
+        "measured_batches": 20,
+        "images_per_second": 195.06800514876838,
+        "milliseconds_per_image": 5.126417319115717,
+        "scope": "classifier forward only; excludes detection, decoding and transfer"
+      },
+      "checkpoint_bytes": 174669874,
+      "checkpoint_sha256": "4cddeef9c2ef10ea6a35c140ce093226fd9e407de5281bfb3dbd4a8f087faa7d",
+      "technical_test": false
+    },
+    "training": {
+      "epochs": 8,
+      "selection_metric": "source_macro_ap",
+      "best_validation_ap": 0.9985251967876071,
+      "training_seconds": 222.4798119161278,
+      "pos_weight": 3.377906976744186,
+      "parameters": 43591361,
+      "pretrained_provenance": {
+        "source": "InsightFace arcface_torch iResNet50/MS1MV3",
+        "sha256": "ef005ba502a2d0f40e7b94245054d3a23e375776f7035080fcbce45ae49cfb01"
+      },
+      "technical_test": false,
+      "data_fingerprint": {
+        "signature": {
+          "raw_sha256": "0da8d4e7ed2d847e3e9c479dfa215821374356eb6af1589a38fda52d98e58911",
+          "split": {
+            "validation_fraction": 0.15,
+            "seed": 42,
+            "test_fraction": 0.15,
+            "mode": "group_stratified",
+            "train_only_sources": [
+              "user_v3:g01_podcast_dark_sokolov",
+              "user_v3:g02_studio_light_sokolov",
+              "user_v3:g03_stage_talk",
+              "user_v3:g08_photo_036",
+              "user_v3:g09_photo_037",
+              "user_v3:g10_podcast_dark_others",
+              "user_v3:g11_studio_light_016",
+              "user_v3:g13_studio_light_019"
+            ]
+          },
+          "detector_name": "buffalo_l",
+          "detector_threshold": 0.5,
+          "phash_max_distance": 6,
+          "detector_resize_policy": "shrink_only_top_left_pad_v1",
+          "min_detector_coverage": 0.8,
+          "schema_version": 2
+        },
+        "manifest_sha256": "cc69890179b3a055bd5ae1d06497574dc7682645818f76707db60456c7e49ea2",
+        "split_sha256": "285651c2af62c00fc89d16af1d35ff0d40a2280d09f9318080e2c83776e78860",
+        "detector": {
+          "name": "SCRFD/det_10g.onnx",
+          "insightface": "0.7.3",
+          "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+          "threshold": 0.5,
+          "input_size": [
+            640,
+            640
+          ],
+          "resize_policy": "shrink_only_top_left_pad_v1",
+          "provider": "CPUExecutionProvider",
+          "intra_op_num_threads": 4
+        }
+      }
+    },
+    "environment": {
+      "source_sha256": "2de26c5cce6eaa23931eff6ca7f88949104cbb23587a7d16f89dcef19c03b982",
+      "python": "3.12.16",
+      "platform": "macOS-26.1-arm64-arm-64bit",
+      "packages": {
+        "torch": "2.5.1",
+        "torchvision": "0.20.1",
+        "numpy": "1.26.4",
+        "scikit-learn": "1.6.1",
+        "Pillow": "11.1.0",
+        "ImageHash": "4.3.2",
+        "matplotlib": "3.10.0",
+        "insightface": "0.7.3",
+        "onnxruntime": "1.20.1",
+        "kagglehub": "0.3.12",
+        "scipy": "1.15.2",
+        "scikit-image": "0.25.2",
+        "opencv-python-headless": "4.10.0.84",
+        "Markdown": "3.7",
+        "onnx": "1.17.0"
+      },
+      "git_commit": "dc4ab44987d18f6d5d58bf4836ee051279045f0f",
+      "git_dirty": true,
+      "device": "mps"
+    }
+  }
+}

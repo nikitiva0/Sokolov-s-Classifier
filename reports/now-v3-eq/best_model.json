@@ -1,0 +1,28 @@
+{
+  "architecture": "resnet18",
+  "validation_ap": 0.999968253968254,
+  "selection_metric": "source_macro_ap",
+  "epoch": 7,
+  "checkpoint_sha256": "0c9e51f88c0f5c8e9b4a64125dd039e6dbdc49fe584c23aad40e13ac9f4f2faf",
+  "technical_test": false,
+  "selection_partition": "val",
+  "tie_break": "resnet18",
+  "candidates": [
+    {
+      "architecture": "resnet18",
+      "validation_ap": 0.999968253968254,
+      "selection_metric": "source_macro_ap",
+      "epoch": 7,
+      "checkpoint_sha256": "0c9e51f88c0f5c8e9b4a64125dd039e6dbdc49fe584c23aad40e13ac9f4f2faf",
+      "technical_test": false
+    },
+    {
+      "architecture": "arcface",
+      "validation_ap": 0.9985251967876071,
+      "selection_metric": "source_macro_ap",
+      "epoch": 1,
+      "checkpoint_sha256": "4cddeef9c2ef10ea6a35c140ce093226fd9e407de5281bfb3dbd4a8f087faa7d",
+      "technical_test": false
+    }
+  ]
+}
