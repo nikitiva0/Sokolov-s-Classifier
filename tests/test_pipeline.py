@@ -18,7 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 class SplitTests(unittest.TestCase):
     def test_random_stratified_reproducible_sizes_and_external_groups(self):
         from sokolov.data.split import split_groups
-        config = load_config(ROOT/'configs/resnet18_face.toml').split
+        # Legacy frame-level split stays available only as an explicit option.
+        config = replace(load_config(ROOT/'configs/resnet18_face.toml').split,
+                         mode='random_stratified', test_fraction=.15)
         samples = [RawSample(str(i), Path(str(i)), int(i < 1000), f'lecture-{i%4}', '', None)
                    for i in range(6000)]
         groups = {s.image_id: s.source_id for s in samples}
@@ -67,7 +69,10 @@ def fixtures(folder, count=40):
     positive.mkdir(); fairface.mkdir()
     rows = []
     for i in range(count):
-        pixels = np.random.default_rng(i).integers(0, 100, (96, 96, 3), dtype=np.uint8)
+        # Low-frequency random structure: aligned crops get distinct pHashes (no accidental near-duplicates).
+        coarse = np.random.default_rng(1000+i).integers(0, 100, (6, 6, 3), dtype=np.uint8)
+        pixels = np.kron(coarse, np.ones((16, 16, 1), dtype=np.uint8))
+        pixels = pixels + np.random.default_rng(i).integers(0, 20, (96, 96, 3), dtype=np.uint8)//4
         if i < count//2:
             pixels = pixels+130
             path = positive/f'p{i}.png'
@@ -79,6 +84,8 @@ def fixtures(folder, count=40):
     config = load_config(ROOT/'configs/resnet18_face.toml')
     return replace(config, data=replace(config.data,
         positive_dir=str(positive), fairface_dir=str(fairface), negative_count=count//2,
+        web_positive_dir=str(folder/'absent_web_positive'), web_negative_dir=str(folder/'absent_web_negative'),
+        user_dir=str(folder/'absent_user'),
         raw_manifest=str(folder/'raw.csv'), prepared_manifest=str(folder/'prepared/manifest.csv')),
         training=replace(config.training, num_workers=0, device='cpu', batch_size=4,
                          head_epochs=2, finetune_epochs=0))
@@ -110,7 +117,24 @@ class PreparationTests(unittest.TestCase):
             prepare(config, detector=Missing())
             rows = read_csv(config.data.prepared_manifest)
             self.assertEqual(rows[0]['status'], 'no_face')
-            self.assertEqual(rows[1]['status'], 'multiple_faces')
+            # Several detections: the face nearest the centre is the labelled target.
+            self.assertEqual((rows[1]['status'], rows[1]['face_count'], rows[1]['primary_face']), ('ok', '2', '0'))
+            raw_rows = read_csv(config.data.raw_manifest)
+            self.assertEqual({r['group_id'] for r in raw_rows if r['label'] == '1'},
+                             {f'v1:lecture{i}' for i in range(4)})
+            self.assertTrue(all(r['domain'] == 'fairface' and r['group_id'] == r['source_id']
+                                for r in raw_rows if r['label'] == '0'))
+            split_rows = read_csv(Path(config.data.prepared_manifest).parent/'split.csv')
+            group_splits = {}
+            for r in split_rows:
+                group_splits.setdefault(r['group_id'], set()).add(r['split'])
+            self.assertTrue(all(len(v) == 1 for v in group_splits.values()))
+            summary = read_json(Path(config.data.prepared_manifest).parent/'split_summary.json')
+            self.assertEqual(summary['checks']['groups_in_several_splits'], [])
+            self.assertEqual(len(summary['checks']['test_v1_lectures']), 1)
+            audit = read_json(Path(config.data.prepared_manifest).parent/'data_audit.json')
+            self.assertEqual(audit['near_duplicate_guard']['max_distance'], 8)
+            self.assertGreater(audit['near_duplicate_guard']['min_cross_split_distance_after']['test-train'], 8)
             self.assertTrue(all(Path(r['crop_path']).is_file() for r in rows if r['status'] == 'ok'))
             split = read_csv(Path(config.data.prepared_manifest).parent/'split.csv')
             self.assertEqual({r['image_id']: r['split'] for r in rows}, {r['image_id']: r['split'] for r in split})
@@ -161,14 +185,14 @@ class ModelTests(unittest.TestCase):
                 with TemporaryDirectory() as tmp:
                     path = Path(tmp)/'official-format.pth'
                     torch.save(model.backbone.state_dict(), path)
-                    restored = build_model(replace(config.model, checkpoint=str(path)), pretrained=True)
+                    restored = build_model(replace(config.model, checkpoint=str(path), checkpoint_sha256=''), pretrained=True)
                     self.assertEqual(state_fingerprint(model.backbone.state_dict()),
                                      state_fingerprint(restored.backbone.state_dict()))
                     torch.save({'wrong': torch.ones(1)}, path)
                     with self.assertRaises(RuntimeError):
-                        build_model(replace(config.model, checkpoint=str(path)), pretrained=True)
+                        build_model(replace(config.model, checkpoint=str(path), checkpoint_sha256=''), pretrained=True)
                     with self.assertRaises(FileNotFoundError):
-                        build_model(replace(config.model, checkpoint=str(path.parent/'absent.pth')), pretrained=True)
+                        build_model(replace(config.model, checkpoint=str(path.parent/'absent.pth'), checkpoint_sha256=''), pretrained=True)
 
     def test_end_to_end_resume_report_publication(self):
         import torch
@@ -213,7 +237,17 @@ class ModelTests(unittest.TestCase):
             self.assertTrue((run/'arcface/best_weights.pt').is_file())
             import shutil
             self.assertTrue((run/'data/data_audit.json').is_file())
+            self.assertTrue((run/'data/split_summary.json').is_file())
+            metrics = read_json(run/'resnet18/test_metrics.json')
+            self.assertEqual(metrics['bootstrap']['image_level']['resamples'], 1000)
+            self.assertEqual(set(metrics['breakdown']['negatives_by_kind']), {'fairface'})
+            self.assertEqual(len(metrics['breakdown']['positive_sources']), 1)
             report = make_report(run)
+            text = (report/'report.md').read_text()
+            self.assertIn('Протокол оценки', text)
+            self.assertIn('near_duplicate', text)
+            self.assertNotIn('Random frame split', text)
+            self.assertIn('ci95_low', read_csv(report/'metrics.csv')[0])
             import os
             output = os.environ.get('SOKOLOV_SMOKE_OUTPUT')
             if output:
@@ -245,6 +279,21 @@ class ModelTests(unittest.TestCase):
             from sokolov.synthesize import select_best_model, generate_best, validate_synthesis
             select_best_model(run)
             self.assertEqual(read_json(run/'best_model.json')['architecture'], 'resnet18')
+            # Arbitrary photos: every detected face is scored, the photo score is the maximum.
+            from sokolov.evaluate import format_prediction, predict_images
+            class TwoFaces(FakeDetector):
+                def __call__(self, image):
+                    face = super().__call__(image)[0]
+                    return [face, {**face, 'bbox': [10, 10, 60, 60]}]
+            photo = next(Path(config.data.positive_dir).glob('*.png'))
+            result = predict_images(run, [photo], detector=TwoFaces(), device='cpu')[0]
+            self.assertEqual(len(result['faces']), 2)
+            self.assertEqual(result['score'], max(f['score'] for f in result['faces']))
+            threshold = read_json(run/'resnet18/threshold.json')['threshold']
+            self.assertEqual(result['decision'], 'sokolov' if result['score'] >= threshold else 'not_sokolov')
+            self.assertIn('face 2: bbox=[10, 10, 60, 60] px', format_prediction(result))
+            empty = predict_images(run, [photo], which='arcface', detector=lambda image: [], device='cpu')[0]
+            self.assertEqual((empty['score'], empty['decision']), (0., 'not_sokolov'))
             Path(config.data.raw_manifest).unlink()
             generation = replace(config.generation, steps=3, snapshot_every=2, seeds=(0, 1, 2, 3, 4))
             generate_best(run, generation=generation, device='cpu')

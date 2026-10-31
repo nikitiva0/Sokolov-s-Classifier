@@ -16,13 +16,31 @@ def state_fingerprint(state):
     return digest.hexdigest()
 
 
+W600K_CHECKPOINT = 'iresnet50_w600k.pt'
+
+
+def convert_w600k(path):
+    """Exact iresnet50 state_dict from InsightFace buffalo_l w600k_r50.onnx (tools/convert_w600k_onnx.py)."""
+    import importlib.util
+    tool = Path(__file__).resolve().parents[2] / 'tools' / 'convert_w600k_onnx.py'
+    if not tool.is_file():
+        raise FileNotFoundError(f'{tool} missing; cannot convert InsightFace w600k_r50.onnx')
+    spec = importlib.util.spec_from_file_location('convert_w600k_onnx', tool)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.convert_checkpoint(path)
+
+
 def ensure_arcface_checkpoint(config):
     path = Path(config.checkpoint)
     if not path.exists() and config.checkpoint_url:
         download(config.checkpoint_url, path, config.checkpoint_sha256)
+    if not path.exists() and path.name == W600K_CHECKPOINT:
+        convert_w600k(path)
     if not path.is_file():
-        raise FileNotFoundError('Attach official iResNet50/MS1MV3 PyTorch checkpoint and set model.checkpoint; '
-                                'see docs/KAGGLE.md. No random-weight fallback is allowed.')
+        raise FileNotFoundError('ArcFace checkpoint missing: set model.checkpoint to an official iResNet50 PyTorch '
+                                f'state_dict or to {W600K_CHECKPOINT} (converted automatically); see docs/KAGGLE.md. '
+                                'No random-weight fallback is allowed.')
     digest = sha256(path)
     if config.checkpoint_sha256 and digest != config.checkpoint_sha256:
         raise ValueError('ArcFace checkpoint SHA-256 mismatch')
@@ -59,7 +77,7 @@ def build_model(config, *, pretrained=True):
             if all(k.startswith('module.') for k in state):
                 state = {k.removeprefix('module.'): v for k, v in state.items()}
             backbone.load_state_dict(state, strict=True)
-            provenance = {'source': 'InsightFace arcface_torch iResNet50/MS1MV3', 'sha256': digest}
+            provenance = {'source': f'InsightFace arcface_torch iResNet50/{config.weights}', 'sha256': digest}
 
         class FaceClassifier(nn.Module):
             def __init__(self):

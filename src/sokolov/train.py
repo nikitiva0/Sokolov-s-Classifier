@@ -66,11 +66,31 @@ def validate_prepared(config):
     return metadata
 
 
+RESNET_BLOCKS = ('layer1', 'layer2', 'layer3', 'layer4')
+
+
+def apply_training_stage(model, config, finetune):
+    """Head-only stage, then for ResNet18 the last training.finetune_blocks stages + head."""
+    set_training_stage(model, config.model.architecture, finetune)
+    if finetune and config.model.architecture == 'resnet18':
+        unfrozen = RESNET_BLOCKS[len(RESNET_BLOCKS)-config.training.finetune_blocks:]
+        for name in RESNET_BLOCKS:
+            for parameter in getattr(model, name).parameters():
+                parameter.requires_grad_(name in unfrozen)
+        frozen_eval(model)
+
+
+def evaluation_rows(config, split):
+    """All audited rows of a split except near-duplicates of another split's crops."""
+    return [r for r in read_csv(config.data.prepared_manifest)
+            if r['split'] == split and r['status'] != 'near_duplicate']
+
+
 def predict(config, model, device, split):
     import torch
     from torch.utils.data import DataLoader
     from .data.dataset import FaceDataset, transforms
-    rows = [r for r in read_csv(config.data.prepared_manifest) if r['split'] == split]
+    rows = evaluation_rows(config, split)
     usable = [r for r in rows if r['status'] == 'ok']
     dataset = FaceDataset(usable, transforms(config, train=False))
     loader = DataLoader(dataset, batch_size=config.training.batch_size,
@@ -117,7 +137,7 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
     data_snapshot.mkdir(exist_ok=True)
     if (data_snapshot/'prepared.json').exists() and read_json(data_snapshot/'prepared.json') != metadata:
         raise ValueError('Run already contains a different shared data snapshot')
-    for name in ('prepared.json', 'split.csv', 'data_audit.json'):
+    for name in ('prepared.json', 'split.csv', 'data_audit.json', 'split_summary.json'):
         shutil.copy2(Path(config.data.prepared_manifest).parent/name, data_snapshot/name)
     write_json(folder / 'config.json', asdict(config))
     env = environment()
@@ -144,7 +164,7 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
         seed_everything(config.split.seed + epoch)
         finetune = epoch >= config.training.head_epochs
         if current_stage != finetune:
-            set_training_stage(model, config.model.architecture, finetune)
+            apply_training_stage(model, config, finetune)
             lr = config.training.finetune_lr if finetune else config.training.head_lr
             optimizer = torch.optim.Adam([p for p in model.parameters() if p.requires_grad],
                                          lr=lr, weight_decay=config.training.weight_decay)

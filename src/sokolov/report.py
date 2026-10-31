@@ -12,6 +12,79 @@ from pathlib import Path
 from .io import read_csv, read_json, sha256, write_csv, write_json
 
 MODELS = ('resnet18', 'arcface')
+LOCAL_AUDIT_KEYS = ('exclusions', 'near_duplicate_candidates', 'near_duplicate_excluded')
+
+
+def _fmt(value, digits=3):
+    return 'N/A' if value is None else f'{value:.{digits}f}'
+
+
+def protocol_lines(audit):
+    """Markdown description of the split protocol and the near-duplicate guard."""
+    summary, guard = audit.get('split_summary') or {}, audit.get('near_duplicate_guard') or {}
+    mode = audit.get('split_mode', summary.get('mode'))
+    lines = ['## Протокол оценки', '']
+    if mode == 'group_stratified':
+        checks = summary['checks']
+        lines += [
+            'Единица разбиения — группа: лекция или видео с Соколовым (вместе с посторонними в кадре), '
+            'известный другой человек (все его видео), отдельный файл FairFace. Каждая группа целиком попадает '
+            'ровно в одну выборку: кадры одной лекции не делятся между train, validation и test.',
+            f"Группы стратифицированы по паре (метка группы, домен): около {summary['validation_fraction']:.0%} групп "
+            f"каждого страта — в validation, {summary['test_fraction']:.0%} — в test, seed={summary['seed']}. "
+            'Гарантии: в каждой выборке оба класса; в test есть лекция из набора v1 и web-источники Соколова из '
+            'разных доменов (если они есть); в validation есть позитивная группа.',
+            f"Проверка: групп сразу в нескольких выборках — {len(checks['groups_in_several_splits'])}; "
+            f"лекций v1 в test — {len(checks['test_v1_lectures'])}; web-доменов Соколова в test — "
+            f"{', '.join(checks['test_web_positive_domains']) or 'нет'} "
+            f"(доступно: {', '.join(checks['web_positive_domains_available']) or 'нет'}); "
+            f"позитивных групп в validation — {checks['val_positive_groups']}.", '']
+    elif mode == 'random_stratified':
+        lines += ['Случайное стратифицированное разбиение отдельных кадров (явно выбранный устаревший режим). '
+                  'Кадры одной лекции могут попасть в разные выборки; метрики test завышены.', '']
+    else:
+        lines += ['Внешнее разбиение train/test сохранено; validation выделена из train по группам.', '']
+    lines.append('Порог решения и лучший checkpoint выбираются только по validation; test используется один раз.')
+    if guard:
+        excluded = guard['excluded']
+        lines += ['', f"Защита от почти-дубликатов: для каждого выровненного лица считается 64-битный pHash. Лица "
+                  f"validation и test на расстоянии Хэмминга ≤ {guard['max_distance']} бит от любого лица train, а также "
+                  'лица test рядом с лицами validation получают статус near_duplicate и исключаются из оценки. '
+                  f"Исключено: validation — {sum(excluded['val'].values())} (Соколов: {excluded['val']['1']}), "
+                  f"test — {sum(excluded['test'].values())} (Соколов: {excluded['test']['1']}).",
+                  f"Минимальное межвыборочное расстояние, бит, до фильтра: {json.dumps(guard['min_cross_split_distance_before'])}; "
+                  f"после: {json.dumps(guard['min_cross_split_distance_after'])}."]
+    if summary.get('cells'):
+        lines += ['', '| Выборка | Метка | Домен | Групп | Изображений | Лиц ok | Почти-дубликатов |',
+                  '|---|---|---|---|---|---|---|']
+        for c in summary['cells']:
+            lines.append(f"| {c['split']} | {c['label']} | {c['domain'] or 'unknown'} | {c['groups']} | {c['images']} "
+                         f"| {c.get('faces_ok', 'N/A')} | {c.get('near_duplicate', 'N/A')} |")
+    return lines + ['']
+
+
+def breakdown_lines(name, evaluation):
+    """Per-domain and per-source test diagnostics; no faces, only aggregates."""
+    result = evaluation.get('breakdown')
+    if not result:
+        return []
+    lines = ['', f'### {name}: разбивка test по доменам и источникам', '',
+             '| Домен | Позитивов | Негативов | Recall | FPR | ROC-AUC |', '|---|---|---|---|---|---|']
+    for domain, v in result['by_domain'].items():
+        lines.append(f"| {domain} | {v['positives']} | {v['negatives']} | {_fmt(v['recall'])} | "
+                     f"{_fmt(v['false_positive_rate'])} | {_fmt(v['roc_auc'])} |")
+    lines += ['', '| Источник Соколова | Домен | Изображений | Найдено лиц | Recall | Медиана оценки |',
+              '|---|---|---|---|---|---|']
+    for source, v in result['positive_sources'].items():
+        source = source.replace('|', '\\|')
+        lines.append(f"| {source} | {v['domain']} | {v['positives']} | {v['detected']} | {_fmt(v['recall'])} | "
+                     f"{_fmt(v['median_score'])} |")
+    lines += ['', '| Негативы | Изображений | Ложных срабатываний | FPR |', '|---|---|---|---|']
+    names = {'in_domain': 'сложные негативы из тех же условий съёмки', 'fairface': 'FairFace'}
+    for kind, v in result['negatives_by_kind'].items():
+        lines.append(f"| {names.get(kind, kind)} | {v['negatives']} | {v['false_positives']} | "
+                     f"{_fmt(v['false_positive_rate'])} |")
+    return lines + ['']
 
 
 def make_report(run_dir):
@@ -34,33 +107,46 @@ def make_report(run_dir):
                            'environment': read_json(folder/'environment.json')}
         for level in ('image_level', 'face_level'):
             result = metrics[level]
+            intervals = ((metrics.get('bootstrap') or {}).get(level) or {}).get('intervals') or {}
             for metric, value in (result['metrics'] or {}).items():
+                ci = intervals.get(metric) or {}
                 table.append({'model': name, 'level': level, 'metric': metric, 'value': value,
-                              'undefined_reason': result.get('undefined', {}).get(metric, '')})
+                              'undefined_reason': result.get('undefined', {}).get(metric, ''),
+                              'ci95_low': ci.get('low', ''), 'ci95_high': ci.get('high', '')})
             for cls, values in result.get('classes', {}).items():
                 for metric, value in values.items():
                     table.append({'model': name, 'level': level, 'metric': cls+'.'+metric,
-                                  'value': value, 'undefined_reason': result['undefined'].get(cls+'.'+metric, '')})
+                                  'value': value, 'undefined_reason': result['undefined'].get(cls+'.'+metric, ''),
+                                  'ci95_low': '', 'ci95_high': ''})
     report = run/'report'
     report.mkdir(exist_ok=True)
     audit = read_json(run/'data/data_audit.json')
     write_json(report/'metrics.json', summaries)
-    write_json(report/'data_audit_summary.json', {k: v for k, v in audit.items()
-               if k not in ('exclusions', 'near_duplicate_candidates')})
+    write_json(report/'data_audit_summary.json', {k: v for k, v in audit.items() if k not in LOCAL_AUDIT_KEYS})
     write_csv(report/'metrics.csv', table)
     title = '# Соколов / не Соколов — техническая проверка' if technical else '# Соколов / не Соколов — сравнение моделей'
     lines = [title, '', 'Это технический прогон со случайными весами, не результат качества моделей.'
              if technical else 'Результаты полного обучения на предобученных моделях.', '',
-             'Метки: 1 — Соколов, 0 — не Соколов. Пороги выбраны только на validation.', '',
-             '## Ограничения', '']
+             'Метки: 1 — Соколов, 0 — не Соколов. Пороги выбраны только на validation.', '']
+    lines += protocol_lines(audit)
+    lines += ['## Ограничения', '']
     lines.extend('- '+warning for warning in audit['warnings'])
+    bootstrap = (summaries[MODELS[0]]['evaluation'].get('bootstrap') or {}).get('image_level') or {}
+    candidates = audit.get('near_duplicate_candidate_counts', {}).get('cross_group_pairs',
+                                                                      len(audit['near_duplicate_candidates']))
     lines += ['', '## Данные', '', '```json', json.dumps(audit['counts'], ensure_ascii=False, indent=2), '```', '',
-              f"Исключено на аудите: {len(audit['exclusions'])}. Кандидатов pHash: {len(audit['near_duplicate_candidates'])}.",
+              f"Исключено на аудите: {len(audit['exclusions'])}. Пар исходников разных групп с близким pHash: {candidates}. "
+              f"Правило нескольких лиц: {audit.get('primary_face_rule', 'единственное лицо')}.",
               f"Время детекции: {audit['detection_seconds']:.2f} с. Детектор: {audit['detector']['name']}.", '',
-              '## Метрики', '', '| Модель | Уровень | Метрика | Значение |', '|---|---|---|---|']
+              '## Метрики', '',
+              '95% ДИ — групповой бутстрэп (целые группы с возвращением, стратификация по метке группы, '
+              f"{bootstrap.get('resamples', 'N/A')} повторов, seed={bootstrap.get('seed', 'N/A')}) "
+              'для ROC-AUC, AP и balanced accuracy.', '',
+              '| Модель | Уровень | Метрика | Значение | 95% ДИ |', '|---|---|---|---|---|']
     for row in table:
         value = f"{row['value']:.6g}" if row['value'] is not None else 'N/A: '+row['undefined_reason']
-        lines.append(f"| {row['model']} | {row['level']} | {row['metric']} | {value} |")
+        interval = f"{row['ci95_low']:.4g}–{row['ci95_high']:.4g}" if row['ci95_low'] != '' else ''
+        lines.append(f"| {row['model']} | {row['level']} | {row['metric']} | {value} | {interval} |")
     for name in MODELS:
         folder = run/name
         plots = report/name
@@ -86,6 +172,7 @@ def make_report(run_dir):
             'threshold': read_json(folder/'threshold.json')}, ensure_ascii=False, indent=2), '```', '']
         for image in ['training.png', 'curves.png', 'confusion_matrix.png', 'scores.png']:
             lines.append(f'![{name} {image}]({name}/{image})')
+        lines += breakdown_lines(name, summary['evaluation'])
         errors = read_csv(folder/'errors.csv')
         lines += ['', 'Примеры ошибок (полный список и исходные пути — в локальном errors.csv):', '',
                   '| ID | Истинная метка | Оценка | Тип |', '|---|---|---|---|']
@@ -117,25 +204,8 @@ def make_report(run_dir):
         winner = read_json(run/'best_model.json')
         if synthesis_summary['checkpoint_sha256'] != winner['checkpoint_sha256']:
             raise ValueError('Synthesis used a different winner checkpoint')
-        destination = report/'synthesis'
-        destination.mkdir(exist_ok=True)
-        write_json(destination/'summary.json', synthesis_summary)
-        lines += ['', '## Генерация из случайного шума', '',
-                  'Веса выбранной модели фиксированы. Adam изменяет только пиксели входной картинки.',
-                  'Максимизируется логит «Соколов» с TV- и L2-регуляризацией. После каждого шага пиксели ограничены диапазоном [0,1].',
-                  'Оценки на графике рассчитаны по сохранённым 8-битным пикселям. Детектор лиц в оптимизации не участвует.',
-                  'Высокая оценка не гарантирует узнаваемое лицо. Показаны все начальные шумы; рост оценки не обязан быть монотонным.', '',
-                  '```json', json.dumps(synthesis_summary, ensure_ascii=False, indent=2), '```', '']
-        for image in ('seed_comparison.png', 'scores.png'):
-            shutil.copy2(run/'synthesis'/image, destination/image)
-            lines.append(f'![Synthesis {image}](synthesis/{image})')
-        for seed in synthesis_summary['seeds']:
-            target = destination/f'seed_{seed}'
-            target.mkdir(exist_ok=True)
-            for name in ('progression.png', 'trajectory.csv'):
-                shutil.copy2(run/'synthesis'/f'seed_{seed}'/name, target/name)
-            lines += ['', f'### Начальный шум {seed}', '',
-                      f'![Steps for seed {seed}](synthesis/seed_{seed}/progression.png)', '']
+        from .analysis import report_section
+        lines += report_section(run, report/'synthesis', synthesis_summary)
     else:
         lines += ['', '## Генерация', '', 'В этом отчёте генерация ещё не запускалась.', '']
     lines += ['', '## Воспроизводимость', '',
@@ -177,9 +247,8 @@ def validate_publication(run_dir):
         if (not seeds or len(seeds) != len(set(seeds)) or
                 any(type(s) is not int or s < 0 for s in seeds) or synthesis['technical_test']):
             raise ValueError('Invalid completed synthesis experiment')
-        allowed |= {'synthesis/summary.json', 'synthesis/seed_comparison.png', 'synthesis/scores.png'}
-        allowed |= {f'synthesis/seed_{seed}/{name}' for seed in seeds
-                    for name in ('progression.png', 'trajectory.csv')}
+        from .analysis import publication_files
+        allowed |= publication_files(synthesis)
     if set(completed['files']) != allowed or completed['models'] != list(MODELS):
         raise ValueError('Unexpected publication artifact list')
     for relative, digest in completed['files'].items():

@@ -7,8 +7,12 @@ artifacts_dir = "outputs/runs"
 phash_max_distance = 6
 positive_dir = "data/raw/sokolov_positive_v1"
 fairface_handle = "mehmoodsheikh/fairface-dataset"
-fairface_dir = ""
-negative_count = 5000
+fairface_dir = "data/raw/fairface"
+negative_count = 3000
+fairface_download = false
+web_positive_dir = "data/raw/web_positive_v2"
+web_negative_dir = "data/raw/web_negative_v2"
+user_dir = "data/raw/user_v3"
 detector_root = "checkpoints/insightface"
 detector_name = "buffalo_l"
 detector_threshold = 0.5
@@ -22,10 +26,12 @@ embedding_dim = 512
 checkpoint = ""
 
 [split]
+# Целые группы (лекция/видео/человек/файл FairFace) в одной выборке.
 validation_fraction = 0.15
-test_fraction = 0.15
-mode = "random_stratified"
+test_fraction = 0.20
+mode = "group_stratified"
 seed = 42
+dedup_max_distance = 8
 
 [training]
 batch_size = 32
@@ -37,11 +43,61 @@ weight_decay = 0.0001
 selection_metric = "average_precision"
 device = "auto"
 num_workers = 2
+finetune_blocks = 2
+# Train-only domain-robust augmentation; sizes in px.
+augment = true
+aug_downscale_min = 24
+aug_downscale_max = 112
+aug_downscale_p = 0.5
+aug_jpeg_min = 20
+aug_jpeg_max = 90
+aug_jpeg_p = 0.5
+aug_blur_p = 0.2
+aug_crop_scale_min = 0.85
+aug_rotation_deg = 10.0
+aug_color_jitter = 0.2
+aug_grayscale_p = 0.05
 
 [generation]
+# Общие для всех вариантов: число шагов Adam, начальные шумы, период снимков (шаги).
 steps = 500
+seeds = [0, 1, 2, 3, 4]
+snapshot_every = 25
+
+# Варианты ограничений. Сдвиг и sigma размытия — в px для входа 112 px
+# (для ResNet18 224 px умножаются на 2).
+# pixel: исходная постановка — сырые RGB-пиксели, слабые TV/L2.
+[[generation.variants]]
+name = "pixel"
+parametrization = "pixel"
 lr = 0.05
 tv_weight = 0.0001
 l2_weight = 0.00001
-seeds = [0, 1, 2, 3, 4]
-snapshot_every = 25
+
+# robust: пиксели + случайные сдвиг/масштаб/поворот перед классификатором,
+# периодическое гауссово размытие параметра и более сильный TV.
+[[generation.variants]]
+name = "robust"
+parametrization = "pixel"
+lr = 0.05
+tv_weight = 1.0
+l2_weight = 0.00001
+translate_px = 8
+scale_min = 0.9
+scale_max = 1.1
+rotate_deg = 5
+blur_every = 4
+blur_sigma_px = 0.5
+
+# fourier: спектр 1/f + декоррелированный цвет + sigmoid (Olah et al., 2017)
+# и те же случайные преобразования.
+[[generation.variants]]
+name = "fourier"
+parametrization = "fourier"
+lr = 0.05
+translate_px = 8
+scale_min = 0.9
+scale_max = 1.1
+rotate_deg = 5
+decay_power = 1.0
+init_std = 0.01

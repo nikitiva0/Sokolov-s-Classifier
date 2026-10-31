@@ -14,26 +14,45 @@ DatasetVariant = Literal["face_crop"]
 
 @dataclass(frozen=True)
 class RawSample:
+    """Исходник raw.csv. group_id — единица независимости при разбиении.
+
+    Пустой group_id означает source_id (старые манифесты без колонки).
+    domain: lecture_webcam, lecture_room, talk_stage, interview, photo, fairface.
+    """
+
     image_id: str
     path: Path
     label: Label
     source_id: str
     source_url: str
     partition: Partition | None
+    group_id: str = ''
+    domain: str = ''
+    dataset: str = ''
+    person: str = ''
+    pinned_split: str = ''  # train/test, закреплённый вручную набором (user_v3)
+
+    @property
+    def group(self) -> str:
+        return self.group_id or self.source_id
 
 
 @dataclass(frozen=True)
 class ParentAssignment:
     """Split исходного изображения; создаётся до детекции лиц.
 
-    В random_stratified источники могут пересекаться между split. В external
-    сохраняются train/test и целостность групп; val выделяется из train.
+    group_stratified (по умолчанию): группа целиком в одной выборке.
+    random_stratified — явный устаревший режим, группы могут пересекаться.
+    external сохраняет train/test и целостность групп; val выделяется из train.
     """
 
     image_id: str
     group_id: str
     partition: Partition | None
     split: Split
+    label: int = -1
+    domain: str = ''
+    dataset: str = ''
 
 
 @dataclass(frozen=True)

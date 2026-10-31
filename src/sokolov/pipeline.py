@@ -21,7 +21,7 @@ def run_all(configs, run_dir, *, resume=False):
         prepared = prepare(configs[0])
         data = run/'data'
         data.mkdir(exist_ok=True)
-        for name in ('data_audit.json', 'split.csv', 'prepared.json'):
+        for name in ('data_audit.json', 'split.csv', 'split_summary.json', 'prepared.json'):
             shutil.copy2(prepared.parent/name, data/name)
         selection = Path(configs[0].data.raw_manifest).parent/'selection.local.json'
         if selection.is_file(): shutil.copy2(selection, data/selection.name)

@@ -54,3 +54,84 @@ def choose_threshold(labels, scores, detected=None):
         best = max(best, (score, float(threshold)))
     return {'threshold': best[1], 'validation_f1': best[0], 'selection_partition': 'val',
             'tie_break': 'largest_threshold'}
+
+
+BOOTSTRAP_METRICS = ('roc_auc', 'average_precision', 'balanced_accuracy')
+
+
+def group_bootstrap(labels, scores, threshold, detected, groups, *, resamples=1000, seed=42):
+    """95% percentile CIs, resampling whole groups with replacement.
+
+    Stratified by group label (a group with any Sokolov image is positive), so every
+    resample keeps both classes. O(resamples * N log N); memory O(N).
+    """
+    y, p = np.asarray(labels, dtype=int), np.asarray(scores, dtype=float)
+    pred = (p >= threshold) & np.asarray(detected if detected is not None else np.ones(len(y)), dtype=bool)
+    index = {}
+    for i, group in enumerate(groups):
+        index.setdefault(group, []).append(i)
+    members = {g: np.array(v) for g, v in index.items()}
+    positive = sorted(g for g, v in members.items() if y[v].max() == 1)
+    negative = sorted(g for g, v in members.items() if y[v].max() == 0)
+    result = {'method': 'group bootstrap, stratified by group label, percentile 2.5/97.5',
+              'resamples': resamples, 'seed': seed, 'positive_groups': len(positive),
+              'negative_groups': len(negative), 'threshold': float(threshold)}
+    if not positive or not negative or not (y == 0).any():
+        return {**result, 'intervals': None, 'reason': 'Both positive and negative groups/images are required'}
+    rng = np.random.default_rng(seed)
+    values = {name: [] for name in BOOTSTRAP_METRICS}
+    for _ in range(resamples):
+        chosen = [positive[i] for i in rng.integers(0, len(positive), len(positive))] + \
+                 [negative[i] for i in rng.integers(0, len(negative), len(negative))]
+        rows = np.concatenate([members[g] for g in chosen])
+        yy, pp, dd = y[rows], p[rows], pred[rows]
+        if len(set(yy)) < 2:
+            continue
+        values['roc_auc'].append(m.roc_auc_score(yy, pp))
+        values['average_precision'].append(m.average_precision_score(yy, pp))
+        values['balanced_accuracy'].append(m.balanced_accuracy_score(yy, dd.astype(int)))
+    intervals = {}
+    for name, items in values.items():
+        intervals[name] = ({'low': float(np.percentile(items, 2.5)), 'high': float(np.percentile(items, 97.5)),
+                            'valid_resamples': len(items)} if items else None)
+    return {**result, 'intervals': intervals}
+
+
+def _rate(numerator, denominator):
+    return float(numerator/denominator) if denominator else None
+
+
+def breakdown(rows, threshold):
+    """Test diagnostics: recall per positive source, FPR per negative domain/kind, per-domain AUC.
+
+    rows need label, score, detected, domain, source_id. Negatives are split into
+    in-domain hard negatives (everything except FairFace) and FairFace.
+    """
+    def decided(r):
+        return bool(r['detected']) and float(r['score']) >= threshold
+    by_domain, by_source, by_kind = {}, {}, {}
+    for r in rows:
+        by_domain.setdefault(r['domain'] or 'unknown', []).append(r)
+        if int(r['label']) == 1:
+            by_source.setdefault(r['source_id'], []).append(r)
+        else:
+            by_kind.setdefault('fairface' if r['domain'] == 'fairface' else 'in_domain', []).append(r)
+    domains = {}
+    for domain, items in sorted(by_domain.items()):
+        pos = [r for r in items if int(r['label']) == 1]
+        neg = [r for r in items if int(r['label']) == 0]
+        y = [int(r['label']) for r in items]
+        domains[domain] = {'positives': len(pos), 'negatives': len(neg),
+            'recall': _rate(sum(map(decided, pos)), len(pos)),
+            'false_positive_rate': _rate(sum(map(decided, neg)), len(neg)),
+            'roc_auc': float(m.roc_auc_score(y, [float(r['score']) for r in items])) if pos and neg else None}
+    sources = {source: {'domain': items[0]['domain'], 'positives': len(items),
+                        'detected': sum(bool(r['detected']) for r in items),
+                        'recall': _rate(sum(map(decided, items)), len(items)),
+                        'median_score': float(np.median([float(r['score']) for r in items]))}
+               for source, items in sorted(by_source.items())}
+    kinds = {kind: {'negatives': len(items), 'false_positives': sum(map(decided, items)),
+                    'false_positive_rate': _rate(sum(map(decided, items)), len(items))}
+             for kind, items in sorted(by_kind.items())}
+    return {'threshold': float(threshold), 'by_domain': domains, 'positive_sources': sources,
+            'negatives_by_kind': kinds}

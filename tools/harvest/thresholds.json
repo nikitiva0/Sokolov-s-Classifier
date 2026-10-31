@@ -1,0 +1,221 @@
+{
+  "thresholds": {
+    "solo_min": 0.33,
+    "pos": 0.48,
+    "neg": 0.17,
+    "flag": 0.17,
+    "near_duplicate": 0.97,
+    "v1_cos": 0.92,
+    "v1_phash": 6,
+    "v1_source_fraction": 0.25
+  },
+  "created_utc": "2026-10-31T12:24:15Z",
+  "similarity": "cosine(ArcFace buffalo_l w600k_r50, L2-centroid 1000 v1 positives)",
+  "rule": {
+    "neg": "max(impostor) + margin(0.05)",
+    "flag": "= neg: всё, что не уверенно «не Соколов», идёт на аудит",
+    "pos": "max(neg + 2·margin, genuine LOLO p5): ложная метка 1 хуже лишнего аудита",
+    "solo_min": "(neg + pos) / 2: в solo-источнике априори Соколов",
+    "v1_source_fraction": "доля лиц источника с флагом dedup-v1 для предупреждения; по v1: 0.53 для кадров той же лекции, 0.08 для другой (aligned pHash ≤ 6)",
+    "near_duplicate": "из задания; cos ≥ 0.97 к уже сохранённому лицу того же источника — пропуск",
+    "v1_cos/v1_phash": "из задания; dedup-v1 сверяет с basis.reference nearest-neighbour"
+  },
+  "basis": {
+    "effect": {
+      "neg/flag": {
+        "genuine_lolo_below": 0.003,
+        "impostor_at_or_above": 0.0
+      },
+      "solo_min": {
+        "genuine_lolo_below": 0.0131,
+        "impostor_at_or_above": 0.0
+      },
+      "pos": {
+        "genuine_lolo_below": 0.0493,
+        "impostor_at_or_above": 0.0
+      }
+    },
+    "genuine_lolo": {
+      "n": 994,
+      "min": 0.0644,
+      "p1": 0.3049,
+      "p5": 0.4816,
+      "median": 0.7146,
+      "p95": 0.8125,
+      "p99": 0.8369,
+      "max": 0.8525
+    },
+    "genuine_per_lecture": {
+      "лекция-01.mp4": {
+        "n": 249,
+        "min": 0.1353,
+        "p1": 0.4481,
+        "p5": 0.5941,
+        "median": 0.7633,
+        "p95": 0.8311,
+        "p99": 0.8456,
+        "max": 0.8525
+      },
+      "лекция-03.mp4": {
+        "n": 245,
+        "min": 0.0644,
+        "p1": 0.214,
+        "p5": 0.3875,
+        "median": 0.7015,
+        "p95": 0.8057,
+        "p99": 0.8362,
+        "max": 0.8412
+      },
+      "лекция-04.mp4": {
+        "n": 250,
+        "min": 0.2142,
+        "p1": 0.2783,
+        "p5": 0.4516,
+        "median": 0.6918,
+        "p95": 0.7783,
+        "p99": 0.8237,
+        "max": 0.8301
+      },
+      "лекция-11.mp4": {
+        "n": 250,
+        "min": 0.4562,
+        "p1": 0.5723,
+        "p5": 0.6229,
+        "median": 0.7132,
+        "p95": 0.7637,
+        "p99": 0.7761,
+        "max": 0.7862
+      }
+    },
+    "impostor": {
+      "n": 58,
+      "min": -0.0881,
+      "p1": -0.0792,
+      "p5": -0.0627,
+      "median": -0.0017,
+      "p95": 0.0875,
+      "p99": 0.122,
+      "max": 0.1231
+    },
+    "impostor_by_source": {
+      "selftest_commons_cortes": {
+        "n": 1,
+        "min": -0.0247,
+        "p1": -0.0247,
+        "p5": -0.0247,
+        "median": -0.0247,
+        "p95": -0.0247,
+        "p99": -0.0247,
+        "max": -0.0247
+      },
+      "selftest_commons_hugentobler": {
+        "n": 8,
+        "min": -0.0197,
+        "p1": -0.0187,
+        "p5": -0.0147,
+        "median": 0.0077,
+        "p95": 0.0414,
+        "p99": 0.0511,
+        "max": 0.0535
+      },
+      "selftest_insightface_samples": {
+        "n": 6,
+        "min": -0.0881,
+        "p1": -0.0873,
+        "p5": -0.0841,
+        "median": -0.0446,
+        "p95": -0.0144,
+        "p99": -0.0099,
+        "max": -0.0088
+      },
+      "selftest_rutube_dolenko": {
+        "n": 12,
+        "min": -0.0548,
+        "p1": -0.0525,
+        "p5": -0.0435,
+        "median": 0.0003,
+        "p95": 0.0176,
+        "p99": 0.0178,
+        "max": 0.0178
+      },
+      "selftest_rutube_msu": {
+        "n": 21,
+        "min": -0.0725,
+        "p1": -0.0702,
+        "p5": -0.0611,
+        "median": -0.0099,
+        "p95": 0.0665,
+        "p99": 0.0847,
+        "max": 0.0893
+      },
+      "selftest_rutube_spbu": {
+        "n": 10,
+        "min": -0.0239,
+        "p1": -0.018,
+        "p5": 0.0054,
+        "median": 0.0812,
+        "p95": 0.1222,
+        "p99": 0.1229,
+        "max": 0.1231
+      }
+    },
+    "impostor_source_urls": {
+      "selftest_rutube_dolenko": "https://rutube.ru/video/3407c4f7087d9b20be27bb462d6bb1d1/",
+      "selftest_rutube_msu": "https://rutube.ru/video/4e4bfb25bfbdc34558040b6ef41f5d21/",
+      "selftest_rutube_spbu": "https://rutube.ru/video/2eb588be10e407656c5fcfc46377ec91/",
+      "selftest_commons_cortes": "https://commons.wikimedia.org/wiki/File:Berenice_Cort%C3%A9s_durante_una_charla_en_el_Museo_Regional_de_Historia_de_Aguascalientes.webm",
+      "selftest_commons_hugentobler": "https://commons.wikimedia.org/wiki/File:Margrit_Hugentobler's_speech,_Lidk%C3%B6ping,_Sweden.webm",
+      "selftest_insightface_samples": "https://github.com/deepinsight/insightface/tree/master/python-package/insightface/data/images"
+    },
+    "impostor_manifests": [
+      "data/raw/_scratch/harvest_selftest/root/data/raw/web_negative_v2/manifest.csv"
+    ],
+    "impostor_notes": "58 лиц ~15 людей, не Соколов (проверено глазами по контактным листам): лекторы Rutube — Доленко С.А. (Teach-in, МГУ), лектор MSU_AI и лица со слайдов, лектор «Онлайн-курсы СПбГУ»; спикеры Wikimedia Commons (M. Hugentobler, B. Cortés); insightface t1.jpg (6 человек)",
+    "reference_nn_cos_same_lecture": {
+      "n": 994,
+      "min": 0.2239,
+      "p1": 0.6157,
+      "p5": 0.7372,
+      "median": 0.8361,
+      "p95": 0.8955,
+      "p99": 0.903,
+      "max": 0.9078
+    },
+    "reference_nn_cos_other_lecture": {
+      "n": 994,
+      "min": 0.2535,
+      "p1": 0.5364,
+      "p5": 0.6365,
+      "median": 0.7371,
+      "p95": 0.8326,
+      "p99": 0.8598,
+      "max": 0.8842
+    },
+    "reference_nn_phash_same_lecture": {
+      "n": 994,
+      "min": 0.0,
+      "p1": 0.0,
+      "p5": 2.0,
+      "median": 6.0,
+      "p95": 14.0,
+      "p99": 18.0,
+      "max": 24.0
+    },
+    "reference_nn_phash_other_lecture": {
+      "n": 994,
+      "min": 2.0,
+      "p1": 4.0,
+      "p5": 6.0,
+      "median": 12.0,
+      "p95": 18.0,
+      "p99": 20.0,
+      "max": 20.0
+    },
+    "reference_coverage": 0.994,
+    "impostor_manifests_note": "локальный scratch-manifest самотеста удалён после калибровки (чужие лица не храним); источники — impostor_source_urls, распределение — impostor/impostor_by_source"
+  },
+  "caveats": [
+    "genuine — только 4 лекции одной веб-камеры: в новых доменах (сцена, интервью, фото) сходство Соколова ниже, поэтому solo/ambiguous обязательно смотреть глазами.",
+    "impostor — немного личностей; хвост распределения других людей оценён грубо."
+  ]
+}

@@ -50,7 +50,7 @@ class ExperimentConfigTests(unittest.TestCase):
 
     def test_arcface_rejects_onnx_without_input_gradients(self):
         with self.assertRaisesRegex(ValueError, "ONNX"):
-            self.load_changed("arcface_face.toml", "iresnet50_ms1mv3.pt", "iresnet50_ms1mv3.onnx")
+            self.load_changed("arcface_face.toml", "iresnet50_w600k.pt", "iresnet50_w600k.onnx")
 
     def test_unknown_model_rejected(self):
         with self.assertRaisesRegex(ValueError, "architecture"):
@@ -68,6 +68,43 @@ class ExperimentConfigTests(unittest.TestCase):
     def test_imported_test_cannot_be_configured_as_a_new_fraction(self):
         with self.assertRaisesRegex(ValueError, "split"):
             self.load_changed("resnet18_face.toml", "validation_fraction = 0.15", "train = 0.7\nval = 0.15\ntest = 0.15")
+
+    def test_group_split_protocol_defaults_and_bounds(self):
+        for filename in ("resnet18_face.toml", "arcface_face.toml"):
+            config = load_config(ROOT / "configs" / filename)
+            self.assertEqual((config.split.mode, config.split.test_fraction, config.split.dedup_max_distance),
+                             ("group_stratified", 0.20, 8))
+            self.assertEqual((config.data.fairface_dir, config.data.negative_count, config.data.fairface_download),
+                             ("data/raw/fairface", 3000, False))
+            self.assertTrue(config.training.augment)
+            self.assertEqual((config.training.head_epochs, config.training.device), (5, "auto"))
+        self.assertEqual(load_config(ROOT / "configs/resnet18_face.toml").training.finetune_blocks, 2)
+        self.assertEqual(load_config(ROOT / "configs/resnet18_face.toml").training.finetune_epochs, 10)
+        for old, new in (('mode = "group_stratified"', 'mode = "by_frame"'),
+                         ("dedup_max_distance = 8", "dedup_max_distance = 65"),
+                         ("augment = true", 'augment = "yes"'),
+                         ("finetune_blocks = 2", "finetune_blocks = 5"),
+                         ("aug_downscale_max = 112", "aug_downscale_max = 16"),
+                         ("aug_jpeg_max = 90", "aug_jpeg_max = 101"),
+                         ("aug_blur_p = 0.2", "aug_blur_p = 1.5"),
+                         ("fairface_download = false", 'fairface_download = "no"')):
+            with self.subTest(change=new), self.assertRaises(ValueError):
+                self.load_changed("resnet18_face.toml", old, new)
+        legacy = self.load_changed("resnet18_face.toml", 'mode = "group_stratified"', 'mode = "random_stratified"')
+        self.assertEqual(legacy.split.mode, "random_stratified")
+
+    def test_cli_check_config_and_predict_arguments(self):
+        import contextlib
+        import io
+        from sokolov.__main__ import main
+        output, errors = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertEqual(main(["check-config", "--config", str(ROOT / "configs/resnet18_face.toml")]), 0)
+        self.assertIn("group_stratified", output.getvalue())
+        with TemporaryDirectory() as temp, contextlib.redirect_stderr(errors):
+            self.assertEqual(main(["predict", "--run-dir", temp, "--model", "resnet18",
+                                   str(Path(temp) / "absent.jpg")]), 2)
+        self.assertIn("absent.jpg", errors.getvalue())
 
     def test_other_person_crop_can_have_negative_label_on_positive_parent(self):
         parent = RawSample("image-1", Path("data/raw/photo.jpg"), 1, "session-1", "", "test")

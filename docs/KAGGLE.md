@@ -16,15 +16,52 @@ python3 tools/package_kaggle.py
 
 В Settings включите GPU и Internet. Достаточно одной GPU; обучение моделей последовательное. Точные сроки зависят от доступной GPU и не гарантируются. Поддерживаемое окружение — Python 3.11/3.12; зафиксированные зависимости находятся в `requirements-kaggle.txt`. После установки перезапустите kernel, если этого требует Kaggle.
 
-## 2. Подключить предобученный ArcFace
+## 2. Предобученный ArcFace (WebFace600K, без ручных шагов)
 
-Используется **официальный InsightFace arcface_torch iResNet50 / MS1MV3**, а не torchvision ResNet50. Источники весов — раздел Model Zoo [официального проекта](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch): OneDrive или Baidu. Нужен `backbone.pth` из пакета `ms1mv3_arcface_r50_fp16` (либо эквивалентный официальный iResNet50/MS1MV3 checkpoint).
+Используется **официальный InsightFace ArcFace iResNet50, обученный на WebFace600K**, а не torchvision ResNet50. Это модель `w600k_r50.onnx` из пакета `buffalo_l`; из того же пакета берётся детектор SCRFD. Её веса точно переносятся в PyTorch-архитектуру arcface_torch `iresnet50` (`src/sokolov/backbones/iresnet.py`), поэтому градиенты по входной картинке для генерации сохраняются. Скачивать и подключать веса вручную не нужно. Если `model.checkpoint` указывает на отсутствующий файл `iresnet50_w600k.pt`, `check-weights`, `train` и `run-all` создают его автоматически. Отдельный запуск с численной проверкой:
 
-Скачайте файл, загрузите в приватный Kaggle Dataset и подключите к Notebook. Укажите полный путь в `ARCFACE_CHECKPOINT`. Не требуется публиковать веса вместе с кодом. Доступность внешних хостингов может меняться; автоматически подменять веса другой моделью запрещено.
+```bash
+python tools/convert_w600k_onnx.py --verify
+```
 
-В TOML также поддержаны `model.checkpoint_url` (HTTPS) и обязательный для него `model.checkpoint_sha256`. Для подключённого локального файла ожидаемый SHA-256 необязателен, фактический хеш фиксируется в результатах. Сравнить его можно командой `sha256sum backbone.pth`.
+Конвертер `tools/convert_w600k_onnx.py`:
 
-`check-weights` строго проверяет загрузку обеих моделей до загрузки FairFace и подготовки лиц. Отсутствие/несовместимость checkpoint останавливает запуск, случайные веса вместо предобученных не используются. Веса ResNet18 скачиваются из официального Torchvision; детектор SCRFD — из официального пакета InsightFace buffalo_l. Веса InsightFace доступны для некоммерческих исследований.
+- при отсутствии `checkpoints/insightface/models/buffalo_l/` скачивает `buffalo_l.zip` (288 621 354 байт, ≈275 MiB) из релиза InsightFace v0.7. Загрузка идёт через `sokolov.io.download` с таймаутом сокета 120 s и проверкой SHA-256 `80ffe37d8a5940d59a7384c201a2a38d4741f2f3c51eef46ebb28218a7b0ca2f`; у встроенного загрузчика `insightface` таймаута нет. Затем архив атомарно распаковывается в ту же папку, которую использует SCRFD. Если папка уже есть, сеть не используется;
+- принимает только `w600k_r50.onnx` с SHA-256 `4c06341c33c2ca1f86781dab0e829f88ad5b64be9fba56e56bc9ebdefc619e43`;
+- переносит все 237 инициализаторов по структуре графа. При экспорте в ONNX (PyTorch 1.9, opset 11) каждая пара Conv→BatchNorm свёрнута в Conv со смещением. Ядро записывается в Conv без смещения, а смещение — в следующий BatchNorm с mean=0, var=1−eps, weight=1. `bn1` блоков, `bn2`, `fc` и `features` хранятся в ONNX без свёртки и копируются как есть. Наклоны PReLU `(C,1,1)` приводятся к `(C,)`. Лишний узел или тензор и несовпадение формы или геометрии свёртки вызывают ошибку;
+- сохраняет bare state_dict, который `build_model` загружает со `strict=True`, и рядом `iresnet50_w600k.json` с SHA-256 входа и выхода;
+- сверяет отпечаток содержимого тензоров (`state_fingerprint`) со значением `970e13178e114fad152a3fce25c7a464144fc6a7412583126dcd3983dc62e294`.
+
+Значения для `configs/arcface_face.toml`, `[model]`:
+
+```toml
+weights = "WebFace600K (InsightFace buffalo_l w600k_r50, converted)"
+checkpoint = "checkpoints/arcface/iresnet50_w600k.pt"
+checkpoint_sha256 = "8060e285754ba598293a466fe7fcff59713dbc3fc5305c2e36df595cab1e6cef"
+```
+
+SHA-256 файла получен с torch 2.5.1, как в `requirements-kaggle.txt`. Байты не зависят от имени файла, но `torch.save` другой версии PyTorch может дать другой хеш при том же содержимом.
+
+Измерения: Apple M4, CPU, float32, torch 2.5.1, onnxruntime 1.20.1. Предобработка одинаковая: RGB, `(x − 127.5) / 127.5`. Так работает `ArcFaceONNX` в InsightFace, и это совпадает с нашим `ToTensor` + `Normalize(0.5, 0.5)`.
+
+| Входы PyTorch и onnxruntime | Число | Max abs diff | Max abs выхода |
+|---|---|---|---|
+| Случайные, U(−1, 1) | 16 | 7.9e-6 | 1.78 |
+| Лица Соколова, лекции 01/03/04/11: SCRFD → `align_face` → 112×112 | 16 | 2.0e-5 | 4.29 |
+| Те же лица, эталон — `insightface` `get_feat` | 16 | 1.9e-5 | — |
+
+Косинусное сходство эмбеддингов — это проверка здравого смысла, а не метрика качества:
+
+- Соколов–Соколов из разных лекций: 96 пар, среднее 0.512, min 0.272, max 0.794;
+- Соколов–другие люди: 96 пар, среднее −0.035, max 0.078. Использованы 6 лиц из примеров пакета `insightface`; изображения не сохраняются.
+
+Ограничение: исходные статистики свёрнутых BatchNorm восстановить нельзя. В eval-режиме выход совпадает, но train-режим BatchNorm при дообучении всего backbone не воспроизводит исходную сеть. В конфигурации ArcFace `finetune_epochs = 0`, а замороженные слои остаются в eval.
+
+Альтернатива — PyTorch `backbone.pth` iResNet50/MS1MV3 из Model Zoo [arcface_torch](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch), он доступен через OneDrive или Baidu. Для неё задайте в `[model]` `weights = "MS1MV3"`, путь к файлу и его SHA-256 (`sha256sum backbone.pth`). Также поддержаны `model.checkpoint_url` (HTTPS) и обязательный для него `model.checkpoint_sha256`. Автоматически подменять веса другой моделью запрещено.
+
+`check-weights` строго проверяет загрузку обеих моделей до загрузки FairFace и подготовки лиц. Отсутствующий или несовместимый checkpoint останавливает запуск; случайные веса вместо предобученных не используются. Веса ResNet18 скачиваются из официального Torchvision.
+
+**Лицензия.** Предобученные модели InsightFace, включая `buffalo_l` и полученный из него checkpoint, разрешены только для некоммерческих исследований. Веса не публикуются вместе с кодом.
 
 ## 3. Данные и настройки
 

@@ -3,10 +3,12 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-from .io import read_json, write_csv, write_json, sha256
-from .metrics import binary_metrics, choose_threshold
+from .io import read_csv, read_json, write_csv, write_json, sha256
+from .metrics import binary_metrics, breakdown, choose_threshold, group_bootstrap
 from .model import build_model
 from .train import device_for, predict, training_fingerprint, validate_prepared
+
+BOOTSTRAP_RESAMPLES = 1000
 
 
 def select_threshold(config, checkpoint):
@@ -97,12 +99,23 @@ def evaluate_test(config, checkpoint, threshold=None):
     def measure(items):
         return binary_metrics([int(r['label']) for r in items], [r['score'] for r in items],
                               threshold, [r['detected'] for r in items])
+    def bootstrap(items):
+        return group_bootstrap([int(r['label']) for r in items], [r['score'] for r in items], threshold,
+                               [r['detected'] for r in items], [r['group_id'] for r in items],
+                               resamples=BOOTSTRAP_RESAMPLES, seed=config.split.seed)
+    excluded = [r for r in read_csv(config.data.prepared_manifest)
+                if r['split'] == 'test' and r['status'] == 'near_duplicate']
     results = {'image_level': measure(rows), 'face_level': measure(usable),
+        'bootstrap': {'image_level': bootstrap(rows), 'face_level': bootstrap(usable)},
+        'breakdown': breakdown(rows, threshold),
         'coverage': {'total': len(rows), 'usable_faces': len(usable),
                      'fraction': len(usable)/len(rows) if rows else None,
                      'no_face': sum(r['status'] == 'no_face' for r in rows),
-                     'multiple_faces': sum(r['status'] == 'multiple_faces' for r in rows),
-                     'alignment_failed': sum(r['status'] == 'alignment_failed' for r in rows)},
+                     'alignment_failed': sum(r['status'] == 'alignment_failed' for r in rows),
+                     'several_faces_primary_used': sum(r['detected'] and int(r['face_count']) > 1 for r in rows),
+                     'near_duplicate_excluded': len(excluded),
+                     'near_duplicate_excluded_positive': sum(r['label'] == '1' for r in excluded)},
+        'test_groups': len({r['group_id'] for r in rows}),
         'benchmark': benchmark(config, model, device),
         'checkpoint_bytes': Path(checkpoint).stat().st_size,
         'checkpoint_sha256': sha256(checkpoint), 'technical_test': saved['technical_test']}
@@ -119,3 +132,82 @@ def evaluate_test(config, checkpoint, threshold=None):
     write_json(folder/'status.json', {'status': 'evaluated', 'technical_test': saved['technical_test']})
     return EvaluationArtifacts(folder/'test_metrics.json', folder/'test_predictions.csv',
                                folder/'plots/confusion_matrix.png', threshold)
+
+
+def load_classifier(run_dir, which='best'):
+    """Restore a trained classifier and its validation threshold from a finished run."""
+    import torch
+    from .config import Config, DataConfig, ModelConfig, SplitConfig, TrainingConfig
+    run = Path(run_dir)
+    if which == 'best':
+        checkpoint = run/'best_model.pt'
+        architecture = read_json(run/'best_model.json')['architecture']
+    elif which in ('resnet18', 'arcface'):
+        checkpoint, architecture = run/which/'best.pt', which
+    else:
+        raise ValueError('--model: resnet18, arcface or best')
+    threshold = read_json(run/architecture/'threshold.json')
+    if threshold['checkpoint_sha256'] != sha256(checkpoint):
+        raise ValueError('threshold.json belongs to another checkpoint; run evaluate first')
+    saved = torch.load(checkpoint, map_location='cpu', weights_only=False)
+    raw = saved['config']
+    # Generation settings are irrelevant for classification and are not restored.
+    config = Config(DataConfig(**raw['data']), ModelConfig(**raw['model']), SplitConfig(**raw['split']),
+                    TrainingConfig(**raw['training']), None)
+    model = build_model(config.model, pretrained=False)
+    model.load_state_dict(saved['model'], strict=True)
+    return config, model.eval(), float(threshold['threshold']), bool(saved['technical_test'])
+
+
+def predict_images(run_dir, images, *, which='best', device=None, detector=None):
+    """Score arbitrary photos: every detected face is scored, the photo score is the maximum.
+
+    No face -> score 0 and a negative decision. Threshold comes from validation only.
+    """
+    import torch
+    from dataclasses import replace
+    from .data.dataset import transforms
+    from .data.download import image_info
+    from .data.prepare import SCRFDDetector, align_face
+    config, model, threshold, technical = load_classifier(run_dir, which)
+    if device:
+        config = replace(config, training=replace(config.training, device=device))
+    device = device_for(config.training.device)
+    model = model.to(device)
+    detector = detector or SCRFDDetector(config.data)
+    transform = transforms(config, train=False)
+    results = []
+    for path in images:
+        image, _ = image_info(path)
+        faces, tensors = [], []
+        for face in detector(image):
+            try:
+                tensors.append(transform(align_face(image, face['landmarks'])))
+            except ValueError:
+                faces.append({**face, 'score': None, 'note': 'alignment_failed'})
+                continue
+            faces.append(dict(face))
+        if tensors:
+            with torch.inference_mode():
+                scores = iter(model(torch.stack(tensors).to(device)).flatten().sigmoid().cpu().tolist())
+            for face in faces:
+                if 'note' not in face:
+                    face['score'] = next(scores)
+        scored = [f['score'] for f in faces if f['score'] is not None]
+        score = max(scored, default=0.)
+        results.append({'path': str(path), 'architecture': config.model.architecture, 'threshold': threshold,
+                        'technical_test': technical, 'faces': faces, 'score': score,
+                        'decision': 'sokolov' if scored and score >= threshold else 'not_sokolov'})
+    return results
+
+
+def format_prediction(result):
+    lines = [f"{result['path']}: {result['decision']} (score={result['score']:.4f}, threshold={result['threshold']:.4f}, "
+             f"model={result['architecture']}, faces={len(result['faces'])})"]
+    if result['technical_test']:
+        lines.append('  WARNING: technical test checkpoint (random weights), not a trained classifier')
+    for i, face in enumerate(result['faces'], 1):
+        bbox = ', '.join(f'{v:.0f}' for v in face['bbox'])
+        score = 'n/a ('+face['note']+')' if face['score'] is None else f"{face['score']:.4f}"
+        lines.append(f"  face {i}: bbox=[{bbox}] px, det={face['confidence']:.3f}, score={score}")
+    return '\n'.join(lines)
