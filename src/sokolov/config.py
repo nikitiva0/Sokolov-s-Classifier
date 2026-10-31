@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -24,6 +24,8 @@ class DataConfig:
     detector_name: str = "buffalo_l"
     detector_threshold: float = 0.5
     min_detector_coverage: float = 0.8
+    extra_manifest: str = ""
+    reuse_prepared_manifest: str = ""
 
 
 @dataclass(frozen=True)
@@ -36,6 +38,7 @@ class ModelConfig:
     checkpoint: str
     checkpoint_url: str = ""
     checkpoint_sha256: str = ""
+    face_preprocessing: str = "rgb"
 
 
 @dataclass(frozen=True)
@@ -44,6 +47,7 @@ class SplitConfig:
     seed: int
     test_fraction: float = 0.15
     mode: str = "random_stratified"
+    train_only_sources: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -57,6 +61,8 @@ class TrainingConfig:
     selection_metric: str
     device: str = "auto"
     num_workers: int = 2
+    augmentation: str = "light"
+    source_balanced: bool = False
 
 
 @dataclass(frozen=True)
@@ -157,8 +163,19 @@ def load_config(path: str | Path) -> Config:
     _number("split.validation_fraction", split.validation_fraction, positive=True)
     if split.validation_fraction >= 1:
         raise ValueError("split.validation_fraction должна быть строго между 0 и 1")
-    if split.mode not in ("random_stratified", "external"):
-        raise ValueError("split.mode: random_stratified or external")
+    if split.mode not in ("random_stratified", "group_stratified", "external"):
+        raise ValueError("split.mode: random_stratified, group_stratified or external")
+    if (not isinstance(split.train_only_sources, list) or
+            any(not isinstance(s, str) or not s for s in split.train_only_sources) or
+            len(set(split.train_only_sources)) != len(split.train_only_sources)):
+        raise ValueError('split.train_only_sources: unique non-empty source names required')
+    if model.face_preprocessing not in ('rgb', 'identity_v1'):
+        raise ValueError('model.face_preprocessing: rgb or identity_v1')
+    if training.augmentation not in ('light', 'robust') or type(training.source_balanced) is not bool:
+        raise ValueError('training: augmentation light/robust and boolean source_balanced required')
+    for field in ('extra_manifest', 'reuse_prepared_manifest'):
+        if not isinstance(getattr(data, field), str):
+            raise ValueError(f'data.{field}: expected path string')
     _number("split.test_fraction", split.test_fraction, positive=True)
     if split.validation_fraction + split.test_fraction >= 1:
         raise ValueError("split: train fraction must be positive")
@@ -188,8 +205,8 @@ def load_config(path: str | Path) -> Config:
     for field in ("head_lr", "finetune_lr"):
         _number(f"training.{field}", getattr(training, field), positive=True)
     _number("training.weight_decay", training.weight_decay)
-    if training.selection_metric != "average_precision":
-        raise ValueError("training.selection_metric: предусмотрен average_precision")
+    if training.selection_metric not in ("average_precision", "source_macro_ap"):
+        raise ValueError("training.selection_metric: average_precision or source_macro_ap")
     _integer("generation.steps", generation.steps, 1)
     _integer("generation.snapshot_every", generation.snapshot_every, 1)
     if generation.snapshot_every > generation.steps:

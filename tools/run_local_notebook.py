@@ -17,7 +17,7 @@ from sokolov.io import write_json
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--notebook', type=Path, default=ROOT/'notebooks/local_train_mps.ipynb')
-    parser.add_argument('--output', type=Path, default=ROOT/'work/local-mps/local_train_mps_v2.executed.ipynb')
+    parser.add_argument('--output', type=Path, default=ROOT/'work/local-mps/local_train_mps_v3.executed.ipynb')
     parser.add_argument('--run-dir', type=Path)
     args = parser.parse_args()
     os.chdir(ROOT)

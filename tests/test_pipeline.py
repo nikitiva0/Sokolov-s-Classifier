@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class SplitTests(unittest.TestCase):
     def test_random_stratified_reproducible_sizes_and_external_groups(self):
         from sokolov.data.split import split_groups
-        config = load_config(ROOT/'configs/resnet18_face.toml').split
+        config = replace(load_config(ROOT/'configs/resnet18_face.toml').split,
+                         mode='random_stratified', train_only_sources=[])
         samples = [RawSample(str(i), Path(str(i)), int(i < 1000), f'lecture-{i%4}', '', None)
                    for i in range(6000)]
         groups = {s.image_id: s.source_id for s in samples}
@@ -78,10 +79,14 @@ def fixtures(folder, count=40):
     write_csv(positive/'manifest.csv', rows)
     config = load_config(ROOT/'configs/resnet18_face.toml')
     return replace(config, data=replace(config.data,
+        extra_manifest='', reuse_prepared_manifest='',
         positive_dir=str(positive), fairface_dir=str(fairface), negative_count=count//2,
         min_detector_coverage=.3,  # Tiny fixture intentionally loses two of three faces in one split.
         raw_manifest=str(folder/'raw.csv'), prepared_manifest=str(folder/'prepared/manifest.csv')),
+        split=replace(config.split, mode='random_stratified', train_only_sources=[]),
+        model=replace(config.model, face_preprocessing='rgb'),
         training=replace(config.training, num_workers=0, device='cpu', batch_size=4,
+                         augmentation='light', source_balanced=False, selection_metric='average_precision',
                          head_epochs=2, finetune_epochs=0))
 
 

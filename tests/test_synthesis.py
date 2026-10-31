@@ -73,7 +73,8 @@ class SynthesisTests(unittest.TestCase):
                         self.assertEqual(image.size, (config.model.image_size,)*2)
                         x = torch.from_numpy(np.array(image).copy()).permute(2, 0, 1).float()[None]/255
                     with torch.no_grad():
-                        score = model(normalized_pixels(x, architecture)).sigmoid().item()
+                        score = model(normalized_pixels(x, architecture,
+                            config.model.face_preprocessing)).sigmoid().item()
                     self.assertAlmostEqual(score, float(row['score']), places=6)
                 # Repeated seed and same checkpoint reproduce exactly, including PNG quantization.
                 again = synthesize(config, checkpoint, 7, output_dir=root/'replay')

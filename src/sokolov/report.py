@@ -32,8 +32,10 @@ def make_report(run_dir):
             raise ValueError('Models used different data/splits')
         summaries[name] = {'evaluation': metrics, 'training': summary,
                            'environment': read_json(folder/'environment.json')}
-        for level in ('image_level', 'face_level'):
-            result = metrics[level]
+        levels = {level: metrics[level] for level in ('image_level', 'face_level')}
+        levels.update({'positive_domain_'+domain: result for domain, result in
+                       metrics.get('by_positive_domain', {}).items()})
+        for level, result in levels.items():
             for metric, value in (result['metrics'] or {}).items():
                 table.append({'model': name, 'level': level, 'metric': metric, 'value': value,
                               'undefined_reason': result.get('undefined', {}).get(metric, '')})
@@ -61,6 +63,10 @@ def make_report(run_dir):
     for row in table:
         value = f"{row['value']:.6g}" if row['value'] is not None else 'N/A: '+row['undefined_reason']
         lines.append(f"| {row['model']} | {row['level']} | {row['metric']} | {value} |")
+    if any(s['evaluation'].get('by_positive_domain') for s in summaries.values()):
+        lines += ['', 'Строки positive_domain_web и positive_domain_lecture сравнивают позитивы',
+                  'одного домена с теми же общими test-негативами. При малом числе портретов',
+                  'доменные оценки нестабильны. Число примеров указано в support.', '']
     for name in MODELS:
         folder = run/name
         plots = report/name
@@ -72,7 +78,11 @@ def make_report(run_dir):
         axes[0].plot([int(r['epoch']) for r in history], [float(r['train_loss']) for r in history])
         axes[0].set(xlabel='Epoch', ylabel='Train loss')
         axes[1].plot([int(r['epoch']) for r in history], [float(r['validation_ap']) for r in history])
-        axes[1].set(xlabel='Epoch', ylabel='Validation AP')
+        if 'selection_score' in history[0]:
+            axes[1].plot([int(r['epoch']) for r in history],
+                         [float(r['selection_score']) for r in history], label='selection score')
+            axes[1].legend()
+        axes[1].set(xlabel='Epoch', ylabel='Validation AP / selection score')
         fig.tight_layout(); fig.savefig(plots/'training.png', dpi=140); plt.close(fig)
         summary = summaries[name]
         lines += ['', f'## {name}', '', '```json', json.dumps({
@@ -82,6 +92,7 @@ def make_report(run_dir):
             'benchmark': summary['evaluation']['benchmark'],
             'coverage': summary['evaluation']['coverage'],
             'pretrained_weights': summary['training']['pretrained_provenance'],
+            'selection_metric': summary['training'].get('selection_metric', 'average_precision'),
             'environment': summary['environment'],
             'threshold': read_json(folder/'threshold.json')}, ensure_ascii=False, indent=2), '```', '']
         for image in ['training.png', 'curves.png', 'confusion_matrix.png', 'scores.png']:
@@ -107,7 +118,7 @@ def make_report(run_dir):
         winner = read_json(run/'best_model.json')
         write_json(report/'best_model.json', winner)
         lines += ['', '## Лучшая сохранённая модель', '',
-                  f"Победитель: **{winner['architecture']}**, validation AP={winner['validation_ap']:.6f}, эпоха {winner['epoch']}.",
+                  f"Победитель: **{winner['architecture']}**, validation {winner.get('selection_metric', 'average_precision')}={winner['validation_ap']:.6f}, эпоха {winner['epoch']}.",
                   'Выбор выполнен по validation, без использования test. Полный checkpoint сохранён локально в best_model.pt.', '']
     if (run/'synthesis').exists():
         from .synthesize import validate_synthesis

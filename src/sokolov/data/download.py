@@ -24,6 +24,8 @@ def download_data(config, fairface_dir=None):
     request = {'handle': data.fairface_handle, 'local_dir': str(fairface_dir or data.fairface_dir),
                'positive_dir': str(Path(data.positive_dir).resolve()),
                'negative_count': data.negative_count, 'seed': config.split.seed}
+    if data.extra_manifest:
+        request['extra_manifest_sha256'] = sha256(data.extra_manifest)
     if raw.exists():
         if config.split.mode == 'external':
             return raw
@@ -44,7 +46,7 @@ def download_data(config, fairface_dir=None):
     provenance = read_csv(positive / 'manifest.csv')
     rows, seen, exclusions = [], {}, []
 
-    def add(path, label, image_id, source_id):
+    def add(path, label, image_id, source_id, source_url=''):
         try:
             _, digest = image_info(path)
         except (OSError, ValueError) as error:
@@ -57,7 +59,7 @@ def download_data(config, fairface_dir=None):
                                'duplicate_of': seen[digest]['image_id']})
             return False
         row = {'image_id': image_id, 'path': str(path.resolve()), 'label': label,
-               'source_id': source_id, 'source_url': '', 'partition': '', 'pixel_sha256': digest}
+               'source_id': source_id, 'source_url': source_url, 'partition': '', 'pixel_sha256': digest}
         seen[digest] = row
         rows.append(row)
         return True
@@ -69,6 +71,12 @@ def download_data(config, fairface_dir=None):
         if not path.is_relative_to(positive.resolve()):
             raise ValueError('Positive path escapes dataset directory')
         add(path, 1, path.stem, item['source_video'])
+    if data.extra_manifest:
+        for item in read_csv(data.extra_manifest):
+            if item['label'] not in ('0', '1') or not item['source_id']:
+                raise ValueError('Extra manifest requires verified label and source_id')
+            path = Path(item['path'])
+            add(path, int(item['label']), item['image_id'], item['source_id'], item['source_url'])
     candidates = sorted(p for p in folder.rglob('*')
                         if p.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp'} and p.is_file())
     random.Random(config.split.seed).shuffle(candidates)
@@ -85,10 +93,12 @@ def download_data(config, fairface_dir=None):
     if not any(r['label'] == 1 for r in rows):
         raise ValueError('No readable positive images')
     write_csv(raw, rows)
+    from collections import Counter
+    counts = Counter(r['label'] for r in rows)
     write_json(selection, {'request': request, 'raw_sha256': sha256(raw), 'resolved_dataset_path': str(folder),
         'resolved_version': folder.name if folder.parent.name == 'versions' else None,
-        'selected_files': [r['path'] for r in rows if r['label'] == 0],
-        'counts': {'positive': len(rows) - accepted, 'negative': accepted},
+        'selected_files': [r['path'] for r in rows if r['source_id'].startswith('fairface:')],
+        'counts': {'positive': counts[1], 'negative': counts[0]},
         'exclusions': exclusions, 'license': 'FairFace CC BY 4.0',
         'source': 'https://github.com/joojs/fairface'})
     return raw

@@ -29,7 +29,10 @@ class ExperimentConfigTests(unittest.TestCase):
             [(c.model.architecture, c.data.variant) for c in configs],
             [("resnet18", "face_crop"), ("arcface", "face_crop")],
         )
-        self.assertEqual({c.data.raw_manifest for c in configs}, {"data/manifests/raw.csv"})
+        self.assertEqual({c.data.raw_manifest for c in configs}, {"data/manifests/domain_v3/raw.csv"})
+        self.assertTrue(all(c.split.mode == 'group_stratified' for c in configs))
+        self.assertTrue(all(c.training.augmentation == 'robust' for c in configs))
+        self.assertTrue(all(c.model.face_preprocessing == 'identity_v1' for c in configs))
         self.assertTrue(all(c.split == configs[0].split for c in configs))
         self.assertTrue(all(c.generation == configs[0].generation for c in configs))
         self.assertEqual(configs[0].split.validation_fraction, 0.15)

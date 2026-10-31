@@ -16,8 +16,12 @@ def select_threshold(config, checkpoint):
     model.load_state_dict(saved['model'], strict=True)
     device = device_for(config.training.device)
     val = predict(config, model.to(device), device, 'val')
+    weights = None
+    if config.training.selection_metric == 'source_macro_ap':
+        from .data.dataset import source_sampling_weights
+        weights = source_sampling_weights(val)
     return choose_threshold([int(r['label']) for r in val], [r['score'] for r in val],
-                            [r['detected'] for r in val])
+                            [r['detected'] for r in val], sample_weight=weights)
 
 
 def plot_predictions(rows, threshold, folder):
@@ -98,6 +102,10 @@ def evaluate_test(config, checkpoint, threshold=None):
         return binary_metrics([int(r['label']) for r in items], [r['score'] for r in items],
                               threshold, [r['detected'] for r in items])
     results = {'image_level': measure(rows), 'face_level': measure(usable),
+        'by_positive_domain': {domain: measure([r for r in rows if int(r['label']) == 0 or
+            ('web' if r['source_id'].startswith('web:') else 'lecture') == domain])
+            for domain in sorted({'web' if r['source_id'].startswith('web:') else 'lecture'
+                                  for r in rows if int(r['label']) == 1})},
         'coverage': {'total': len(rows), 'usable_faces': len(usable),
                      'fraction': len(usable)/len(rows) if rows else None,
                      'no_face': sum(r['status'] == 'no_face' for r in rows),

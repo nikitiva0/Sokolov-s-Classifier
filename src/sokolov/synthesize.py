@@ -25,7 +25,7 @@ def checkpoint_config(saved):
 
 
 def select_best_model(run_dir):
-    """Select by validation AP only; ties prefer ResNet18. Persist a self-contained copy."""
+    """Select by the configured validation criterion; ties prefer ResNet18."""
     import torch
     run = Path(run_dir)
     candidates = []
@@ -41,6 +41,7 @@ def select_best_model(run_dir):
         if saved['config']['model']['architecture'] != name:
             raise ValueError('Checkpoint architecture mismatch')
         candidates.append({'architecture': name, 'validation_ap': ap,
+            'selection_metric': saved['config']['training']['selection_metric'],
             'epoch': int(saved['epoch'])+1, 'checkpoint_sha256': sha256(folder/'best.pt'),
             'technical_test': saved['technical_test'], 'data_fingerprint': saved['data_fingerprint']})
         del saved
@@ -50,7 +51,9 @@ def select_best_model(run_dir):
         raise ValueError('Cannot compare a technical test and a real trained model')
     winner = max(candidates, key=lambda c: c['validation_ap'])
     metadata = {k: v for k, v in winner.items() if k != 'data_fingerprint'}
-    metadata.update(selection_partition='val', selection_metric='average_precision',
+    if len({c['selection_metric'] for c in candidates}) != 1:
+        raise ValueError('Models must use the same validation selection criterion')
+    metadata.update(selection_partition='val', selection_metric=winner['selection_metric'],
         tie_break='resnet18', candidates=[{k: v for k, v in c.items() if k != 'data_fingerprint'} for c in candidates])
     target = run/'best_model.pt'
     if not target.exists() or sha256(target) != winner['checkpoint_sha256']:
@@ -61,22 +64,16 @@ def select_best_model(run_dir):
     return target
 
 
-def normalized_pixels(pixels, architecture):
+def normalized_pixels(pixels, architecture, policy='rgb'):
     """Differentiable counterpart of dataset normalization; pixels remain in [0,1]."""
-    if architecture == 'resnet18':
-        mean, std = (.485, .456, .406), (.229, .224, .225)
-    elif architecture == 'arcface':
-        mean = std = (.5, .5, .5)
-    else:
-        raise ValueError('Unknown synthesis architecture')
-    mean = pixels.new_tensor(mean).view(1, 3, 1, 1)
-    std = pixels.new_tensor(std).view(1, 3, 1, 1)
-    return (pixels-mean)/std
+    from .preprocessing import normalized_face
+    return normalized_face(pixels, architecture, policy)
 
 
 def objective_terms(pixels, model, config):
     import torch
-    logit = model(normalized_pixels(pixels, config.model.architecture)).reshape(-1)
+    logit = model(normalized_pixels(pixels, config.model.architecture,
+                                   config.model.face_preprocessing)).reshape(-1)
     if logit.numel() != 1:
         raise ValueError('Synthesis expects exactly one binary logit')
     logit = logit[0]
@@ -106,7 +103,8 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, output_dir=None) 
     checkpoint = Path(checkpoint)
     saved = torch.load(checkpoint, map_location='cpu', weights_only=False)
     stored = checkpoint_config(saved)
-    if stored.model.architecture != config.model.architecture or stored.model.image_size != config.model.image_size:
+    if (stored.model.architecture != config.model.architecture or stored.model.image_size != config.model.image_size
+            or stored.model.face_preprocessing != config.model.face_preprocessing):
         raise ValueError('Synthesis config does not match checkpoint architecture/preprocessing')
     if type(seed) is not int or seed < 0:
         raise ValueError('Synthesis seed must be a nonnegative integer')

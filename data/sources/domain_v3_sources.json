@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "description": "Additional labelled local research photos; no image bytes included.",
+  "items": [
+    {
+      "image_id": "web_5b1419772ff2ce386267",
+      "path": "data/raw/sokolov_domain_v3/web_5b1419772ff2ce386267.png",
+      "label": 1,
+      "source_id": "web:2",
+      "source_url": "https://cs.hse.ru/news/expertise/1191112841.html",
+      "pixel_sha256": "e89c142e26850e25bab16279dad16d91ec060fb5f002a53dc96d820d5b838063",
+      "download_url": "https://cs.hse.ru/pubs/share/direct/1191129837.jpg",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_195c280cee860245a498",
+      "path": "data/raw/sokolov_domain_v3/web_195c280cee860245a498.png",
+      "label": 0,
+      "source_id": "web:other:863761973",
+      "source_url": "https://cs.hse.ru/news/expertise/1191112841.html",
+      "pixel_sha256": "60a41f60462bbd8220f09e21930017b57ace648bb0c678b7e4d577109a932cb0",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/863761973",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_09fa5472fc875b54d9c4",
+      "path": "data/raw/sokolov_domain_v3/web_09fa5472fc875b54d9c4.png",
+      "label": 0,
+      "source_id": "web:other:1125538737",
+      "source_url": "https://cs.hse.ru/news/expertise/1191112841.html",
+      "pixel_sha256": "652569a2fe5736d7c339584c2a973070d9501b0a6605289a46c6a880407155fb",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/1125538737",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_8019ec2892103c7fed8b",
+      "path": "data/raw/sokolov_domain_v3/web_8019ec2892103c7fed8b.png",
+      "label": 1,
+      "source_id": "web:hse_profile",
+      "source_url": "https://cs.hse.ru/news/expertise/1191112841.html",
+      "pixel_sha256": "95793c8f76fe68e4e6dc8cdb881646fe51116223d59fa59438b837a212d7a43e",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/175674529",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_54493da0dc81dfb18f4c",
+      "path": "data/raw/sokolov_domain_v3/web_54493da0dc81dfb18f4c.png",
+      "label": 1,
+      "source_id": "web:yandex_profile",
+      "source_url": "https://education.yandex.ru/projects/university/hse-ami",
+      "pixel_sha256": "1855a738f22373fc9ca35d2fb4972ac4bdcdc095f3cc83c031740162d1c0f688",
+      "download_url": "https://avatars.mds.yandex.net/get-lpc/12373972/9bddced1-3e40-46eb-9c53-7a699a11f21f/orig",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_3981b9359c608a71015b",
+      "path": "data/raw/sokolov_domain_v3/web_3981b9359c608a71015b.png",
+      "label": 1,
+      "source_id": "web:yandex_profile",
+      "source_url": "https://education.yandex.ru/journal/kak-ustroen-den-professora",
+      "pixel_sha256": "45198fb27b2bd78a521b6cb40067b52553dd7836828601cc4cd5a6e6f7170fa1",
+      "download_url": "https://yastatic.net/s3/education-portal/media/Artboard_17_4f2946991f.webp",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_c338e2b158a94f294710",
+      "path": "data/raw/sokolov_domain_v3/web_c338e2b158a94f294710.png",
+      "label": 1,
+      "source_id": "web:11",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "7014984f3ea87b44f41a94bf8687ca65c5dec38d3fa7a79a1efccf79f53aa542",
+      "download_url": "https://cs.hse.ru/data/2020/04/28/1544880182/7A2A5705%20copy.jpg",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_20b5082d08e1dd6be126",
+      "path": "data/raw/sokolov_domain_v3/web_20b5082d08e1dd6be126.png",
+      "label": 0,
+      "source_id": "web:other:42249509",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "ee8a359638d3abdb1b3ad8c9a923d1dfd6719c4dd72d576869c2970e52d9c73d",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/42249509",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_652aafd13b8112ce6a20",
+      "path": "data/raw/sokolov_domain_v3/web_652aafd13b8112ce6a20.png",
+      "label": 0,
+      "source_id": "web:other:46695224",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "f6ae57a266d13a3af8180043280310dca065fbdca08db2500b2f33dad232629b",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/46695224",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_400af6501735fb1fca11",
+      "path": "data/raw/sokolov_domain_v3/web_400af6501735fb1fca11.png",
+      "label": 0,
+      "source_id": "web:other:3626661",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "41fd6ca58bd8d00072da350651d791af1ebada5d5c526b96b051c240d235070a",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/3626661",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_8b47539189866f24a6c5",
+      "path": "data/raw/sokolov_domain_v3/web_8b47539189866f24a6c5.png",
+      "label": 0,
+      "source_id": "web:other:228403",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "e3df650cf7f1f6253b033f2f3da364d3269b764cca892c8466437587feb4358c",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/228403",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_b1367be96a607585e369",
+      "path": "data/raw/sokolov_domain_v3/web_b1367be96a607585e369.png",
+      "label": 0,
+      "source_id": "web:other:161646532",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "ecd2876f7734dbeee725e4919682bbb30d3e38bcfcd39806d5ec6f142b11186a",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/161646532",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_275edf37216c1ca3a1df",
+      "path": "data/raw/sokolov_domain_v3/web_275edf37216c1ca3a1df.png",
+      "label": 0,
+      "source_id": "web:other:25930247",
+      "source_url": "https://cs.hse.ru/news/360908037.html",
+      "pixel_sha256": "50c0f525655ef7964ea91212e4ea14d4e66e82bb1aaff2997a89272afb3512d8",
+      "download_url": "https://cs.hse.ru/mirror/org/persons/cimage/25930247",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_5b798a8798527028c0f0",
+      "path": "data/raw/sokolov_domain_v3/web_5b798a8798527028c0f0.png",
+      "label": 1,
+      "source_id": "web:hse_profile",
+      "source_url": "https://www.hse.ru/staff/esokolov/",
+      "pixel_sha256": "59c6da4e6059560a8c31a0e318c2e84afbca5c151d9e05088c971dd4e1b7ae89",
+      "download_url": "https://www.hse.ru/pubs/share/thumb/1113829292:c380x380+0+0:r380x380!",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_63292d0c412175842cac",
+      "path": "data/raw/sokolov_domain_v3/web_63292d0c412175842cac.png",
+      "label": 1,
+      "source_id": "web:github",
+      "source_url": "https://github.com/esokolov",
+      "pixel_sha256": "7b7dab32b6a786d0116245ab46f500f7f93481b2a9eb843169a9933b82dbd7f9",
+      "download_url": "https://avatars.githubusercontent.com/u/1822514?v=4",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_e110d2b08c7633d98f47",
+      "path": "data/raw/sokolov_domain_v3/web_e110d2b08c7633d98f47.png",
+      "label": 1,
+      "source_id": "web:olymp2023",
+      "source_url": "https://cs.hse.ru/olymp/news/828779981.html",
+      "pixel_sha256": "b993061b4b37eeda174d2551d7bd9fb3737ba5b650f1cef8b88988f5499d070d",
+      "download_url": "https://cs.hse.ru/data/2023/04/20/2029006623/соко.jpeg",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "web_807e062811a1206b9dd0",
+      "path": "data/raw/sokolov_domain_v3/web_807e062811a1206b9dd0.png",
+      "label": 1,
+      "source_id": "web:corporate",
+      "source_url": "https://cs.hse.ru/dpo/company/",
+      "pixel_sha256": "f05ee794103a9ea7784b252cb49939e243858bceda7f69a97e510ac3d8e40d5f",
+      "download_url": "https://cs.hse.ru/pubs/share/direct/948154492.jpg",
+      "license": "Not specified by source; local research copy."
+    },
+    {
+      "image_id": "user_e3d27e69f48b81e4b5c1",
+      "path": "data/raw/sokolov_domain_v3/user_e3d27e69f48b81e4b5c1.png",
+      "label": 1,
+      "source_id": "web:user_provided_batch",
+      "source_url": "user-provided",
+      "pixel_sha256": "b23dfdd754adb692cefb57d5c84b7101c3c2ff9f7bdfe80d4d09d5f4e26a2f08",
+      "user_original": "photo_2026-10-31_13-28-42.jpg",
+      "original_sha256": "e3d27e69f48b81e4b5c11a6596332c63bffbf2d31e6d8b78e6be220ed8d38b34",
+      "bbox": [
+        254,
+        395,
+        679,
+        1010
+      ],
+      "margin_fraction": 0.08,
+      "max_side": 320,
+      "train_only": true,
+      "license": "Provided by user for this local dataset.",
+      "crop_box": [
+        220,
+        345,
+        713,
+        1059
+      ]
+    },
+    {
+      "image_id": "user_801566d6083884c0ae78",
+      "path": "data/raw/sokolov_domain_v3/user_801566d6083884c0ae78.png",
+      "label": 1,
+      "source_id": "web:user_provided_batch",
+      "source_url": "user-provided",
+      "pixel_sha256": "9aab5079f5bf507fb62e86376e625fe99771af52cbcf21f4e63b0339ecdeaa7f",
+      "user_original": "photo_2026-10-31_13-31-07.jpg",
+      "original_sha256": "801566d6083884c0ae783ef991753fb4478e61e9f1b7f3256525f8d312dcad3e",
+      "bbox": [
+        226,
+        89,
+        475,
+        452
+      ],
+      "margin_fraction": 0.08,
+      "max_side": 320,
+      "train_only": true,
+      "license": "Provided by user for this local dataset.",
+      "crop_box": [
+        206,
+        59,
+        494,
+        481
+      ]
+    },
+    {
+      "image_id": "user_2e6091b19ce4c799e04e",
+      "path": "data/raw/sokolov_domain_v3/user_2e6091b19ce4c799e04e.png",
+      "label": 1,
+      "source_id": "web:user_provided_batch",
+      "source_url": "user-provided",
+      "pixel_sha256": "75f506769c2f5d97964a9ecdee77bf8f8b55f2fb93a82cd438d558fc84291ab7",
+      "user_original": "photo_2026-10-31_14-13-38.jpg",
+      "original_sha256": "2e6091b19ce4c799e04edd06f2a713af2d4dba54d9f6c8ba6bc8b45cfd1d6b78",
+      "bbox": [
+        374,
+        126,
+        531,
+        337
+      ],
+      "margin_fraction": 0.08,
+      "max_side": 320,
+      "train_only": true,
+      "license": "Provided by user for this local dataset.",
+      "crop_box": [
+        361,
+        109,
+        543,
+        353
+      ]
+    },
+    {
+      "image_id": "user_3b9af23be41be5a0023e",
+      "path": "data/raw/sokolov_domain_v3/user_3b9af23be41be5a0023e.png",
+      "label": 1,
+      "source_id": "web:user_provided_batch",
+      "source_url": "user-provided",
+      "pixel_sha256": "3b58284529c98beb0908d6584deff908ed12d50660603d5dde6aa422a39e6c7b",
+      "user_original": "photo_2026-10-31_14-15-35.jpg",
+      "original_sha256": "3b9af23be41be5a0023ef70ff1affca9f61a6b65a5ad1484ed2ec5284104c9bf",
+      "bbox": [
+        353,
+        195,
+        593,
+        520
+      ],
+      "margin_fraction": 0.08,
+      "max_side": 320,
+      "train_only": true,
+      "license": "Provided by user for this local dataset.",
+      "crop_box": [
+        333,
+        169,
+        612,
+        546
+      ]
+    },
+    {
+      "image_id": "user_5f3c1fefd67ec500bc85",
+      "path": "data/raw/sokolov_domain_v3/user_5f3c1fefd67ec500bc85.png",
+      "label": 1,
+      "source_id": "web:user_provided_batch",
+      "source_url": "user-provided",
+      "pixel_sha256": "a859e2474ba0a0093f273d3d818604b896aa503b9247ce1cc385f1efe7c630e3",
+      "user_original": "photo_2026-10-31_14-16-43.jpg",
+      "original_sha256": "5f3c1fefd67ec500bc85f19aac610f946e24b7e58d1f0ede37b0c2a3e8e291ee",
+      "bbox": [
+        526,
+        140,
+        650,
+        299
+      ],
+      "margin_fraction": 0.08,
+      "max_side": 320,
+      "train_only": true,
+      "license": "Provided by user for this local dataset.",
+      "crop_box": [
+        516,
+        127,
+        659,
+        311
+      ]
+    }
+  ]
+}

@@ -158,7 +158,14 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
             current_stage = finetune
         frozen_eval(model)
         generator = torch.Generator().manual_seed(config.split.seed+epoch)
-        loader = DataLoader(dataset, batch_size=config.training.batch_size, shuffle=True,
+        sampler = None
+        if config.training.source_balanced:
+            from torch.utils.data import WeightedRandomSampler
+            from .data.dataset import source_sampling_weights
+            sampler = WeightedRandomSampler(source_sampling_weights(dataset.rows), len(dataset),
+                                            replacement=True, generator=generator)
+        loader = DataLoader(dataset, batch_size=config.training.batch_size, shuffle=sampler is None,
+                            sampler=sampler,
                             num_workers=config.training.num_workers, generator=generator,
                             drop_last=(config.model.architecture == 'arcface' and finetune))
         loss_sum = 0.
@@ -188,12 +195,17 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
         progress(len(loader), 'validation')
         val = predict(config, model, device, 'val')
         ap = float(average_precision_score([int(r['label']) for r in val], [r['score'] for r in val]))
+        from .metrics import validation_ap_by_domain
+        domain_ap = validation_ap_by_domain(val)
+        selection_score = sum(domain_ap.values())/len(domain_ap) if (
+            config.training.selection_metric == 'source_macro_ap') else ap
         history.append({'epoch': epoch+1, 'stage': 'finetune' if finetune else 'head',
                         'train_loss': loss_sum/count, 'validation_ap': ap,
+                        'selection_score': selection_score, 'domain_ap': json.dumps(domain_ap),
                         'learning_rate': optimizer.param_groups[0]['lr']})
-        improved = ap > best_ap
+        improved = selection_score > best_ap
         if improved:
-            best_ap = ap
+            best_ap = selection_score
         payload = {'model': model.state_dict(), 'optimizer': optimizer.state_dict(),
             'epoch': epoch, 'stage': finetune, 'history': history, 'best_ap': best_ap,
             'config': asdict(config), 'config_fingerprint': training_fingerprint(config),
@@ -211,11 +223,13 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
             shutil.copyfile(folder / 'last.pt', folder / 'best.pt')
             torch.save(model.state_dict(), folder / 'best_weights.pt')
         write_csv(folder / 'training.csv', history)
-        print(f'{config.model.architecture} epoch {epoch+1}/{total_epochs}: loss={loss_sum/count:.4f} val_AP={ap:.4f}', flush=True)
+        print(f'{config.model.architecture} epoch {epoch+1}/{total_epochs}: loss={loss_sum/count:.4f} '
+              f'val_AP={ap:.4f} selection[{config.training.selection_metric}]={selection_score:.4f}', flush=True)
         if stop_after_epoch and epoch+1 >= stop_after_epoch and epoch+1 < total_epochs:
             return None
     last = torch.load(folder / 'last.pt', map_location='cpu', weights_only=False)
     write_json(folder / 'training_summary.json', {'epochs': len(last['history']),
+        'selection_metric': config.training.selection_metric,
         'best_validation_ap': last['best_ap'], 'training_seconds': last['training_seconds'],
         'pos_weight': last['pos_weight'], 'parameters': sum(p.numel() for p in model.parameters()),
         'pretrained_provenance': last['pretrained_provenance'],

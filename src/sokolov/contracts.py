@@ -26,8 +26,9 @@ class RawSample:
 class ParentAssignment:
     """Split исходного изображения; создаётся до детекции лиц.
 
-    В random_stratified источники могут пересекаться между split. В external
-    сохраняются train/test и целостность групп; val выделяется из train.
+    В group_stratified лекции и близкие дубликаты не пересекают split.
+    В external сохраняются train/test и целостность групп; val выделяется из train.
+    random_stratified оставлен как явно выбранный устаревший протокол.
     """
 
     image_id: str

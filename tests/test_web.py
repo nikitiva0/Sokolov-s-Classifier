@@ -42,7 +42,8 @@ class PhotoInferenceTests(unittest.TestCase):
                 return images.mean((1, 2, 3)).unsqueeze(1)*self.weight
         model = TinyModel()
         config = load_config(ROOT/'configs/resnet18_face.toml')
-        config = replace(config, data=replace(config.data, detector_root=str(root/'detector')))
+        config = replace(config, data=replace(config.data, detector_root=str(root/'detector')),
+                         model=replace(config.model, face_preprocessing='rgb'))
         path = root/'detector/models/buffalo_l/det_10g.onnx'
         path.parent.mkdir(parents=True)
         path.write_bytes(b'FIXTURE_DETECTOR_ONLY')

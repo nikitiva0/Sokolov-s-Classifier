@@ -1,8 +1,8 @@
 # План эксперимента. Значения предстоит проверить на реальных данных.
 [data]
 variant = "face_crop"
-raw_manifest = "data/manifests/raw.csv"
-prepared_manifest = "data/processed/face_crop/manifest.csv"
+raw_manifest = "data/manifests/domain_v3/raw.csv"
+prepared_manifest = "data/processed/domain_v3/manifest.csv"
 artifacts_dir = "outputs/runs"
 phash_max_distance = 6
 positive_dir = "data/raw/sokolov_positive_v1"
@@ -13,6 +13,8 @@ detector_root = "checkpoints/insightface"
 detector_name = "buffalo_l"
 detector_threshold = 0.5
 min_detector_coverage = 0.8
+extra_manifest = "data/manifests/domain_v3/web.csv"
+reuse_prepared_manifest = ""
 
 [model]
 architecture = "arcface"
@@ -20,6 +22,7 @@ backbone = "iresnet50"
 weights = "MS1MV3"
 image_size = 112
 embedding_dim = 512
+face_preprocessing = "identity_v1"
 checkpoint = "checkpoints/arcface/iresnet50_ms1mv3.pt"
 checkpoint_url = ""
 checkpoint_sha256 = ""
@@ -27,7 +30,8 @@ checkpoint_sha256 = ""
 [split]
 validation_fraction = 0.15
 test_fraction = 0.15
-mode = "random_stratified"
+mode = "group_stratified"
+train_only_sources = ["web:user_provided_batch"]
 seed = 42
 
 [training]
@@ -37,7 +41,9 @@ finetune_epochs = 0
 head_lr = 0.001
 finetune_lr = 0.0001
 weight_decay = 0.0001
-selection_metric = "average_precision"
+selection_metric = "source_macro_ap"
+augmentation = "robust"
+source_balanced = true
 device = "auto"
 num_workers = 2
 

@@ -132,7 +132,7 @@ def prepare(config, assignments=None, *, detector=None):
                 raise ValueError('Prepared crop missing or modified; choose a new preparation directory')
         validate_detector_coverage(read_json(folder / 'data_audit.json'), config.data.min_detector_coverage)
         return dest
-    samples, seen, phashes, exclusions = [], {}, [], []
+    samples, seen, phashes, exclusions, digests = [], {}, [], [], {}
     raw_rows = read_csv(raw_path)
     write_json(folder / 'prepare_progress.json', {
         'phase': 'audit', 'processed': 0, 'total': len(raw_rows), 'completed': False})
@@ -164,6 +164,7 @@ def prepare(config, assignments=None, *, detector=None):
                                'duplicate_of': previous['image_id']})
             continue
         seen[digest] = row
+        digests[image_id] = digest
         phashes.append((image_id, int(str(imagehash.phash(image)), 16)))
         samples.append(RawSample(image_id, path, int(row['label']), row['source_id'],
                                  row.get('source_url', ''), row.get('partition') or None))
@@ -174,6 +175,17 @@ def prepare(config, assignments=None, *, detector=None):
             if distance <= config.data.phash_max_distance:
                 near.append({'left': other_id, 'right': image_id, 'distance': distance})
     groups = {s.image_id: s.source_id for s in samples}
+    if config.split.mode == 'group_stratified':
+        parents = {source: source for source in groups.values()}
+        def root(source):
+            while parents[source] != source:
+                parents[source] = parents[parents[source]]
+                source = parents[source]
+            return source
+        for pair in near:
+            left, right = root(groups[pair['left']]), root(groups[pair['right']])
+            parents[max(left, right)] = min(left, right)
+        groups = {image_id: root(source) for image_id, source in groups.items()}
     assigned = assignments or split_groups(samples, groups, config.split)
     mapping = {a.image_id: a for a in assigned}
     if set(mapping) != {s.image_id for s in samples}:
@@ -186,6 +198,15 @@ def prepare(config, assignments=None, *, detector=None):
     else:
         write_csv(split_path, [asdict(a) for a in assigned])
     detector = detector or SCRFDDetector(config.data)
+    cached_rows = {}
+    if config.data.reuse_prepared_manifest:
+        cached_path = Path(config.data.reuse_prepared_manifest)
+        cached_metadata = read_json(cached_path.parent/'prepared.json')
+        if cached_metadata['manifest_sha256'] != sha256(cached_path):
+            raise ValueError('Reuse manifest was modified')
+        if cached_metadata['detector'] != detector.metadata:
+            raise ValueError('Cannot reuse crops from a different detector/policy')
+        cached_rows = {r['image_id']: r for r in read_csv(cached_path)}
     rows = []
     start = time.perf_counter()
     write_json(folder / 'prepare_progress.json', {
@@ -195,13 +216,29 @@ def prepare(config, assignments=None, *, detector=None):
         # IDs may originate in an external manifest: never use them as filesystem paths.
         filename = hashlib.sha256(sample.image_id.encode()).hexdigest() + '.png'
         crop = folder / 'faces' / filename
-        image, digest = image_info(sample.path)
-        before = time.perf_counter()
-        faces = detector(image)
-        detection_seconds = time.perf_counter() - before
+        digest = digests[sample.image_id]
+        cached = cached_rows.get(sample.image_id)
+        reused = bool(cached and cached['pixel_sha256'] == digest and int(cached['label']) == sample.label)
+        if reused:
+            import json
+            faces = json.loads(cached['face_metadata'])
+            detection_seconds = 0.
+            if cached['status'] == 'ok':
+                crop = Path(cached['crop_path'])
+                if sha256(crop) != cached['crop_sha256']:
+                    raise ValueError('Reuse crop was modified')
+        else:
+            image, current_digest = image_info(sample.path)
+            if current_digest != digest:
+                raise ValueError('Image changed during preparation')
+            before = time.perf_counter()
+            faces = detector(image)
+            detection_seconds = time.perf_counter() - before
         status = 'ok' if len(faces) == 1 else ('no_face' if not faces else 'multiple_faces')
         face = faces[0] if status == 'ok' else None
-        if face:
+        if reused:
+            status = cached['status']
+        elif face:
             try:
                 aligned = align_face(image, face['landmarks'])
             except ValueError:
@@ -216,7 +253,8 @@ def prepare(config, assignments=None, *, detector=None):
             'group_id': assignment.group_id, 'variant': 'face_crop', 'status': status,
             'pixel_sha256': digest, 'crop_path': str(crop.resolve()) if status == 'ok' else '',
             'crop_sha256': sha256(crop) if status == 'ok' else '', 'face_count': len(faces),
-            'face_metadata': json.dumps(faces), 'detection_seconds': detection_seconds})
+            'face_metadata': json.dumps(faces), 'detection_seconds': detection_seconds,
+            'detection_reused': reused})
         if (i+1) % 25 == 0 or i+1 == len(samples):
             write_json(folder / 'prepare_progress.json', {
                 'phase': 'detection', 'processed': i+1, 'total': len(samples),
@@ -234,13 +272,20 @@ def prepare(config, assignments=None, *, detector=None):
         stats[split]['coverage_by_label'] = {label:
             stats[split]['labels_usable'].get(label, 0)/total
             for label, total in stats[split]['labels_original'].items()}
+        stats[split]['web_by_label'] = dict(Counter(str(r['label']) for r in subset
+                                                  if r['source_id'].startswith('web:')))
+        stats[split]['web_groups_by_label'] = {str(label): len({r['group_id'] for r in subset
+            if r['label'] == label and r['source_id'].startswith('web:')}) for label in (0, 1)}
     source_splits = defaultdict(set)
     for row in rows:
         source_splits[row['source_id']].add(row['split'])
     audit = {'input_count': len(raw_rows), 'audited_count': len(samples), 'counts': stats,
         'exclusions': exclusions, 'near_duplicate_candidates': near,
         'overlapping_sources': {k: sorted(v) for k, v in source_splits.items() if len(v) > 1},
-        'warnings': WARNINGS if not any(s.partition for s in samples) else WARNINGS[1:3],
+        'warnings': (WARNINGS if config.split.mode == 'random_stratified' and
+                     not any(s.partition for s in samples) else WARNINGS[1:3]),
+        'near_duplicate_cross_split': [p for p in near if mapping[p['left']].split != mapping[p['right']].split],
+        'reused_detections': sum(r['detection_reused'] for r in rows),
         'detector': detector.metadata, 'detection_seconds': sum(r['detection_seconds'] for r in rows),
         'preparation_seconds': time.perf_counter()-start}
     write_json(folder / 'data_audit.json', audit)

@@ -18,6 +18,7 @@ data/raw/*
 data/processed/
 data/manifests/raw.csv
 data/manifests/local_mps/
+data/manifests/domain_v3/
 data/manifests/*.local.csv
 outputs/runs/
 checkpoints/
