@@ -12,10 +12,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog='sokolov')
     commands = parser.add_subparsers(dest='command', required=True)
     names = ['check-config', 'download-data', 'prepare', 'train', 'evaluate', 'report',
-             'run-all', 'publish-report', 'check-weights', 'select-best', 'synthesize', 'export-mobile']
+             'run-all', 'publish-report', 'check-weights', 'select-best', 'synthesize']
     for name in names:
         sub = commands.add_parser(name)
-        if name not in ('report', 'publish-report', 'select-best', 'synthesize', 'export-mobile'):
+        if name not in ('report', 'publish-report', 'select-best', 'synthesize'):
             sub.add_argument('--config', type=Path, default=Path('configs/resnet18_face.toml'))
             sub.add_argument('--fairface-dir', type=Path)
             sub.add_argument('--arcface-checkpoint', type=Path)
@@ -23,23 +23,24 @@ def main(argv=None):
         if name in ('run-all', 'check-weights'):
             sub.add_argument('--configs', type=Path, nargs='+', default=[
                 Path('configs/resnet18_face.toml'), Path('configs/arcface_face.toml')])
-        if name in ('train', 'evaluate', 'report', 'run-all', 'publish-report', 'select-best', 'synthesize', 'export-mobile'):
+        if name in ('train', 'evaluate', 'report', 'run-all', 'publish-report', 'select-best', 'synthesize'):
             sub.add_argument('--run-dir', type=Path, required=True)
-        if name == 'export-mobile':
-            sub.add_argument('--output', type=Path, required=True)
-            sub.add_argument('--detector', type=Path)
-            sub.add_argument('--allow-technical', action='store_true')
         if name == 'synthesize':
             sub.add_argument('--generation-config', type=Path)
             sub.add_argument('--device', choices=['auto', 'cpu', 'cuda', 'mps'])
             sub.add_argument('--output-dir', type=Path)
         if name in ('train', 'run-all'):
             sub.add_argument('--resume', action='store_true')
+    web = commands.add_parser('serve', help='Локальная страница проверки фотографий')
+    web.add_argument('--run-dir', type=Path, default=Path('outputs/runs/local-mps-v2'))
+    web.add_argument('--port', type=int, default=8766)
+    web.add_argument('--device', choices=['auto', 'cpu', 'mps', 'cuda'], default='auto')
+    web.add_argument('--detector-root', type=Path)
     args = parser.parse_args(argv)
     try:
-        if args.command == 'export-mobile':
-            from .mobile import export_mobile
-            print(export_mobile(args.run_dir, args.output, detector=args.detector, allow_technical=args.allow_technical))
+        if args.command == 'serve':
+            from .web import serve
+            serve(args.run_dir, port=args.port, device=args.device, detector_root=args.detector_root)
             return 0
         if args.command == 'select-best':
             from .synthesize import select_best_model

@@ -74,8 +74,8 @@ def main():
         # Supplying a manager requires explicit cleanup; otherwise the kernel
         # (and its large MPS models) can outlive this process.
         client.execute(cleanup_kc=True)
-        state.update(stage='Запуск завершён', stage_index=7, detail='Модели, генерация, отчёт и архив сохранены.',
-                     mobile_exported=True, updated=time.time())
+        state.update(stage='Запуск завершён', stage_index=6, detail='Модели, генерация, отчёт и архив сохранены.',
+                     updated=time.time())
         write_json(ROOT/'work/local-mps/notebook-status.json', state)
     except BaseException as error:
         state.update(error=f'{type(error).__name__}: {error}', updated=time.time())
