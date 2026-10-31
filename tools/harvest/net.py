@@ -97,10 +97,65 @@ class _Handler(urllib.request.HTTPSHandler):
 
 
 _OPENER = urllib.request.build_opener(_Handler())
+_LOCAL = threading.local()  # keep-alive соединения потока: {host: _Connection}
+
+
+def _read_body(response, limit, start, deadline):
+    chunks, size = [], 0
+    while size < limit:
+        chunk = response.read(min(65536, limit - size))
+        if not chunk:
+            break
+        chunks.append(chunk)
+        size += len(chunk)
+        BYTES.add(len(chunk))
+        if time.monotonic() - start > deadline:
+            raise FetchError(f'дедлайн {deadline} s при чтении')
+    return b''.join(chunks)
+
+
+def _keepalive_get(url, headers, timeout, limit, start, deadline):
+    """GET через keep-alive соединение текущего потока. Узлы CDN Rutube отсюда теряют около половины
+    SYN (31.10.2026: river-1.rutube.ru — 6 из 12 connect ≤ 2 s), поэтому новое TCP+TLS на каждый
+    Range-запрос стоит повторов по CONNECT_TIMEOUT, а запрос по открытому соединению — 0.14–0.29 s.
+    None — ответ не 200/206 (его разбирает urllib: редиректы, 4xx, 429)."""
+    parts = urlparse(url)
+    if parts.scheme != 'https':
+        return None
+    pool = _LOCAL.__dict__.setdefault('pool', {})
+    path = (parts.path or '/') + (f'?{parts.query}' if parts.query else '')
+    connection = pool.pop(parts.netloc, None)
+    fresh = connection is None
+    while True:
+        if connection is None:
+            connection = _Connection(parts.hostname, parts.port, timeout=timeout)
+        try:
+            connection.request('GET', path, headers=headers)
+            response = connection.getresponse()
+            break
+        except (OSError, http.client.HTTPException):
+            connection.close()
+            if fresh:
+                raise
+            connection, fresh = None, True  # простаивавшее соединение закрыто сервером — заново
+    if response.status not in (200, 206):
+        connection.close()
+        return None
+    try:
+        data = _read_body(response, limit, start, deadline)
+    except BaseException:
+        connection.close()
+        raise
+    if response.isclosed() and not response.will_close:  # тело дочитано — соединение можно повторить
+        pool[parts.netloc] = connection
+    else:
+        connection.close()
+    return data
 
 
 def http_get(url, headers=None, byte_range=None, timeout=10, attempts=6, deadline=90, max_bytes=64 << 20):
-    """GET: connect ≤ 4 s, чтение ≤ timeout s, повторы с паузой ≤ 4 s, общий дедлайн (s)."""
+    """GET: connect ≤ 4 s, чтение ≤ timeout s, повторы с паузой ≤ 4 s, общий дедлайн (s).
+    https — сначала по keep-alive соединению потока (_keepalive_get), иначе urllib."""
     request_headers = {'User-Agent': UA, **(headers or {})}
     limit = max_bytes
     if byte_range:
@@ -109,21 +164,14 @@ def http_get(url, headers=None, byte_range=None, timeout=10, attempts=6, deadlin
     start, last, pause = time.monotonic(), None, 0
     for attempt in range(attempts):
         try:
-            request = urllib.request.Request(url, headers=request_headers)
-            with _OPENER.open(request, timeout=timeout) as response:
-                chunks, size = [], 0
-                while size < limit:
-                    chunk = response.read(min(65536, limit - size))
-                    if not chunk:
-                        break
-                    chunks.append(chunk)
-                    size += len(chunk)
-                    BYTES.add(len(chunk))
-                    if time.monotonic() - start > deadline:
-                        raise FetchError(f'дедлайн {deadline} s при чтении')
-                if size >= max_bytes and not byte_range:
-                    raise FetchError(f'ответ больше {max_bytes >> 20} MiB', 413)
-                return b''.join(chunks)
+            data = _keepalive_get(url, request_headers, timeout, limit, start, deadline)
+            if data is None:
+                request = urllib.request.Request(url, headers=request_headers)
+                with _OPENER.open(request, timeout=timeout) as response:
+                    data = _read_body(response, limit, start, deadline)
+            if len(data) >= max_bytes and not byte_range:
+                raise FetchError(f'ответ больше {max_bytes >> 20} MiB', 413)
+            return data
         except urllib.error.HTTPError as error:
             last = error
             if error.code in (400, 401, 403, 404, 410, 451):
@@ -188,10 +236,12 @@ def resolve(url, extra_args=(), timeout=120):
     raise FetchError('yt-dlp не смог получить видео:\n  ' + '\n  '.join(errors) + hint)
 
 
-def pick_format(info, max_height=720, max_kbps=2500):
+def pick_format(info, max_height=720, max_kbps=2500, avoid=()):
     """Видео ≤ max_height без AV1/DRM; HLS или прогрессивный http(s). Выше — лучше; при равной
     высоте HLS (дешёвый частичный доступ), затем меньший битрейт. Форматы с известным битрейтом
-    > max_kbps отбрасываются, если есть другие: ключевой кадр 720p при ~5 Mbit/s > 512 KiB."""
+    > max_kbps отбрасываются, если есть другие: ключевой кадр 720p при ~5 Mbit/s > 512 KiB.
+    avoid — хосты, которые уже не ответили: Rutube отдаёт каждый формат дважды (-0 на узле
+    river-4-*.rtbcdn.ru, -1 на river-1.rutube.ru), при равенстве берётся другой хост."""
     candidates = []
     for f in info.get('formats') or [info]:
         vcodec = f.get('vcodec')
@@ -208,7 +258,7 @@ def pick_format(info, max_height=720, max_kbps=2500):
     cheap = [f for f in candidates if not f.get('tbr') or f['tbr'] <= max_kbps]
     candidates = cheap or [min(candidates, key=lambda f: f['tbr'])]
     return max(candidates, key=lambda f: (f.get('height') or 0, f.get('protocol', '').startswith('m3u8'),
-                                          -(f.get('tbr') or 0)))
+                                          -(f.get('tbr') or 0), urlparse(f['url']).netloc not in avoid))
 
 
 def estimate_bytes(fmt, duration):

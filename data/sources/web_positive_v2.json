@@ -1,0 +1,707 @@
+[
+  {
+    "source_id": "azachem12",
+    "url": "https://rutube.ru/video/08933a86e52c7b0d0cad666f30abeaa9/",
+    "platform": "Rutube («А зачем?»)",
+    "title": "Выпуск #12 про ИИ для школьников и не только с Евгением Соколовым",
+    "date": "2024-08-06",
+    "duration_s": 432,
+    "domain": "interview",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "Rutube «А зачем?», «Выпуск #12 про ИИ для школьников … с Евгением Соколовым»; имя в названии; sim 0.63–0.66; интервьюер, вероятно, несовершеннолетняя — её кропы исключаются и удаляются | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; все 54 L1 — Соколов; 54 лица интервьюера (вероятно несовершеннолетняя) excluded, кропы удалены",
+    "frames_sampled": 54,
+    "faces_accepted_label1": 54,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 27729718,
+    "group_id": "azachem12",
+    "candidate_id": "web_pos_v2_azachem12",
+    "review_counts": {
+      "L0/excluded": 54,
+      "L1/accepted": 54
+    }
+  },
+  {
+    "source_id": "chatfkn30",
+    "url": "https://vkvideo.ru/video-69306530_456240101",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "ЧатФКН#30: Евгений Соколов — путь в образование, нейросети, наука о данных и зачем всем учить Python",
+    "date": "2025-07-31",
+    "duration_s": 3831,
+    "domain": "interview",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK), «ЧатФКН#30: Евгений Соколов …» — имя в названии; ArcFace sim 0.56–0.76 на 7/7 пробных кадрах; визуально: борода, очки — совпадает с preview.jpg | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 1 профиль ambiguous→1; label 0 — ведущая; YouTube-зеркало youtu.be/uzVwIHo4wZ8 недоступно",
+    "frames_sampled": 150,
+    "faces_accepted_label1": 136,
+    "faces_accepted_label0": 55,
+    "bytes_downloaded": 68632806,
+    "group_id": "chatfkn30",
+    "candidate_id": "web_pos_v2_chatfkn30",
+    "review_counts": {
+      "L0/accepted": 55,
+      "L1/accepted": 136
+    }
+  },
+  {
+    "source_id": "dataheroes",
+    "url": "https://vkvideo.ru/video-225671614_456239079",
+    "platform": "VK Video (Data Heroes)",
+    "title": "Почему аналитика оффлайн-обучения — это боль: рассказывает Data Scientist Евгений Соколов из ВШЭ",
+    "date": "2024-09-13",
+    "duration_s": 2722,
+    "domain": "interview",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "Data Heroes (VK); описание: «руководитель департамента больших данных и информационного поиска ФКН … Евгений Соколов»; ArcFace sim 0.65–0.76 на 4 пробных кадрах; визуально совпадает с preview.jpg; ведущий (левая половина) — label 0 | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 1 ambiguous (рука у лица)→1; label 0 — ведущий (левая половина экрана); 1 флаг dedup-v1 (pHash) — ложный, возвращён",
+    "frames_sampled": 130,
+    "faces_accepted_label1": 115,
+    "faces_accepted_label0": 72,
+    "bytes_downloaded": 65351521,
+    "group_id": "dataheroes",
+    "candidate_id": "web_pos_v2_dataheroes",
+    "review_counts": {
+      "L0/accepted": 72,
+      "L1/accepted": 115
+    }
+  },
+  {
+    "source_id": "fcs_council_2026",
+    "url": "https://vkvideo.ru/video-69306530_456240421",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "Открытое заседание Ученого совета ФКН. ИИ в образовании",
+    "date": "2026-08-06",
+    "duration_s": 6927,
+    "domain": "lecture_webcam",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK), заседание Учёного совета; плитка веб-камеры МТС Линк, ArcFace sim 0.63–0.69 на 4 пробных кадрах; лицо ~35–45 px; другие участники — label 0 | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; лицо Соколова ~43 px (плитка МТС Линк); 3 ambiguous (другие участники)→0; 7 мультяшных аватаров excluded",
+    "frames_sampled": 120,
+    "faces_accepted_label1": 65,
+    "faces_accepted_label0": 354,
+    "bytes_downloaded": 13230387,
+    "group_id": "fcs_council_2026",
+    "candidate_id": "web_pos_v2_fcs_council_2026",
+    "review_counts": {
+      "L0/accepted": 354,
+      "L0/excluded": 7,
+      "L1/accepted": 65
+    }
+  },
+  {
+    "source_id": "hse_ai_talk_2020",
+    "url": "https://vkvideo.ru/video-25205856_456239942",
+    "platform": "VK Video (ВШЭ, загрузка 2020-09-28); та же запись на официальном Rutube ВШЭ",
+    "title": "Евгений Соколов: Искусственный интеллект. Чему мы научим машины",
+    "date": "2020-09-28",
+    "duration_s": 668,
+    "domain": "talk_stage",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ВШЭ: «Евгений Соколов — Искусственный интеллект. Чему мы научим машины // Другой День Вышки» (VK 2020-09-28; та же запись на официальном Rutube ВШЭ 2dc89c93f3917f70fa9503f908f22997); имя в названии; без бороды, те же очки/линия волос; sim 0.52–0.53 | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; Соколов без бороды (2020); 13 профилей (sim 0.27–0.46, в т.ч. 5 с предв. меткой 0) →1; 2 смазанных excluded; label 0 — ведущий и ведущая; 29 строк в кадрах ближе 8 s к предыдущему оставленному кадру excluded (жадный отбор)",
+    "frames_sampled": 83,
+    "faces_accepted_label1": 39,
+    "faces_accepted_label0": 27,
+    "bytes_downloaded": 49376454,
+    "group_id": "hse_ai_talk_2020",
+    "candidate_id": "web_pos_v2_hse_ai_talk_2020",
+    "review_counts": {
+      "L0/accepted": 27,
+      "L0/excluded": 14,
+      "L1/accepted": 39,
+      "L1/excluded": 17
+    },
+    "alt_urls": [
+      "https://rutube.ru/video/2dc89c93f3917f70fa9503f908f22997/"
+    ]
+  },
+  {
+    "source_id": "hse_online_campus_2023",
+    "url": "https://rutube.ru/video/5978953035203cf4b22b52963a05d42d/",
+    "platform": "Rutube (Высшая школа экономики, официальный)",
+    "title": "Презентация онлайн-кампуса НИУ ВШЭ",
+    "date": "2023-05-24",
+    "duration_s": 4940,
+    "domain": "talk_stage",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ВШЭ (официальный Rutube); таймкод описания 40:53 «Евгений Соколов — руководитель департамента…»; только отрезок 2453–3172 s; ArcFace sim 0.56–0.66 на 4 пробных кадрах; визуально совпадает с preview.jpg; то же событие, что photo_vyshka_online_2023 | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; только отрезок 2453–3172 s; 4 размытых кадра Соколова ambiguous→1; кадр 2456 s — его фото-врезка на экране (оставлено); label 0 — зал и ведущий; 7 лиц (затылки/смаз) excluded",
+    "frames_sampled": 80,
+    "faces_accepted_label1": 64,
+    "faces_accepted_label0": 77,
+    "bytes_downloaded": 44443322,
+    "group_id": "event_vyshka_online_2023-05-24",
+    "candidate_id": "web_pos_v2_hse_online_campus_2023",
+    "review_counts": {
+      "L0/accepted": 77,
+      "L0/excluded": 7,
+      "L1/accepted": 64
+    },
+    "segment_s": [
+      2453,
+      3172
+    ]
+  },
+  {
+    "source_id": "ii360_intro",
+    "url": "https://vkvideo.ru/video-69306530_456240189",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "ИИ360: бакалавриат для создателей новых ИИ-технологий",
+    "date": "2025-12-21",
+    "duration_s": 607,
+    "domain": "interview",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK); пост t.me/fcs_hse/4893 называет Соколова; ArcFace sim 0.66–0.77 на 5/5 пробных кадрах; визуально совпадает с preview.jpg; та же съёмка, что ii360_next | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; все 73 лица — Соколов; та же съёмка, что ii360_next (общий group_id); 24 строк в кадрах ближе 8 s к предыдущему оставленному кадру excluded (жадный отбор)",
+    "frames_sampled": 76,
+    "faces_accepted_label1": 49,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 12733684,
+    "group_id": "shoot_ii360_red_backdrop",
+    "candidate_id": "web_pos_v2_ii360_intro",
+    "review_counts": {
+      "L1/accepted": 49,
+      "L1/excluded": 24
+    }
+  },
+  {
+    "source_id": "ii360_next",
+    "url": "https://vkvideo.ru/video-69306530_456240280",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "Трек ИИ360. Что дальше?",
+    "date": "2026-04-18",
+    "duration_s": 427,
+    "domain": "interview",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK), пост t.me/fcs_hse/5367 называет Соколова; ArcFace sim 0.62–0.73 на 4/4 пробных кадрах; визуально: борода, очки — совпадает с preview.jpg; та же съёмка, что ii360_intro | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; --mode solo: лица студентов во врезках получили ambiguous L1 → исправлено на label 0, 8 тёмных/закрытых текстом excluded; та же съёмка, что ii360_intro (общий group_id); 38 строк в кадрах ближе 8 s к предыдущему оставленному кадру excluded (жадный отбор)",
+    "frames_sampled": 53,
+    "faces_accepted_label1": 35,
+    "faces_accepted_label0": 31,
+    "bytes_downloaded": 8461309,
+    "group_id": "shoot_ii360_red_backdrop",
+    "candidate_id": "web_pos_v2_ii360_next",
+    "review_counts": {
+      "L0/accepted": 31,
+      "L0/excluded": 28,
+      "L1/accepted": 35,
+      "L1/excluded": 18
+    },
+    "mode": "solo"
+  },
+  {
+    "source_id": "llm_summer_school_2024",
+    "url": "https://vkvideo.ru/video-69306530_456239781",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "Применение LLM сегодня: от развлечений до реальной пользы",
+    "date": "2024-08-25",
+    "duration_s": 4384,
+    "domain": "talk_stage",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK); видео встроено в hse.ru/news/admission/959414278 с его цитатой о подкасте на сцене; ArcFace sim 0.45–0.70 на 4/6 пробных кадрах; на сцене 3 человека — фильтр по ArcFace + просмотр | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 16 профилей ambiguous→1; label 0 — два других участника на сцене; 15 лиц (вид со спины/смаз) excluded",
+    "frames_sampled": 150,
+    "faces_accepted_label1": 63,
+    "faces_accepted_label0": 140,
+    "bytes_downloaded": 41372147,
+    "group_id": "llm_summer_school_2024",
+    "candidate_id": "web_pos_v2_llm_summer_school_2024",
+    "review_counts": {
+      "L0/accepted": 140,
+      "L0/excluded": 15,
+      "L1/accepted": 63
+    }
+  },
+  {
+    "source_id": "photo_ai_leaders_2026",
+    "url": "https://www.hse.ru/news/development/1129080611.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1129080611 (лидеры ИИ)",
+    "date": "2026-02-16",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись «Евгений Соколов»; ArcFace sim 0.738; крупный план, борода, очки — совпадает с preview.jpg | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 944039,
+    "group_id": "photo_ai_leaders_2026",
+    "candidate_id": "web_pos_v2_photo_ai_leaders_2026",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/1129081123.jpeg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_cne",
+    "url": "https://cs.hse.ru/dpo/news/834304283.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "cs.hse.ru: новость ДПО 834304283",
+    "date": "",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.664; маленький портрет | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 6325,
+    "group_id": "photo_cne",
+    "candidate_id": "web_pos_v2_photo_cne",
+    "image_url": "https://cs.hse.ru/pubs/share/direct/834304255.jpeg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_css_graduation_2026",
+    "url": "https://www.hse.ru/news/life/1172670525.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1172670525 (выпускной)",
+    "date": "2026-06-24",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.701; сцена, микрофон | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 400597,
+    "group_id": "photo_css_graduation_2026",
+    "candidate_id": "web_pos_v2_photo_css_graduation_2026",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/1172673982.jpeg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_datacult_2023",
+    "url": "https://www.hse.ru/news/edu/862366986.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 862366986",
+    "date": "2023-09-27",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.618; сидя, тёмный фон | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 74994,
+    "group_id": "photo_datacult_2023",
+    "candidate_id": "web_pos_v2_photo_datacult_2023",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/thumb/862371452:c1898x1265+0+11:r1118x745!.jpg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_donors_2025",
+    "url": "https://www.hse.ru/news/life/1091296703.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1091296703 (доноры)",
+    "date": "2025-10-08",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.733; выступление на фоне слайдов | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 118609,
+    "group_id": "photo_donors_2025",
+    "candidate_id": "web_pos_v2_photo_donors_2025",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/thumb/1091312361:c5577x3716+108+166:r1118x745!.jpg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_fcs10_2024",
+    "url": "https://www.hse.ru/news/life/910931995.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 910931995 (10 лет ФКН)",
+    "date": "2024-04-02",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.578; сцена | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 593472,
+    "group_id": "photo_fcs10_2024",
+    "candidate_id": "web_pos_v2_photo_fcs10_2024",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/910933086.jpg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_hackathon_2026",
+    "url": "https://www.hse.ru/news/edu/1162817658.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1162817658 (хакатон)",
+    "date": "2026-05-26",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "подпись «Евгений Соколов (слева)»; ArcFace sim 0.718 | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; Соколов слева; 1 член жюри — label 0",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 1,
+    "bytes_downloaded": 429744,
+    "group_id": "photo_hackathon_2026",
+    "candidate_id": "web_pos_v2_photo_hackathon_2026",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/1162834553.jpg",
+    "review_counts": {
+      "L0/accepted": 1,
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_mlprize_2025",
+    "url": "https://www.hse.ru/news/development/1101859925.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1101859925 (Yandex ML Prize)",
+    "date": "2025-11-14",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "подпись «второй слева»; ArcFace sim 0.658 | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; Соколов второй слева; 3 других организатора — label 0",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 3,
+    "bytes_downloaded": 262358,
+    "group_id": "photo_mlprize_2025",
+    "candidate_id": "web_pos_v2_photo_mlprize_2025",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/1101865165.jpg",
+    "review_counts": {
+      "L0/accepted": 3,
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_olymp_2024",
+    "url": "https://www.hse.ru/news/admission/908970613.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 908970613 (олимпиада)",
+    "date": "2024-03-26",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись «слева»; ArcFace sim 0.628 | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено; 2 других лица (вероятно несовершеннолетний победитель) excluded, кропы удалены",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 34305,
+    "group_id": "photo_olymp_2024",
+    "candidate_id": "web_pos_v2_photo_olymp_2024",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/908974184.jpg",
+    "review_counts": {
+      "L0/excluded": 2,
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_portrait_2024",
+    "url": "https://www.hse.ru/news/science/981600021.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: портрет к цитате (news 981600021)",
+    "date": "2024-10-31",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "портрет рядом с его цитатой; ArcFace sim 0.685; тот же файл в news 1075346062/1099244797/959371795 — учтён один раз | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 15400,
+    "group_id": "photo_portrait_2024",
+    "candidate_id": "web_pos_v2_photo_portrait_2024",
+    "image_url": "https://www.hse.ru/pubs/share/direct/981599485",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_sirius_2026",
+    "url": "https://www.hse.ru/news/expertise/1191112841.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1191112841 (Сириус)",
+    "date": "2026-08-18",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.722; кафедра, тёмный фон | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 97489,
+    "group_id": "photo_sirius_2026",
+    "candidate_id": "web_pos_v2_photo_sirius_2026",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/1191129837.jpg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_staff",
+    "url": "https://www.hse.ru/org/persons/175674529",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: страница сотрудника 175674529",
+    "date": "",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "официальное фото страницы сотрудника; ArcFace sim 0.633 | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 21104,
+    "group_id": "photo_staff",
+    "candidate_id": "web_pos_v2_photo_staff",
+    "image_url": "https://www.hse.ru/pubs/share/thumb/1113829292:c380x380+0+0:r380x380!",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_trustees_2026",
+    "url": "https://www.hse.ru/news/life/1211467864.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 1211467864 (попечители)",
+    "date": "2026-10-21",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.758; вид 3/4 — совпадает с preview.jpg | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 386985,
+    "group_id": "photo_trustees_2026",
+    "candidate_id": "web_pos_v2_photo_trustees_2026",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/1211512328.jpeg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_vsosh_2023",
+    "url": "https://cs.hse.ru/olymp/news/828779981.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "cs.hse.ru: новость 828779981 (олимпиада)",
+    "date": "2023-04-20",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "alt/подпись; ArcFace sim 0.582; у экрана проектора | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено; первый запуск с кириллическим URL упал (UnicodeEncodeError), повтор с %-кодированным URL",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 32748,
+    "group_id": "photo_vsosh_2023",
+    "candidate_id": "web_pos_v2_photo_vsosh_2023",
+    "image_url": "https://cs.hse.ru/data/2023/04/20/2029006623/соко.jpeg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_vyshka_online_2023",
+    "url": "https://www.hse.ru/news/edu/835550011.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "hse.ru: новость 835550011 (Вышка Онлайн)",
+    "date": "2023-05-24",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "подпись; ArcFace sim 0.600; то же событие, что видео hse_online_campus_2023 | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; лицо Соколова сверено глазами",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 180606,
+    "group_id": "event_vyshka_online_2023-05-24",
+    "candidate_id": "web_pos_v2_photo_vyshka_online_2023",
+    "image_url": "https://www.hse.ru/mirror/pubs/share/direct/835553748.jpg",
+    "review_counts": {
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "photo_young_sci_2024",
+    "url": "https://cs.hse.ru/news/998214374.html",
+    "platform": "hse.ru (официальный сайт НИУ ВШЭ)",
+    "title": "cs.hse.ru: новость 998214374 (Конгресс молодых учёных)",
+    "date": "",
+    "duration_s": "",
+    "domain": "photo",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "одно из 11 лиц, ArcFace sim 0.699, сверено глазами | аудит 2026-10-31: общий контактный лист всех фото просмотрен рядом с preview.jpg; Соколов — 1 из 9 лиц панели; 7 других — label 0, 1 мелкое лицо отброшено фильтром",
+    "frames_sampled": 1,
+    "faces_accepted_label1": 1,
+    "faces_accepted_label0": 7,
+    "bytes_downloaded": 11626140,
+    "group_id": "photo_young_sci_2024",
+    "candidate_id": "web_pos_v2_photo_young_sci_2024",
+    "image_url": "https://cs.hse.ru/pubs/share/direct/998214527.jpg",
+    "review_counts": {
+      "L0/accepted": 7,
+      "L1/accepted": 1
+    }
+  },
+  {
+    "source_id": "sber_mt",
+    "url": "https://rutube.ru/video/d5eacec11978aedd85e23fb6fbbc291d/",
+    "platform": "Rutube (Сбер, официальный)",
+    "title": "Подходы к AI на примере машинного перевода / Евгений Соколов",
+    "date": "2022-04-03",
+    "duration_s": 345,
+    "domain": "interview",
+    "persons": [
+      "sokolov"
+    ],
+    "identity_verification": "Сбер (официальный Rutube), «Подходы к AI на примере машинного перевода / Евгений Соколов»; имя в названии; без бороды, очки — как в записи 2020; sim 0.50 | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 5 ambiguous→1; 1 смаз excluded; 9 из 43 моментов не извлечены (ошибки декодера после seek в скачанном TS, повтор с --exact не помог); 11 строк в кадрах ближе 8 s к предыдущему оставленному кадру excluded (жадный отбор)",
+    "frames_sampled": 34,
+    "faces_accepted_label1": 20,
+    "faces_accepted_label0": 0,
+    "bytes_downloaded": 26467392,
+    "group_id": "sber_mt",
+    "candidate_id": "web_pos_v2_sber_mt",
+    "review_counts": {
+      "L0/excluded": 1,
+      "L1/accepted": 20,
+      "L1/excluded": 11
+    },
+    "date_note": "дата загрузки; дата записи неизвестна"
+  },
+  {
+    "source_id": "uyutny_disciplines_2024",
+    "url": "https://vkvideo.ru/video-69306530_456239772",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "Дисциплины в университете: что изучают студенты ФКН",
+    "date": "2024-08-15",
+    "duration_s": 3744,
+    "domain": "interview",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK), «Уютный ФКНчик» 2024; подтверждено по лицу: крупный план sim 0.65, визуально совпадает с preview.jpg; гости — label 0 | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 5 профилей/ч-б вставок ambiguous→1; label 0 — два гостя",
+    "frames_sampled": 150,
+    "faces_accepted_label1": 57,
+    "faces_accepted_label0": 153,
+    "bytes_downloaded": 47136592,
+    "group_id": "uyutny_disciplines_2024",
+    "candidate_id": "web_pos_v2_uyutny_disciplines_2024",
+    "review_counts": {
+      "L0/accepted": 153,
+      "L1/accepted": 57
+    }
+  },
+  {
+    "source_id": "uyutny_mpp_2026",
+    "url": "https://vkvideo.ru/video-69306530_456240407",
+    "platform": "VK Video (ФКН НИУ ВШЭ, официальный)",
+    "title": "Зачем идти на новый поток М++",
+    "date": "2026-07-15",
+    "duration_s": 3511,
+    "domain": "interview",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "ФКН НИУ ВШЭ (официальный VK), подкаст «Уютный ФКНчик»; имени нет в названии — подтверждено по лицу: sim 0.52 (профиль) и 0.70 (крупный план), визуально совпадает с preview.jpg; 3 человека — фильтр по ArcFace + просмотр | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 5 профилей ambiguous→1; label 0 — два других участника (в т.ч. архивное фото); 2 лица под текстом/размытые excluded",
+    "frames_sampled": 150,
+    "faces_accepted_label1": 64,
+    "faces_accepted_label0": 153,
+    "bytes_downloaded": 26000132,
+    "group_id": "uyutny_mpp_2026",
+    "candidate_id": "web_pos_v2_uyutny_mpp_2026",
+    "review_counts": {
+      "L0/accepted": 153,
+      "L0/excluded": 2,
+      "L1/accepted": 64
+    },
+    "alt_urls": [
+      "https://rutube.ru/video/7b2bc65503f644705311c00a3b81bb1d/"
+    ]
+  },
+  {
+    "source_id": "vmkast2",
+    "url": "https://vkvideo.ru/video-51206473_456239089",
+    "platform": "VK Video (Профком ВМК МГУ)",
+    "title": "ЕВГЕНИЙ СОКОЛОВ о различиях ВМК и ФКН, преподавании и ML :: ВМКаст №2",
+    "date": "2024-10-18",
+    "duration_s": 5798,
+    "domain": "interview",
+    "persons": [
+      "sokolov",
+      "unknown"
+    ],
+    "identity_verification": "Профком ВМК МГУ (VK), ВМКаст №2; описание: «Евгений Андреевич Соколов — доцент ФКН ВШЭ»; ArcFace sim 0.59–0.72 на 4 пробных кадрах; визуально: борода, очки — совпадает с preview.jpg | аудит 2026-10-31: контактный лист (sort sim) просмотрен целиком рядом с preview.jpg; 7 профилей Соколова ambiguous→1; label 0 — один интервьюер; 1 флаг dedup-v1 (pHash) — ложный, возвращён",
+    "frames_sampled": 150,
+    "faces_accepted_label1": 149,
+    "faces_accepted_label0": 84,
+    "bytes_downloaded": 96952390,
+    "group_id": "vmkast2",
+    "candidate_id": "web_pos_v2_vmkast2",
+    "review_counts": {
+      "L0/accepted": 84,
+      "L1/accepted": 149
+    }
+  }
+]

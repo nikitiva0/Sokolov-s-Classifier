@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 from . import REFERENCE, REFERENCE_STATS, REPO, THRESHOLDS, Layout, slug
 from . import net, sheets
@@ -414,13 +415,19 @@ def video(args):
               f'стратегия {strategy}; resolve {info.get("_resolve_seconds")} s', flush=True)
         downloaded, holder, lock = None, {'generation': 0, 'resolves': 0}, threading.Lock()
 
+        avoid = set()
+
         def build(reresolve=False):
-            """Новый resolve даёт другой узел CDN: часть узлов отсюда недоступна (connect timeout)."""
+            """Новый resolve даёт другой узел CDN: часть узлов отсюда недоступна (connect timeout).
+            Не ответивший хост запоминается: resolve часто снова выдаёт тот же узел, а у Rutube есть
+            зеркальный формат на другом хосте."""
             nonlocal info, fmt, headers
             if reresolve:
                 holder['resolves'] += 1
+                avoid.add(urlparse(fmt['url']).netloc)
                 info, _ = net.resolve(args.url, extra)
-                fmt = net.pick_format(info, args.max_height, args.max_kbps)
+                fmt = net.pick_format(info, args.max_height, args.max_kbps, avoid)
+                print(f'  формат {fmt.get("format_id")} на {urlparse(fmt["url"]).netloc}', flush=True)
                 headers = {**(info.get('http_headers') or {}), **(fmt.get('http_headers') or {})}
             if strategy == 'hls':
                 hls = net.HLS(fmt['url'], headers, args.max_height)

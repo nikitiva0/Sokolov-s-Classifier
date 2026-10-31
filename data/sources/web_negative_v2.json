@@ -1,0 +1,1092 @@
+[
+  {
+    "source_id": "avito_conf25",
+    "url": "https://rutube.ru/video/a57230ae9e0b90a181b1044138ce17fe/",
+    "platform": "Rutube",
+    "title": "Будущее управления в tech | AvitoTechConf 2025",
+    "date": "2025-10-24",
+    "duration_s": 3796,
+    "domain": "interview",
+    "persons": [
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имена не установлены; аудит 2026-10-31: контактный лист источника просмотрен целиком (40 лиц) и сверен с preview.jpg — Соколова нет; исключено 11 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 29,
+    "bytes_downloaded": 8130311
+  },
+  {
+    "source_id": "codefest_isaeva",
+    "url": "https://rutube.ru/video/0ee342394e8db3b7b7f1acfd7b408906/",
+    "platform": "Rutube",
+    "title": "Ольга Исаева. Проектирование AI-решений: от требований к архитектуре, разбор на реальном опыте",
+    "date": "2026-06-01",
+    "duration_s": 2455,
+    "domain": "talk_stage",
+    "persons": [
+      "olga_isaeva",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (41 лиц) и сверен с preview.jpg — Соколова нет; ещё 2 годных снято для лимита лиц на группу",
+    "frames_sampled": 68,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 39,
+    "bytes_downloaded": 11800192
+  },
+  {
+    "source_id": "codefest_natekin",
+    "url": "https://rutube.ru/video/e4af21b16fd697dd2bc6e7f8055903a7/",
+    "platform": "Rutube",
+    "title": "#Backend, Алексей Натекин, Откуда вырос и куда растет Data Science?",
+    "date": "2025-01-24",
+    "duration_s": 2469,
+    "domain": "talk_stage",
+    "persons": [
+      "aleksey_natekin"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (26 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 3 годных снято для лимита лиц на группу",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 21,
+    "bytes_downloaded": 12329843
+  },
+  {
+    "source_id": "codefest_panov",
+    "url": "https://rutube.ru/video/3f9b5cb623fad50d22e92bc440653473/",
+    "platform": "Rutube",
+    "title": "Илья Панов. Эволюция системы персонализации в X5: от push-архитектуры к self-service данным",
+    "date": "2026-05-31",
+    "duration_s": 1915,
+    "domain": "talk_stage",
+    "persons": [
+      "ilya_panov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (40 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 70,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 12550897
+  },
+  {
+    "source_id": "codefest_shpilman",
+    "url": "https://rutube.ru/video/3394116a4d79b167b87987e43ba4099a/",
+    "platform": "Rutube",
+    "title": "Алексей Шпильман. Никто не виноват, но делать что-то придется",
+    "date": "2026-10-21",
+    "duration_s": 1777,
+    "domain": "talk_stage",
+    "persons": [
+      "aleksey_shpilman"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (52 лиц) и сверен с preview.jpg — Соколова нет; исключено 4 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 55,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 48,
+    "bytes_downloaded": 9043791
+  },
+  {
+    "source_id": "dls_s1l2",
+    "url": "https://rutube.ru/video/8d9a242b34c30c0fd43a917d6054b314/",
+    "platform": "Rutube",
+    "title": "Семестр 1. Лекция 2. Введение в машинное обучение.",
+    "date": "2024-09-24",
+    "duration_s": 4287,
+    "domain": "lecture_webcam",
+    "persons": [
+      "grigory_leleytner"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (35 лиц) и сверен с preview.jpg — Соколова нет; ещё 9 годных снято для лимита лиц на группу",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 26,
+    "bytes_downloaded": 5812836
+  },
+  {
+    "source_id": "dls_s1l31",
+    "url": "https://rutube.ru/video/7c14bd71bf96f7c0220282262bf00541/",
+    "platform": "Rutube",
+    "title": "Семестр 1. Лекция 3.1 Линейная регрессия.",
+    "date": "2024-09-29",
+    "duration_s": 1181,
+    "domain": "lecture_webcam",
+    "persons": [
+      "grigory_leleytner"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (32 лиц) и сверен с preview.jpg — Соколова нет; ещё 8 годных снято для лимита лиц на группу",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 24,
+    "bytes_downloaded": 5756114
+  },
+  {
+    "source_id": "dls_s1sem31",
+    "url": "https://rutube.ru/video/35cb30163defa64107448c3bbec15ef0/",
+    "platform": "Rutube",
+    "title": "Семестр 1. Семинар 3.1. Линейная регрессия",
+    "date": "2024-09-29",
+    "duration_s": 1869,
+    "domain": "lecture_webcam",
+    "persons": [
+      "yuri_yarovikov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; ещё 12 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 8226270
+  },
+  {
+    "source_id": "dls_s2l11",
+    "url": "https://rutube.ru/video/7ce29d5cbd0b504b39ff3fd12acdaa80/",
+    "platform": "Rutube",
+    "title": "Семестр 2. Лекция 1.1. Введение. Задачи обработки естественного язык",
+    "date": "2024-09-24",
+    "duration_s": 702,
+    "domain": "lecture_room",
+    "persons": [
+      "tatiana_gaintseva"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (30 лиц) и сверен с preview.jpg — Соколова нет; ещё 12 годных снято для лимита лиц на группу",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 18,
+    "bytes_downloaded": 7549594
+  },
+  {
+    "source_id": "dls_s2l24",
+    "url": "https://rutube.ru/video/a98f6fd34116ce4350874af3e38c4000/",
+    "platform": "Rutube",
+    "title": "Семестр 2. Лекция 2.4. LSTM, GRU",
+    "date": "2024-09-29",
+    "duration_s": 1954,
+    "domain": "lecture_webcam",
+    "persons": [
+      "tatiana_gaintseva"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (35 лиц) и сверен с preview.jpg — Соколова нет; ещё 15 годных снято для лимита лиц на группу; 1 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 20,
+    "bytes_downloaded": 5769171
+  },
+  {
+    "source_id": "dls_s2sem11",
+    "url": "https://rutube.ru/video/049e921cc3adb4e187d989d7facf95b3/",
+    "platform": "Rutube",
+    "title": "Сеестр 2. Семинар 1.1. Обработка текста.",
+    "date": "2024-09-24",
+    "duration_s": 1586,
+    "domain": "lecture_webcam",
+    "persons": [
+      "anton_astakhov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; ещё 12 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 8221087
+  },
+  {
+    "source_id": "fpmi_aivazov",
+    "url": "https://rutube.ru/video/35ede133d89cf8a9c193904ee0f2a190/",
+    "platform": "Rutube",
+    "title": "ДОД ФПМИ | О базовых кафедрах и партнерах ФПМИ | Денис Айвазов",
+    "date": "2024-08-09",
+    "duration_s": 1296,
+    "domain": "lecture_room",
+    "persons": [
+      "denis_aivazov",
+      "fpmi_dod_host_unnamed",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (59 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); 33 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 60,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 58,
+    "bytes_downloaded": 16139656
+  },
+  {
+    "source_id": "fpmi_beznosikov",
+    "url": "https://rutube.ru/video/2ec909e7a9c37ab811e5781f83bd96a0/",
+    "platform": "Rutube",
+    "title": "ДОД ФПМИ | О научных возможностях на ФПМИ | Александр Безносиков",
+    "date": "2024-08-09",
+    "duration_s": 1389,
+    "domain": "talk_stage",
+    "persons": [
+      "aleksandr_beznosikov",
+      "fpmi_dod_host_unnamed"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; 6 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 50,
+    "bytes_downloaded": 8211187
+  },
+  {
+    "source_id": "fpmi_neustroeva",
+    "url": "https://rutube.ru/video/12c47c902208c403eb7caad17fbce438/",
+    "platform": "Rutube",
+    "title": "ДОД ФПМИ | О системе наставничества для школьников на ФПМИ | Елизавета Неустроева",
+    "date": "2024-08-09",
+    "duration_s": 382,
+    "domain": "lecture_room",
+    "persons": [
+      "elizaveta_neustroeva",
+      "fpmi_dod_host_unnamed"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (26 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 27,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 24,
+    "bytes_downloaded": 40156800
+  },
+  {
+    "source_id": "fpmi_soshilov",
+    "url": "https://rutube.ru/video/7a32730e03d2aee25b3e4ee8abb236f0/",
+    "platform": "Rutube",
+    "title": "ДОД ФПМИ | Проектная деятельность на ФПМИ | Игорь Сошилов",
+    "date": "2024-08-09",
+    "duration_s": 917,
+    "domain": "lecture_room",
+    "persons": [
+      "igor_soshilov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (44 лиц) и сверен с preview.jpg — Соколова нет; исключено 3 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 3 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 7909705
+  },
+  {
+    "source_id": "highload_bezzubtseva",
+    "url": "https://rutube.ru/video/d886b54c4084a5782b529909cdd46615/",
+    "platform": "Rutube",
+    "title": "Чистые метки для ML / Анастасия Беззубцева (Яндекс)",
+    "date": "2025-08-03",
+    "duration_s": 2543,
+    "domain": "talk_stage",
+    "persons": [
+      "anastasia_bezzubtseva",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (43 лиц) и сверен с preview.jpg — Соколова нет; исключено 6 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 37,
+    "bytes_downloaded": 22145932
+  },
+  {
+    "source_id": "hl_buteyko",
+    "url": "https://rutube.ru/video/08c17b66eeb6ab1fbf2887b8254fa5aa/",
+    "platform": "Rutube",
+    "title": "BARSiC — асинхронная репликация и консенсус для 70 баз данных / Григорий Бутейко (VK, ВКонтакте)",
+    "date": "2025-08-07",
+    "duration_s": 2580,
+    "domain": "talk_stage",
+    "persons": [
+      "grigory_buteyko",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; исключено 6 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 44,
+    "bytes_downloaded": 9851773
+  },
+  {
+    "source_id": "hl_tatyanin",
+    "url": "https://rutube.ru/video/9f6ba5cb3bf2754d996aefd2708ec52e/",
+    "platform": "Rutube",
+    "title": "Путь к стабильным и быстрым дискам в Yandex Cloud / Даниил Татьянин",
+    "date": "2025-04-02",
+    "duration_s": 2248,
+    "domain": "talk_stage",
+    "persons": [
+      "daniil_tatyanin",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; исключено 6 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 1 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 14454053
+  },
+  {
+    "source_id": "hse_bultseva",
+    "url": "https://rutube.ru/video/c2243e2872e42c48dfff83411e84c6e9/",
+    "platform": "Rutube",
+    "title": "Мария Бульцева — Любовь, ложь и роботы",
+    "date": "2026-07-30",
+    "duration_s": 4268,
+    "domain": "lecture_webcam",
+    "persons": [
+      "maria_bultseva"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; исключено 6 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 6 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 8270140
+  },
+  {
+    "source_id": "hse_fam",
+    "url": "https://rutube.ru/video/c557a46d936165824aa6e2132ac1b515/",
+    "platform": "Rutube",
+    "title": "Анна Фам — Личность: измерить или понять? Посчитать или услышать?",
+    "date": "2026-07-30",
+    "duration_s": 3587,
+    "domain": "lecture_webcam",
+    "persons": [
+      "anna_fam"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (49 лиц) и сверен с preview.jpg — Соколова нет; исключено 4 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 7 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 8257587
+  },
+  {
+    "source_id": "hse_ocheretny",
+    "url": "https://rutube.ru/video/b4d72a5abd64bd770bc1ebf4b647e1fb/",
+    "platform": "Rutube",
+    "title": "После Вышки: как начать карьеру в Сбере? // Андрей Очеретный",
+    "date": "2023-11-08",
+    "duration_s": 1758,
+    "domain": "interview",
+    "persons": [
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (39 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 12811746
+  },
+  {
+    "source_id": "hse_poptsova",
+    "url": "https://rutube.ru/video/e0502f0cf9c48584a20bac678c3e56ff/",
+    "platform": "Rutube",
+    "title": "Искусственный интеллект в медицине // Мария Попцова",
+    "date": "2023-12-05",
+    "duration_s": 1747,
+    "domain": "interview",
+    "persons": [
+      "maria_poptsova",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (66 лиц) и сверен с preview.jpg — Соколова нет; исключено 18 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 67,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 48,
+    "bytes_downloaded": 16652462
+  },
+  {
+    "source_id": "hse_rossokhin",
+    "url": "https://rutube.ru/video/cc35a7273ce560c051671219f0b70501/",
+    "platform": "Rutube",
+    "title": "О лидерстве и личном бренде. Часть 1 // Андрей Россохин",
+    "date": "2023-05-29",
+    "duration_s": 2034,
+    "domain": "interview",
+    "persons": [
+      "andrey_rossokhin",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 45,
+    "bytes_downloaded": 14750095
+  },
+  {
+    "source_id": "hse_semenov",
+    "url": "https://rutube.ru/video/7634b6c93f7a3f3254cdf482aecd17b2/",
+    "platform": "Rutube",
+    "title": "Как вести бизнес с Китаем? // Артем Семенов",
+    "date": "2024-07-16",
+    "duration_s": 1832,
+    "domain": "interview",
+    "persons": [
+      "artem_semenov",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (67 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 65,
+    "bytes_downloaded": 18044669
+  },
+  {
+    "source_id": "karpov_aviasales",
+    "url": "https://rutube.ru/video/f1d8a04a3e88047f691c98b1b6bf2e94/",
+    "platform": "Rutube",
+    "title": "Как устроена продуктовая аналитика на примере Авиасейлс",
+    "date": "2026-09-18",
+    "duration_s": 2834,
+    "domain": "interview",
+    "persons": [
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имена не установлены; аудит 2026-10-31: контактный лист источника просмотрен целиком (47 лиц) и сверен с preview.jpg — Соколова нет; 1 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 47,
+    "bytes_downloaded": 6067502
+  },
+  {
+    "source_id": "karpov_ivanchey",
+    "url": "https://rutube.ru/video/f8c8785a1c61f3b1af395096b2deb225/",
+    "platform": "Rutube",
+    "title": "Иван Иванчей о машинном обучении и психологии | Интервью | karpov.courses",
+    "date": "2025-08-12",
+    "duration_s": 2525,
+    "domain": "interview",
+    "persons": [
+      "ivan_ivanchey",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; 1 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 50,
+    "bytes_downloaded": 21764338
+  },
+  {
+    "source_id": "loft_krasnikhin",
+    "url": "https://rutube.ru/video/161bef3de556e6f9bf5797b91bc0051c/",
+    "platform": "Rutube",
+    "title": "Вся правда об обучении в Университете Иннополис – Интервью с Дмитрием Краснихиным",
+    "date": "2023-05-03",
+    "duration_s": 3531,
+    "domain": "interview",
+    "persons": [
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (55 лиц) и сверен с preview.jpg — Соколова нет; ещё 5 годных снято для лимита лиц на группу; 8 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 50,
+    "bytes_downloaded": 4965117
+  },
+  {
+    "source_id": "mlinside_tikhonova",
+    "url": "https://rutube.ru/video/9a30824ba3e8612d373cfff8ddad1e5a/",
+    "platform": "Rutube",
+    "title": "Наука и карьера в Data Science в Сбере: как все совмещать? | Мария Тихонова",
+    "date": "2025-07-10",
+    "duration_s": 4157,
+    "domain": "interview",
+    "persons": [
+      "maria_tikhonova",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имена не установлены; аудит 2026-10-31: контактный лист источника просмотрен целиком (55 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 38,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 54,
+    "bytes_downloaded": 6378056
+  },
+  {
+    "source_id": "msuai_ml1",
+    "url": "https://rutube.ru/video/4e4bfb25bfbdc34558040b6ef41f5d21/",
+    "platform": "Rutube",
+    "title": "Лекция №1 «Введение в машинное обучение»",
+    "date": "2024-12-06",
+    "duration_s": 4992,
+    "domain": "lecture_webcam",
+    "persons": [
+      "viktor_nemchenko"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (35 лиц) и сверен с preview.jpg — Соколова нет; ещё 10 годных снято для лимита лиц на группу",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 25,
+    "bytes_downloaded": 6350148
+  },
+  {
+    "source_id": "msuai_ml6",
+    "url": "https://rutube.ru/video/f20d36ed84dc699c5c3050a0f0065341/",
+    "platform": "Rutube",
+    "title": "Лекция №6 \"Свёрточные нейронные сети\"",
+    "date": "2025-04-08",
+    "duration_s": 8011,
+    "domain": "lecture_webcam",
+    "persons": [
+      "lyubov_antyufrieva"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (49 лиц) и сверен с preview.jpg — Соколова нет; ещё 11 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 11441906
+  },
+  {
+    "source_id": "msuai_ml7",
+    "url": "https://rutube.ru/video/1765ba3e4f7c9b07a9a2ae51cbc6d81f/",
+    "platform": "Rutube",
+    "title": "Лекция №7 \"Оптимизация нейронных сетей\"",
+    "date": "2025-04-10",
+    "duration_s": 4555,
+    "domain": "lecture_webcam",
+    "persons": [
+      "viktor_nemchenko"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (35 лиц) и сверен с preview.jpg — Соколова нет; ещё 10 годных снято для лимита лиц на группу",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 25,
+    "bytes_downloaded": 6826746
+  },
+  {
+    "source_id": "msuai_nlp5",
+    "url": "https://rutube.ru/video/e53ba79f3a13f84f906e23753591805a/",
+    "platform": "Rutube",
+    "title": "Курс NLP. Лекция 5. Часть 1. Архитектура трансформер",
+    "date": "2025-09-16",
+    "duration_s": 3835,
+    "domain": "lecture_webcam",
+    "persons": [
+      "ksenia_studenikina"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (29 лиц) и сверен с preview.jpg — Соколова нет; ещё 10 годных снято для лимита лиц на группу",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 19,
+    "bytes_downloaded": 5055426
+  },
+  {
+    "source_id": "ods_borovik",
+    "url": "https://rutube.ru/video/59084b63c0bef0e68817c990aa9b4ce0/",
+    "platform": "Rutube",
+    "title": "Илья Боровик | От нот к эмоциям: управление музыкальной выразительностью с помощью ML",
+    "date": "2026-10-21",
+    "duration_s": 1178,
+    "domain": "talk_stage",
+    "persons": [
+      "ilya_borovik"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (39 лиц) и сверен с preview.jpg — Соколова нет; ещё 1 годных снято для лимита лиц на группу; 14 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 22380449
+  },
+  {
+    "source_id": "ods_firsanova",
+    "url": "https://rutube.ru/video/1fca8a390bc20cff7f04770d57733bb5/",
+    "platform": "Rutube",
+    "title": "Виктория Фирсанова | EMPI Agent: фреймворк для нейроотличных студентов",
+    "date": "2026-10-22",
+    "duration_s": 1238,
+    "domain": "talk_stage",
+    "persons": [
+      "viktoria_firsanova"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (35 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 34,
+    "bytes_downloaded": 7387980
+  },
+  {
+    "source_id": "ods_kolesov",
+    "url": "https://rutube.ru/video/78e2aac3a7dbae2b2fb8e84f74e7f4f3/",
+    "platform": "Rutube",
+    "title": "Александр Колесов | Применение теории электростатики для генеративного ИИ",
+    "date": "2026-10-02",
+    "duration_s": 1085,
+    "domain": "talk_stage",
+    "persons": [
+      "aleksandr_kolesov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (43 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 42,
+    "bytes_downloaded": 11877549
+  },
+  {
+    "source_id": "ods_kostin",
+    "url": "https://rutube.ru/video/3ac57b283fc85e64b852e9cf41dd733f/",
+    "platform": "Rutube",
+    "title": "Антон Костин | Анализ данных в научной литературе",
+    "date": "2026-10-21",
+    "duration_s": 1357,
+    "domain": "talk_stage",
+    "persons": [
+      "anton_kostin"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (60 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); 28 лиц с sim ≥ 0.17 (T_flag) просмотрены и приняты как не Соколов",
+    "frames_sampled": 60,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 58,
+    "bytes_downloaded": 13518801
+  },
+  {
+    "source_id": "ods_kurin",
+    "url": "https://rutube.ru/video/db438c206bfb466bbfa8edb6451d6ef2/",
+    "platform": "Rutube",
+    "title": "Антон Курин | Как строить аналитику платформы разметки",
+    "date": "2026-10-02",
+    "duration_s": 1939,
+    "domain": "lecture_webcam",
+    "persons": [
+      "anton_kurin",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (23 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 60,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 22,
+    "bytes_downloaded": 11056593
+  },
+  {
+    "source_id": "ods_natekin",
+    "url": "https://rutube.ru/video/2addbfec1419455c1e3ca9a5406e5533/",
+    "platform": "Rutube",
+    "title": "Алексей Натекин | Итоги первого турнира Data Fusion Contest 2023",
+    "date": "2024-09-17",
+    "duration_s": 4165,
+    "domain": "lecture_webcam",
+    "persons": [
+      "aleksey_natekin"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (35 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 5 годных снято для лимита лиц на группу",
+    "frames_sampled": 35,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 29,
+    "bytes_downloaded": 5794568
+  },
+  {
+    "source_id": "ods_neretin",
+    "url": "https://rutube.ru/video/024bd508b7752aefe8edd7ec3bd3ee88/",
+    "platform": "Rutube",
+    "title": "[Data Fest Online 3.0] Михаил Неретин - Управление топиками в Кафке",
+    "date": "2024-09-07",
+    "duration_s": 1250,
+    "domain": "lecture_webcam",
+    "persons": [
+      "mikhail_neretin"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; ещё 12 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 8209216
+  },
+  {
+    "source_id": "ods_tyurin",
+    "url": "https://rutube.ru/video/da8d0011c90328c4b7f301739d8f6994/",
+    "platform": "Rutube",
+    "title": "Александр Тюрин | Оптимальные методы распределенной оптимизации с учетом пропускной способности",
+    "date": "2026-09-30",
+    "duration_s": 1096,
+    "domain": "talk_stage",
+    "persons": [
+      "aleksandr_tyurin"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (44 лиц) и сверен с preview.jpg — Соколова нет; ещё 6 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 7388479
+  },
+  {
+    "source_id": "rml_goloshchapova",
+    "url": "https://rutube.ru/video/5e823f596626992f24c8d621873b2068/",
+    "platform": "Rutube",
+    "title": "Ирина Голощапова, Итоги года в Reliable ML, ДатаЕлка 2025 в VK",
+    "date": "2025-02-01",
+    "duration_s": 1687,
+    "domain": "talk_stage",
+    "persons": [
+      "irina_goloshchapova",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (49 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 67,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 47,
+    "bytes_downloaded": 18903424
+  },
+  {
+    "source_id": "rml_kalinin",
+    "url": "https://rutube.ru/video/da031cd63f32c155a6e15118470db91e/",
+    "platform": "Rutube",
+    "title": "Александр Калинин ｜ Байесовская сыворотка правды в разметке датасетов",
+    "date": "2025-01-05",
+    "duration_s": 3150,
+    "domain": "talk_stage",
+    "persons": [
+      "aleksandr_kalinin",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (55 лиц) и сверен с preview.jpg — Соколова нет",
+    "frames_sampled": 55,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 55,
+    "bytes_downloaded": 9593118
+  },
+  {
+    "source_id": "rml_komarov",
+    "url": "https://rutube.ru/video/ef3899a6ebf54f18d8d9cded538f6a19/",
+    "platform": "Rutube",
+    "title": "Иван Комаров ｜ То есть АБ тесты - это всего лишь OLS-регрессия?",
+    "date": "2025-01-05",
+    "duration_s": 2106,
+    "domain": "talk_stage",
+    "persons": [
+      "ivan_komarov",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 3 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 41,
+    "bytes_downloaded": 7974242
+  },
+  {
+    "source_id": "savvateev_digital",
+    "url": "https://rutube.ru/video/144c5b1a145d8b76e379ae2a28183308/",
+    "platform": "Rutube",
+    "title": "О цифровизации, смартфонах и детях. Алексей Савватеев в гостях у доктора Боровских",
+    "date": "2026-04-14",
+    "duration_s": 3084,
+    "domain": "interview",
+    "persons": [
+      "aleksey_savvateev",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (38 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 25,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 37,
+    "bytes_downloaded": 4265167
+  },
+  {
+    "source_id": "savvateev_school",
+    "url": "https://rutube.ru/video/04b8f0d7380414c67f8c0de8db404873/",
+    "platform": "Rutube",
+    "title": "Впечатления от встречи с Минпросвещения по вопросам Стратегии 27.04.2026. Алексей Савватеев",
+    "date": "2026-04-28",
+    "duration_s": 1355,
+    "domain": "lecture_webcam",
+    "persons": [
+      "aleksey_savvateev"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (40 лиц) и сверен с preview.jpg — Соколова нет",
+    "frames_sampled": 40,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 40,
+    "bytes_downloaded": 6578453
+  },
+  {
+    "source_id": "selectel_retro_ml",
+    "url": "https://rutube.ru/video/2a8d9c0505e6784588e4fccfca861c2b/",
+    "platform": "Rutube",
+    "title": "Масштабирование пилотов ML | Подкаст Selectel «Сегодня на ретро»",
+    "date": "2025-12-11",
+    "duration_s": 3703,
+    "domain": "interview",
+    "persons": [
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имена не установлены; аудит 2026-10-31: контактный лист источника просмотрен целиком (60 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 21 годных снято для лимита лиц на группу",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 6522160
+  },
+  {
+    "source_id": "spbu_ml1",
+    "url": "https://rutube.ru/video/2eb588be10e407656c5fcfc46377ec91/",
+    "platform": "Rutube",
+    "title": "Машинное обучение. Лекция 1",
+    "date": "2022-07-13",
+    "duration_s": 5396,
+    "domain": "lecture_room",
+    "persons": [
+      "sergey_nikolenko",
+      "unknown"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (54 лиц) и сверен с preview.jpg — Соколова нет; исключено 8 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 60,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 46,
+    "bytes_downloaded": 9910794
+  },
+  {
+    "source_id": "teachin_akhmedov",
+    "url": "https://rutube.ru/video/abbfb1a0d1011d04babbbdff013d802a/",
+    "platform": "Rutube",
+    "title": "Akhmedov E. - Introduction to Quantum Mechanics - 1. Introduction",
+    "date": "2026-09-23",
+    "duration_s": 4991,
+    "domain": "lecture_room",
+    "persons": [
+      "emil_akhmedov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; исключено 6 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 1 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 10609988
+  },
+  {
+    "source_id": "teachin_artamonov",
+    "url": "https://rutube.ru/video/75bbd73f45d001a9059b37641ad32257/",
+    "platform": "Rutube",
+    "title": "Артамонов С.А. - Машинное обучение для решения прикладных задач - 1. Введение в машинное обучение",
+    "date": "2024-11-10",
+    "duration_s": 5236,
+    "domain": "lecture_webcam",
+    "persons": [
+      "artamonov_sa"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; ещё 7 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 7808081
+  },
+  {
+    "source_id": "teachin_dolenko",
+    "url": "https://rutube.ru/video/3407c4f7087d9b20be27bb462d6bb1d1/",
+    "platform": "Rutube",
+    "title": "Доленко С.А. - Машинное обучение - Лекция 2. Основы машинного обучения",
+    "date": "2024-10-29",
+    "duration_s": 8035,
+    "domain": "lecture_webcam",
+    "persons": [
+      "sergey_dolenko"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (55 лиц) и сверен с preview.jpg — Соколова нет; ещё 5 годных снято для лимита лиц на группу",
+    "frames_sampled": 55,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 50,
+    "bytes_downloaded": 12619841
+  },
+  {
+    "source_id": "teachin_gorokhov",
+    "url": "https://rutube.ru/video/bec0c08a3837fa89389048d746e25e3e/",
+    "platform": "Rutube",
+    "title": "Горохов О.Е. - Введение в глубокое обучение - 3.Обучение по батчам, регуляризация",
+    "date": "2024-11-10",
+    "duration_s": 5493,
+    "domain": "lecture_webcam",
+    "persons": [
+      "gorokhov_oe"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (52 лиц) и сверен с preview.jpg — Соколова нет; ещё 2 годных снято для лимита лиц на группу",
+    "frames_sampled": 55,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 50,
+    "bytes_downloaded": 13657229
+  },
+  {
+    "source_id": "teachin_khiryanov",
+    "url": "https://rutube.ru/video/d4a3f13f9fdc05fae6620acaabb2776b/",
+    "platform": "Rutube",
+    "title": "Хирьянов Т.Ф.-Основы программирования и анализа данных на Python - 1. Вводная лекция",
+    "date": "2024-10-30",
+    "duration_s": 5024,
+    "domain": "lecture_webcam",
+    "persons": [
+      "timofey_khiryanov"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (52 лиц) и сверен с preview.jpg — Соколова нет",
+    "frames_sampled": 52,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 52,
+    "bytes_downloaded": 15178243
+  },
+  {
+    "source_id": "teachin_ledentsov",
+    "url": "https://rutube.ru/video/ca6bf973ebf64f254dc8f4ae4cffeaad/",
+    "platform": "Rutube",
+    "title": "Леденцов Л.С. - Плазменная астрофизика: кинетическое описание - 1. Солнечные вспышки",
+    "date": "2026-09-29",
+    "duration_s": 5322,
+    "domain": "lecture_room",
+    "persons": [
+      "ledentsov_ls"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 49,
+    "bytes_downloaded": 11919418
+  },
+  {
+    "source_id": "teachin_mironov",
+    "url": "https://rutube.ru/video/66bd31dcfe414d583d9c38481ef32272/",
+    "platform": "Rutube",
+    "title": "Миронов А.М.-Методы ИИ в задачах анализа данных - Лекция 1. Верификация алгоритмов вычисления суммы",
+    "date": "2024-10-29",
+    "duration_s": 4820,
+    "domain": "lecture_room",
+    "persons": [
+      "mironov_am"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (44 лиц) и сверен с preview.jpg — Соколова нет; исключено 5 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 1 годных снято для лимита лиц на группу",
+    "frames_sampled": 90,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 44813094
+  },
+  {
+    "source_id": "teachin_naumov",
+    "url": "https://rutube.ru/video/f7922913bb251502ce472d9ffd39f364/",
+    "platform": "Rutube",
+    "title": "Наумов Д.В. - Введение в физику нейтрино - 7. Эксперимент KATRIN",
+    "date": "2026-09-25",
+    "duration_s": 6672,
+    "domain": "lecture_webcam",
+    "persons": [
+      "naumov_dv"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; ещё 7 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 7617880
+  },
+  {
+    "source_id": "teachin_neychev",
+    "url": "https://rutube.ru/video/a5bfdd0ef602fe927fe59da8555e6ae5/",
+    "platform": "Rutube",
+    "title": "Нейчев Р.Г. - Введение в глубокое обучение - 1. Введение в нейронные сети",
+    "date": "2024-10-30",
+    "duration_s": 4986,
+    "domain": "lecture_webcam",
+    "persons": [
+      "radoslav_neychev"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; ещё 12 годных снято для лимита лиц на группу",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 21370698
+  },
+  {
+    "source_id": "teachin_penskoi",
+    "url": "https://rutube.ru/video/3b19aa9c08a4e0c8ae8fa4a13054e297/",
+    "platform": "Rutube",
+    "title": "Пенской А.В. - Минимальные подмногообразия и гармонические отображения - 13. Ур-ие гармоничности - 1",
+    "date": "2026-10-23",
+    "duration_s": 6331,
+    "domain": "lecture_room",
+    "persons": [
+      "penskoi_av"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; исключено 2 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 50,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 48,
+    "bytes_downloaded": 8308250
+  },
+  {
+    "source_id": "teachin_sedykh",
+    "url": "https://rutube.ru/video/c3ce7139f89f6080a5d4dd74c4f86d65/",
+    "platform": "Rutube",
+    "title": "Седых О.М. - Культурная антропология 1 - 13. Морфология сказки В.Я. Проппа - алгоритм сторителлинга",
+    "date": "2026-10-09",
+    "duration_s": 4600,
+    "domain": "lecture_webcam",
+    "persons": [
+      "sedykh_om"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица); ещё 6 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 12532368
+  },
+  {
+    "source_id": "teachin_shabanov",
+    "url": "https://rutube.ru/video/677ea37a2a7ed92c6a62bb3aee5dbf22/",
+    "platform": "Rutube",
+    "title": "Шабанов Д.А. - Математическая статистика. Лекции - 1. Эмпирическое распределение",
+    "date": "2024-10-30",
+    "duration_s": 4905,
+    "domain": "lecture_webcam",
+    "persons": [
+      "shabanov_da"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (59 лиц) и сверен с preview.jpg — Соколова нет",
+    "frames_sampled": 60,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 59,
+    "bytes_downloaded": 9889552
+  },
+  {
+    "source_id": "teachin_shirokiy",
+    "url": "https://rutube.ru/video/082c093a20659a3e9c26fe1058019982/",
+    "platform": "Rutube",
+    "title": "Широкий В.Р. - Машинное обучение в физике - 13. Машинное обучение и генерация данных",
+    "date": "2024-10-29",
+    "duration_s": 2675,
+    "domain": "lecture_webcam",
+    "persons": [
+      "shirokiy_vr"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (50 лиц) и сверен с preview.jpg — Соколова нет; исключено 1 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 55,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 49,
+    "bytes_downloaded": 12496540
+  },
+  {
+    "source_id": "teachin_shishkin",
+    "url": "https://rutube.ru/video/74f18009556a5da2411771639cb44946/",
+    "platform": "Rutube",
+    "title": "Шишкин А. А. - Линейная алгебра - 1. Линейное пространство. Определение и свойства",
+    "date": "2024-11-03",
+    "duration_s": 5427,
+    "domain": "lecture_room",
+    "persons": [
+      "shishkin_aa"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (41 лиц) и сверен с preview.jpg — Соколова нет; исключено 7 (лица на слайдах/рисунки, вид сзади, смаз, темнота, перекрытия, неустановленные лица)",
+    "frames_sampled": 67,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 34,
+    "bytes_downloaded": 24158764
+  },
+  {
+    "source_id": "teachin_studenikina",
+    "url": "https://rutube.ru/video/a3e0663fe8ebe317a960708606bf0cad/",
+    "platform": "Rutube",
+    "title": "Студеникина К.А. - Нейронные сети в компьютерной лингвистике - 1. Классическое машинное обучение",
+    "date": "2024-10-29",
+    "duration_s": 3272,
+    "domain": "lecture_webcam",
+    "persons": [
+      "ksenia_studenikina"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (30 лиц) и сверен с preview.jpg — Соколова нет; ещё 11 годных снято для лимита лиц на группу",
+    "frames_sampled": 30,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 19,
+    "bytes_downloaded": 4961904
+  },
+  {
+    "source_id": "teachin_vladimirov",
+    "url": "https://rutube.ru/video/60428dce8d9733c7985741d25250b1e4/",
+    "platform": "Rutube",
+    "title": "Владимиров Р.Д. - Машинное обучение - Семинар 9. Знакомство с языком программирования R",
+    "date": "2024-10-29",
+    "duration_s": 3370,
+    "domain": "lecture_webcam",
+    "persons": [
+      "vladimirov_rd"
+    ],
+    "identity_verification": "кадры на 20/50/80 % длительности просмотрены рядом с data/raw/sokolov_positive_v1/preview.jpg: Соколова нет; имя — по названию/описанию видео; аудит 2026-10-31: контактный лист источника просмотрен целиком (45 лиц) и сверен с preview.jpg — Соколова нет; ещё 7 годных снято для лимита лиц на группу",
+    "frames_sampled": 45,
+    "faces_accepted_label1": 0,
+    "faces_accepted_label0": 38,
+    "bytes_downloaded": 7421107
+  }
+]

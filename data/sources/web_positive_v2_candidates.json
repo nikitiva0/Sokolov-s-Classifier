@@ -1,0 +1,864 @@
+{
+ "dataset": "web_positive_v2",
+ "label": 1,
+ "class_name": "sokolov",
+ "created_utc": "2026-10-31T12:33:47Z",
+ "purpose": "Новые публичные позитивы Е. А. Соколова (ФКН НИУ ВШЭ) в других условиях (сцена, студия, интервью, другие веб-камеры, фото), не из 4 лекций v1.",
+ "status": "candidates; изображения не скачаны в датасет и в Git не добавляются; проверочные кадры лежат в data/raw/_scratch (gitignored)",
+ "policy": "Только публичные источники (официальные каналы ВШЭ/ФКН, Сбер, подкасты, hse.ru). Лица других людей не коммитить и не публиковать; в multi-источниках кропать только лица со сходством к Соколову.",
+ "review_method": "ArcFace w600k_r50 (InsightFace buffalo_l, SCRFD det_10g) cos sim к среднему эмбеддингу 200 кропов data/raw/sokolov_positive_v1 (каждый 5-й, апскейл x3); + визуальное сравнение с preview.jpg. Калибровка на этих данных: фото hse.ru 0.58–0.76; однофамилец из Яндекса 0.05; посторонние лица в кадрах −0.12…0.16. Порог для авто-фильтра кадров (предложение, не проверено на валидации): ≥0.40.",
+ "caveats": [
+  "Сходство ArcFace посчитано по 1–9 кадрам на источник; остальные моменты видео не просмотрены.",
+  "До ~2020–2022 Соколов был без бороды (web_pos_v2_hse_ai_talk_2020, web_pos_v2_sber_mt, CSTATI 2022): сходство ниже (0.50–0.53), но личность подтверждается каналом/названием.",
+  "group_id: источники одной съёмки/события (ИИ360 intro+next; онлайн-кампус видео+фото 2023-05-24) нельзя разносить по train/test.",
+  "YouTube недоступен: сначала DNS youtube.com не резолвился, затем yt-dlp получил «Sign in to confirm you’re not a bot». YouTube-источники перечислены в inaccessible_youtube (личность — только по обложкам i.ytimg.com); cookies и обход не применялись.",
+  "VK: прямые URL okcdn отдают 400 вне yt-dlp; кадры брались через yt-dlp --download-sections '*T-T+1' (1 с, ≤720p) с удалением фрагмента.",
+  "Rutube CDN нестабилен (часть IP river-1.rutube.ru не отвечает) — сегменты HLS качать curl с --connect-timeout 3 --retry 12."
+ ],
+ "summary": {
+  "video_sources": 14,
+  "photo_sources": 16,
+  "by_setting": {
+   "interview": 9,
+   "lecture_webcam": 2,
+   "photo": 16,
+   "talk_stage": 3
+  },
+  "inaccessible_youtube": 6,
+  "rejected": 10
+ },
+ "sources": [
+  {
+   "source_id": "web_pos_v2_vmkast2",
+   "url": "https://vkvideo.ru/video-51206473_456239089",
+   "alt_urls": [],
+   "platform": "vkvideo",
+   "channel": "Профком ВМК МГУ",
+   "title": "ЕВГЕНИЙ СОКОЛОВ о различиях ВМК и ФКН, преподавании и ML :: ВМКаст №2",
+   "duration_s": 5798,
+   "upload_date": "2024-10-18",
+   "setting": "interview",
+   "mode": "multi",
+   "max_height_available_px": 1080,
+   "checked_frames_t_s": [
+    300,
+    1500,
+    3000,
+    4500
+   ],
+   "sokolov_face_px_measured": "93x143 … 205x289",
+   "arcface_sim_measured": [
+    0.625,
+    0.724,
+    0.592,
+    0.661
+   ],
+   "identity_check": "описание: «Евгений Андреевич Соколов — доцент ФКН ВШЭ, руководитель ОП ПМИ»; 4/4 кадра sim 0.59–0.72; визуально совпадает (борода, очки)",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_vmkast2",
+   "priority": 1,
+   "notes": "Лучший по разнообразию: интерьеры МГУ, улица (дневной свет), офис; много крупных планов только Соколова, но в части кадров рядом интервьюер (лицо не коммитить). 1080p доступно."
+  },
+  {
+   "source_id": "web_pos_v2_chatfkn30",
+   "url": "https://vkvideo.ru/video-69306530_456240101",
+   "alt_urls": [
+    "https://youtu.be/uzVwIHo4wZ8"
+   ],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "ЧатФКН#30: Евгений Соколов — путь в образование, нейросети, наука о данных и зачем всем учить Python",
+   "duration_s": 3831,
+   "upload_date": "2025-07-31",
+   "setting": "interview",
+   "mode": "multi",
+   "max_height_available_px": 2160,
+   "checked_frames_t_s": [
+    120,
+    600,
+    1200,
+    1800,
+    2400,
+    3000,
+    3600
+   ],
+   "sokolov_face_px_measured": "80x118 … 202x284",
+   "arcface_sim_measured": [
+    0.574,
+    0.69,
+    0.557,
+    0.758,
+    0.559,
+    0.731,
+    0.711
+   ],
+   "identity_check": "имя в названии; 7/7 кадров sim 0.56–0.76",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_chatfkn30",
+   "priority": 2,
+   "notes": "Студийный подкаст ФКН: чередуются общий план (2 человека, лица ~80 px) и крупный план только Соколова (~200 px). Интервьюер — не коммитить."
+  },
+  {
+   "source_id": "web_pos_v2_hse_online_campus_2023",
+   "url": "https://rutube.ru/video/5978953035203cf4b22b52963a05d42d/",
+   "alt_urls": [],
+   "platform": "rutube",
+   "channel": "Высшая школа экономики (офиц.)",
+   "title": "Презентация онлайн-кампуса НИУ ВШЭ",
+   "duration_s": 4940,
+   "upload_date": "2023-05-24",
+   "setting": "talk_stage",
+   "mode": "solo",
+   "max_height_available_px": 720,
+   "checked_frames_t_s": [
+    2600,
+    2750,
+    2900,
+    3100
+   ],
+   "sokolov_face_px_measured": "113x145 … 248x329",
+   "arcface_sim_measured": [
+    0.656,
+    0.635,
+    0.62,
+    0.559
+   ],
+   "sokolov_segments_s": [
+    [
+     2453,
+     3172
+    ]
+   ],
+   "identity_check": "тайм-коды в описании: 40:53 «Евгений Соколов — руководитель департамента…»; 4/4 кадра в его сегменте sim 0.56–0.66",
+   "access_check": "yt-dlp -g + curl HLS-сегментов успешно, 2026-10-31; ВНИМАНИЕ: river-1.rutube.ru/river-4-*.rtbcdn.ru периодически не отвечают (ffmpeg -i URL таймаутит) — брать сегменты curl --connect-timeout 3 --retry 12",
+   "group_id": "event_vyshka_online_2023-05-24",
+   "priority": 3,
+   "notes": "Брать ТОЛЬКО сегмент 2453–3172 с (≈720 с, сцена, петличка, белая рубашка). Кадр 2470 с — зал/зрители (14 лиц), исключить. Рядом другие спикеры видео — не брать."
+  },
+  {
+   "source_id": "web_pos_v2_dataheroes",
+   "url": "https://vkvideo.ru/video-225671614_456239079",
+   "alt_urls": [],
+   "platform": "vkvideo",
+   "channel": "Data Heroes",
+   "title": "Почему аналитика оффлайн-обучения — это боль: рассказывает Data Scientist Евгений Соколов из ВШЭ",
+   "duration_s": 2722,
+   "upload_date": "2024-09-13",
+   "setting": "interview",
+   "mode": "multi",
+   "max_height_available_px": 1080,
+   "checked_frames_t_s": [
+    200,
+    900,
+    1800,
+    2500
+   ],
+   "sokolov_face_px_measured": "~202x269 … 204x303",
+   "arcface_sim_measured": [
+    0.763,
+    0.658,
+    0.649,
+    0.736
+   ],
+   "identity_check": "описание: «руководитель департамента больших данных и информационного поиска ФКН … Евгений Соколов»; 4/4 кадра sim 0.65–0.76",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_dataheroes",
+   "priority": 4,
+   "notes": "Удалённая запись (split-screen, 2 окна видеосвязи): Соколов — правая половина кадра, ведущий — левая (не коммитить; кропать правую половину). Близко к домену webcam, но другая камера/свет, 2024."
+  },
+  {
+   "source_id": "web_pos_v2_ii360_intro",
+   "url": "https://vkvideo.ru/video-69306530_456240189",
+   "alt_urls": [
+    "https://youtu.be/iezypTUr6LI"
+   ],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "ИИ360: бакалавриат для создателей новых ИИ-технологий",
+   "duration_s": 607,
+   "upload_date": "2025-12-21",
+   "setting": "interview",
+   "mode": "solo",
+   "max_height_available_px": 1080,
+   "checked_frames_t_s": [
+    30,
+    120,
+    250,
+    400,
+    550
+   ],
+   "sokolov_face_px_measured": "87x117 … 171x253 (при 480p)",
+   "arcface_sim_measured": [
+    0.768,
+    0.66,
+    0.678,
+    0.691,
+    0.681
+   ],
+   "identity_check": "по посту ФКН (t.me/fcs_hse/4893) в видео говорит Е. Соколов; 5/5 кадров sim 0.66–0.77",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "shoot_ii360_red_backdrop",
+   "priority": 5,
+   "notes": "Студийный монолог на красном фоне, только Соколов + инфографика. Проверено на 480p; url720 доступен."
+  },
+  {
+   "source_id": "web_pos_v2_ii360_next",
+   "url": "https://vkvideo.ru/video-69306530_456240280",
+   "alt_urls": [
+    "https://youtu.be/HqV-2Cmg1Tk"
+   ],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "Трек ИИ360. Что дальше?",
+   "duration_s": 427,
+   "upload_date": "2026-04-18",
+   "setting": "interview",
+   "mode": "solo",
+   "max_height_available_px": 1080,
+   "checked_frames_t_s": [
+    30,
+    120,
+    250,
+    380
+   ],
+   "sokolov_face_px_measured": "95x127 … 357x459 (при 480p)",
+   "arcface_sim_measured": [
+    0.712,
+    0.68,
+    0.619,
+    0.731
+   ],
+   "identity_check": "пост ФКН t.me/fcs_hse/5367; 4/4 кадра sim 0.62–0.73",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "shoot_ii360_red_backdrop",
+   "priority": 6,
+   "notes": "ТА ЖЕ СЪЁМКА, что ii360_intro (тот же красный фон и одежда) → один group_id, не разносить по train/test. Другие ролики серии ИИ360 (456240236/241/246/253/266/273) не проверены — вероятно та же съёмка."
+  },
+  {
+   "source_id": "web_pos_v2_llm_summer_school_2024",
+   "url": "https://vkvideo.ru/video-69306530_456239781",
+   "alt_urls": [],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "Применение LLM сегодня: от развлечений до реальной пользы",
+   "duration_s": 4384,
+   "upload_date": "2024-08-25",
+   "setting": "talk_stage",
+   "mode": "multi",
+   "max_height_available_px": 1080,
+   "checked_frames_t_s": [
+    200,
+    800,
+    1600,
+    2400,
+    3200,
+    4000
+   ],
+   "sokolov_face_px_measured": "63x91 … 128x175",
+   "arcface_sim_measured": [
+    0.548,
+    0.45,
+    null,
+    null,
+    0.512,
+    0.696
+   ],
+   "identity_check": "новость hse.ru/news/admission/959414278 (Летняя школа по аналитике и DS) встраивает это видео и цитирует Соколова о «записи подкаста со сцены»; Соколов найден в 4/6 кадров (sim 0.45–0.70), в 1600/2400 с крупно другие участники (sim≈0)",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_llm_summer_school_2024",
+   "priority": 7,
+   "notes": "Подкаст на сцене: 3 человека в креслах, Соколов слева в общем плане (~65 px) + крупные планы (~128 px). Обязательна фильтрация по ArcFace-сходству, т.к. в кадрах другие люди."
+  },
+  {
+   "source_id": "web_pos_v2_hse_ai_talk_2020",
+   "url": "https://rutube.ru/video/2dc89c93f3917f70fa9503f908f22997/",
+   "alt_urls": [
+    "https://vkvideo.ru/video-25205856_456239942"
+   ],
+   "platform": "rutube",
+   "channel": "Высшая школа экономики (офиц.)",
+   "title": "Евгений Соколов — Искусственный интеллект. Чему мы научим машины // Другой День Вышки",
+   "duration_s": 669,
+   "upload_date": "2022-04-05",
+   "event_date": "≤2020-09-28",
+   "setting": "talk_stage",
+   "mode": "multi",
+   "max_height_available_px": 1080,
+   "checked_frames_t_s": [
+    60,
+    400
+   ],
+   "sokolov_face_px_measured": "247x324 … 250x330",
+   "arcface_sim_measured": [
+    0.534,
+    0.52
+   ],
+   "identity_check": "официальный канал ВШЭ, имя в названии; 2 кадра sim 0.52–0.53; визуально: те же очки/линия волос, НО без бороды (2020) — вариант внешности",
+   "access_check": "yt-dlp -g + curl HLS-сегментов успешно, 2026-10-31; ВНИМАНИЕ: river-1.rutube.ru/river-4-*.rtbcdn.ru периодически не отвечают (ffmpeg -i URL таймаутит) — брать сегменты curl --connect-timeout 3 --retry 12; кадры 200 и 600 с не скачались из-за таймаутов CDN",
+   "group_id": "web_pos_v2_hse_ai_talk_2020",
+   "priority": 8,
+   "notes": "Ранний вид без бороды — полезен как сложный позитив; VK-копия ВШЭ (alt_urls) даёт 1080p против 720p на Rutube; обложка/начало — ведущий (не Соколов, sim 0.006), фильтровать. Дата: та же запись в VK ВШЭ загружена 2020-09-28."
+  },
+  {
+   "source_id": "web_pos_v2_sber_mt",
+   "url": "https://rutube.ru/video/d5eacec11978aedd85e23fb6fbbc291d/",
+   "alt_urls": [],
+   "platform": "rutube",
+   "channel": "Сбер (офиц.)",
+   "title": "Подходы к AI на примере машинного перевода / Евгений Соколов",
+   "duration_s": 345,
+   "upload_date": "2022-04-03",
+   "setting": "interview",
+   "mode": "solo",
+   "max_height_available_px": 720,
+   "checked_frames_t_s": [
+    30
+   ],
+   "sokolov_face_px_measured": "98x139",
+   "arcface_sim_measured": [
+    0.495
+   ],
+   "identity_check": "имя в названии; кадр 30 с и обложка: sim 0.495/0.502; визуально — очки, без бороды (как в 2020)",
+   "access_check": "yt-dlp -g + curl HLS-сегментов успешно, 2026-10-31; ВНИМАНИЕ: river-1.rutube.ru/river-4-*.rtbcdn.ru периодически не отвечают (ffmpeg -i URL таймаутит) — брать сегменты curl --connect-timeout 3 --retry 12; кадры 120/250 с не декодировались (сегмент без опорного кадра), не перепроверено",
+   "group_id": "web_pos_v2_sber_mt",
+   "priority": 9,
+   "notes": "Тёмная студия (кресло, торшер), низкий ключ освещения — новый тип света. Короткое (345 с). Дата записи не указана (загрузка 2022)."
+  },
+  {
+   "source_id": "web_pos_v2_uyutny_mpp_2026",
+   "url": "https://vkvideo.ru/video-69306530_456240407",
+   "alt_urls": [
+    "https://rutube.ru/video/7b2bc65503f644705311c00a3b81bb1d/",
+    "https://youtu.be/GZIBf0OCces"
+   ],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "Зачем идти на новый поток М++ (подкаст «Уютный ФКНчик»)",
+   "duration_s": 3511,
+   "upload_date": "2026-07-15",
+   "setting": "interview",
+   "mode": "multi",
+   "max_height_available_px": 2160,
+   "checked_frames_t_s": [
+    200,
+    1000,
+    2000,
+    3000
+   ],
+   "sokolov_face_px_measured": "50x83 (профиль) … 188x288",
+   "arcface_sim_measured": [
+    null,
+    0.519,
+    null,
+    0.695
+   ],
+   "identity_check": "в названии имени нет; Соколов найден в 2/4 кадрах (1000 с — профиль, sim 0.52; 3000 с — крупный план, sim 0.70)",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_uyutny_mpp_2026",
+   "priority": 10,
+   "notes": "3 человека на диване, тёплый вечерний свет; в 200/2000 с только другие участники. Нужна фильтрация по сходству."
+  },
+  {
+   "source_id": "web_pos_v2_uyutny_disciplines_2024",
+   "url": "https://vkvideo.ru/video-69306530_456239772",
+   "alt_urls": [],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "Дисциплины в университете: что изучают студенты ФКН",
+   "duration_s": 3744,
+   "upload_date": "2024-08-15",
+   "setting": "interview",
+   "mode": "multi",
+   "checked_frames_t_s": [
+    200,
+    500,
+    1200,
+    1600,
+    2400,
+    2900,
+    3400
+   ],
+   "sokolov_face_px_measured": "45x64 (общий план) … 224x320",
+   "arcface_sim_measured": [
+    null,
+    0.653,
+    null,
+    null,
+    null,
+    null,
+    0.478
+   ],
+   "identity_check": "имени в названии нет; Соколов найден в 2/7 кадрах: 500 с — крупный план sim 0.653, 3400 с — общий план (кресло ведущего слева) sim 0.478; в остальных крупно гости (sim ≤0.06)",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_uyutny_disciplines_2024",
+   "priority": 11,
+   "notes": "Студия «Уютного ФКНчика» (жёлтый диван) — та же студия, что web_pos_v2_uyutny_mpp_2026, но другой год/одежда. 3 человека, нужна фильтрация по сходству."
+  },
+  {
+   "source_id": "web_pos_v2_azachem12",
+   "url": "https://rutube.ru/video/08933a86e52c7b0d0cad666f30abeaa9/",
+   "alt_urls": [],
+   "platform": "rutube",
+   "channel": "А зачем?",
+   "title": "Выпуск #12 про ИИ для школьников и не только с Евгением Соколовым",
+   "duration_s": 432,
+   "upload_date": "2024-08-06",
+   "setting": "interview",
+   "mode": "multi",
+   "max_height_available_px": 720,
+   "checked_frames_t_s": [
+    30,
+    200,
+    400
+   ],
+   "sokolov_face_px_measured": "102x145 … 106x143",
+   "arcface_sim_measured": [
+    0.638,
+    0.658,
+    0.629
+   ],
+   "identity_check": "имя в названии; 3/3 кадра sim 0.63–0.66; обложка-фото sim 0.655",
+   "access_check": "yt-dlp -g + curl HLS-сегментов успешно, 2026-10-31; ВНИМАНИЕ: river-1.rutube.ru/river-4-*.rtbcdn.ru периодически не отвечают (ffmpeg -i URL таймаутит) — брать сегменты curl --connect-timeout 3 --retry 12",
+   "group_id": "web_pos_v2_azachem12",
+   "priority": 12,
+   "notes": "Учебная аудитория, дневной свет, 2 человека за партой. Собеседница, по-видимому, школьного возраста — её лицо НИКОГДА не коммитить/не публиковать; кропать только Соколова."
+  },
+  {
+   "source_id": "web_pos_v2_fcs_council_2026",
+   "url": "https://vkvideo.ru/video-69306530_456240421",
+   "alt_urls": [],
+   "platform": "vkvideo",
+   "channel": "Факультет компьютерных наук — ФКН НИУ ВШЭ",
+   "title": "Открытое заседание Ученого совета ФКН. ИИ в образовании",
+   "duration_s": 6927,
+   "upload_date": "2026-08-06",
+   "setting": "lecture_webcam",
+   "mode": "multi",
+   "max_height_available_px": 720,
+   "checked_frames_t_s": [
+    300,
+    900,
+    1500,
+    2100,
+    2700,
+    3300,
+    4200,
+    5400,
+    6500
+   ],
+   "sokolov_face_px_measured": "35x43 … 37x46",
+   "arcface_sim_measured": [
+    0.663,
+    0.692,
+    0.629,
+    null,
+    0.36,
+    0.638,
+    null,
+    null,
+    null
+   ],
+   "identity_check": "Соколов — плитка веб-камеры в галерее MTS Link: sim 0.63–0.69 в кадрах 300/900/1500/3300 с; в остальных — другие участники",
+   "access_check": "yt-dlp метаданные + --download-sections (1 с, url720/url480) успешно, 2026-10-31; YouTube-зеркало не проверялось (youtube.com не резолвится)",
+   "group_id": "web_pos_v2_fcs_council_2026",
+   "priority": 13,
+   "notes": "Другая веб-камера/комната, 2026 (не серия v1). Лицо мелкое (~35 px при 720p) — годится только как low-res позитив; в кадре 3–11 чужих лиц, обязательна фильтрация по ArcFace."
+  },
+  {
+   "source_id": "web_pos_v2_minor_iad_lec13",
+   "url": "https://rutube.ru/video/047669aeea23143b755453f0042cdfa7/",
+   "alt_urls": [],
+   "platform": "rutube",
+   "channel": "«Тёмные цветы» (перезалив, неофиц.)",
+   "title": "Основы машинного обучения, лекция 13 — решающие деревья",
+   "duration_s": 4739,
+   "upload_date": "2025-09-08 (перезалив)",
+   "setting": "lecture_webcam",
+   "mode": "solo",
+   "checked_frames_t_s": [],
+   "sokolov_face_px_measured": "22x27 (обложка 640x360)",
+   "arcface_sim_measured": [
+    0.333
+   ],
+   "identity_check": "описание: «майнор ИАД, лектор — Евгений Соколов»; плитка Zoom с подписью «Evgeny Sokolov»; sim 0.333 при 22 px — слабое подтверждение",
+   "access_check": "Rutube API 200; кадры не извлекались",
+   "group_id": "web_pos_v2_minor_iad_lec13",
+   "priority": 14,
+   "notes": "НИЗКИЙ приоритет: крошечная плитка Zoom в правом верхнем углу — вероятно, онлайн-курс 2020/21 с похожей на v1 раскладкой; перезалив спам-каналом, оригинал на YouTube (плейлист PLEwK9wdS5g0rFDizykiWLVzeH0rsCQSTM)."
+  },
+  {
+   "source_id": "web_pos_v2_photo_staff",
+   "url": "https://www.hse.ru/pubs/share/thumb/1113829292:c380x380+0+0:r380x380!",
+   "page_url": "https://www.hse.ru/org/persons/175674529",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "фото профиля сотрудника",
+   "upload_date": "н/д",
+   "image_size_px": "380x380",
+   "sokolov_face_px_measured": "162x245",
+   "arcface_sim_measured": 0.633,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.633; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_staff",
+   "notes": "Официальный портрет (борода, очки), деревянный фон."
+  },
+  {
+   "source_id": "web_pos_v2_photo_portrait_2024",
+   "url": "https://www.hse.ru/pubs/share/direct/981599485",
+   "page_url": "https://www.hse.ru/news/science/981600021.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "портрет к цитате Е. Соколова",
+   "upload_date": "2024-10-31",
+   "image_size_px": "380x380",
+   "sokolov_face_px_measured": "159x202",
+   "arcface_sim_measured": 0.685,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.685; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_portrait_2024",
+   "notes": "Студийный портрет, серый фон. Тот же файл использован в новостях 1075346062, 1099244797, 959371795 — считать одним изображением."
+  },
+  {
+   "source_id": "web_pos_v2_photo_ai_leaders_2026",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/1129081123.jpeg",
+   "page_url": "https://www.hse.ru/news/development/1129080611.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © ВШЭ",
+   "upload_date": "2026-02-16",
+   "image_size_px": "2499x1666",
+   "sokolov_face_px_measured": "448x584",
+   "arcface_sim_measured": 0.738,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.738; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_ai_leaders_2026",
+   "notes": "Крупный план на синем фоне «НИУ ВШЭ», рыжий пиджак."
+  },
+  {
+   "source_id": "web_pos_v2_photo_trustees_2026",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/1211512328.jpeg",
+   "page_url": "https://www.hse.ru/news/life/1211467864.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © ВШЭ",
+   "upload_date": "2026-10-21",
+   "image_size_px": "2499x1666",
+   "sokolov_face_px_measured": "405x564",
+   "arcface_sim_measured": 0.758,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.758; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_trustees_2026",
+   "notes": "Заседание за столом, тёплый свет, ракурс 3/4; слева край чужой фигуры."
+  },
+  {
+   "source_id": "web_pos_v2_photo_css_graduation_2026",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/1172673982.jpeg",
+   "page_url": "https://www.hse.ru/news/life/1172670525.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © ВШЭ",
+   "upload_date": "2026-06-24",
+   "image_size_px": "2499x1666",
+   "sokolov_face_px_measured": "208x284",
+   "arcface_sim_measured": 0.701,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.701; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_css_graduation_2026",
+   "notes": "Сцена выпускного, микрофон, синий экран."
+  },
+  {
+   "source_id": "web_pos_v2_photo_sirius_2026",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/1191129837.jpg",
+   "page_url": "https://www.hse.ru/news/expertise/1191112841.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © ВШЭ",
+   "upload_date": "2026-08-18",
+   "image_size_px": "1073x715",
+   "sokolov_face_px_measured": "108x143",
+   "arcface_sim_measured": 0.722,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.722; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_sirius_2026",
+   "notes": "Выступление у трибуны («Большие вызовы», Сириус), тёмный фон."
+  },
+  {
+   "source_id": "web_pos_v2_photo_hackathon_2026",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/1162834553.jpg",
+   "page_url": "https://www.hse.ru/news/edu/1162817658.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "multi",
+   "caption": "Евгений Соколов (слева) © ВШЭ",
+   "upload_date": "2026-05-26",
+   "image_size_px": "1512x1008",
+   "sokolov_face_px_measured": "188x267",
+   "arcface_sim_measured": 0.718,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.718; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_hackathon_2026",
+   "notes": "За столом жюри с микрофоном; справа другой человек (sim 0.154) — не коммитить."
+  },
+  {
+   "source_id": "web_pos_v2_photo_donors_2025",
+   "url": "https://www.hse.ru/mirror/pubs/share/thumb/1091312361:c5577x3716+108+166:r1118x745!.jpg",
+   "page_url": "https://www.hse.ru/news/life/1091296703.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © ВШЭ",
+   "upload_date": "2025-10-08",
+   "image_size_px": "1118x745",
+   "sokolov_face_px_measured": "130x185",
+   "arcface_sim_measured": 0.733,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.733; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_donors_2025",
+   "notes": "Выступление у слайдов, клетчатый пиджак."
+  },
+  {
+   "source_id": "web_pos_v2_photo_mlprize_2025",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/1101865165.jpg",
+   "page_url": "https://www.hse.ru/news/development/1101859925.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "multi",
+   "caption": "Евгений Соколов (второй слева). Фото: оргкомитет Yandex ML Prize",
+   "upload_date": "2025-11-14",
+   "image_size_px": "1200x803",
+   "sokolov_face_px_measured": "85x118",
+   "arcface_sim_measured": 0.658,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.658; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_mlprize_2025",
+   "notes": "Групповое фото на сцене, цветной свет; 3 других лауреата (sim ≤0.05) — не коммитить."
+  },
+  {
+   "source_id": "web_pos_v2_photo_fcs10_2024",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/910933086.jpg",
+   "page_url": "https://www.hse.ru/news/life/910931995.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © Александр Портов",
+   "upload_date": "2024-04-02",
+   "image_size_px": "2500x1666",
+   "sokolov_face_px_measured": "286x397",
+   "arcface_sim_measured": 0.578,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.578; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_fcs10_2024",
+   "notes": "Сцена 10-летия ФКН (TED-формат), микрофон, тёмный фон."
+  },
+  {
+   "source_id": "web_pos_v2_photo_olymp_2024",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/908974184.jpg",
+   "page_url": "https://www.hse.ru/news/admission/908970613.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "multi",
+   "caption": "Евгений Соколов (слева) © ВШЭ",
+   "upload_date": "2024-03-26",
+   "image_size_px": "914x610",
+   "sokolov_face_px_measured": "56x73",
+   "arcface_sim_measured": 0.628,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.628; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_olymp_2024",
+   "notes": "Награждение, 3 человека (призёр, вероятно, школьник — не коммитить)."
+  },
+  {
+   "source_id": "web_pos_v2_photo_vyshka_online_2023",
+   "url": "https://www.hse.ru/mirror/pubs/share/direct/835553748.jpg",
+   "page_url": "https://www.hse.ru/news/edu/835550011.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © Даниил Прокофьев / ВШЭ",
+   "upload_date": "2023-05-24",
+   "image_size_px": "1920x1277",
+   "sokolov_face_px_measured": "119x156",
+   "arcface_sim_measured": 0.6,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.6; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "event_vyshka_online_2023-05-24",
+   "notes": "Та же сцена/день, что web_pos_v2_hse_online_campus_2023 → тот же group_id. В нижней части кадра затылки зрителей."
+  },
+  {
+   "source_id": "web_pos_v2_photo_datacult_2023",
+   "url": "https://www.hse.ru/mirror/pubs/share/thumb/862371452:c1898x1265+0+11:r1118x745!.jpg",
+   "page_url": "https://www.hse.ru/news/edu/862366986.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов © Кристина Шилова / ВШЭ",
+   "upload_date": "2023-09-27",
+   "image_size_px": "1118x745",
+   "sokolov_face_px_measured": "155x191",
+   "arcface_sim_measured": 0.618,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.618; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_datacult_2023",
+   "notes": "Сидя в кресле на тёмном фоне, светлый пиджак."
+  },
+  {
+   "source_id": "web_pos_v2_photo_vsosh_2023",
+   "url": "https://cs.hse.ru/data/2023/04/20/2029006623/соко.jpeg",
+   "page_url": "https://cs.hse.ru/olymp/news/828779981.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов, академический руководитель программы ПМИ",
+   "upload_date": "2023-04 (путь к файлу 2023/04/20)",
+   "image_size_px": "1082x722",
+   "sokolov_face_px_measured": "68x80",
+   "arcface_sim_measured": 0.582,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.582; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_vsosh_2023",
+   "notes": "Выступление у экрана в аудитории (Тюмень, финал ВсОШ), дневной свет — близко к lecture_room."
+  },
+  {
+   "source_id": "web_pos_v2_photo_cne",
+   "url": "https://cs.hse.ru/pubs/share/direct/834304255.jpeg",
+   "page_url": "https://cs.hse.ru/dpo/news/834304283.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "photo",
+   "caption": "Евгений Соколов, научный руководитель ЦНО ФКН",
+   "upload_date": "н/д",
+   "image_size_px": "190x190",
+   "sokolov_face_px_measured": "69x89",
+   "arcface_sim_measured": 0.664,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.664; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_cne",
+   "notes": "Маленький портрет 190x190, синее поло, без бороды/с лёгкой щетиной."
+  },
+  {
+   "source_id": "web_pos_v2_photo_young_sci_2024",
+   "url": "https://cs.hse.ru/pubs/share/direct/998214527.jpg",
+   "page_url": "https://cs.hse.ru/news/998214374.html",
+   "platform": "hse.ru",
+   "setting": "photo",
+   "mode": "multi",
+   "caption": "Фотохост Конгресса молодых учёных",
+   "upload_date": "н/д (≈2024)",
+   "image_size_px": "5681x3665",
+   "sokolov_face_px_measured": "107x140",
+   "arcface_sim_measured": 0.699,
+   "identity_check": "подпись на странице называет Е. Соколова; ArcFace sim 0.699; визуально совпадает",
+   "access_check": "curl 200 (2026-10-31), скачан в data/raw/_scratch/hse/photos",
+   "group_id": "web_pos_v2_photo_young_sci_2024",
+   "notes": "Панель на сцене, 11 лиц в кадре; Соколов — одно лицо (sim 0.699 при 5681x3665). Остальных не коммитить."
+  }
+ ],
+ "inaccessible_youtube": [
+  {
+   "source_id": "yt_bity_chas_10",
+   "url": "https://www.youtube.com/watch?v=frBm5jYPlK4",
+   "title": "#10 БИТЫЙ ЧАС: СОКОЛОВ - МАШИННОЕ ОБУЧЕНИЕ, ЯНДЕКС, СТАТИСТИКА",
+   "setting": "interview",
+   "identity_check": "только обложка i.ytimg.com: sim 0.597 (88x117 px)",
+   "access_check": "FAIL: ~11:40Z youtube.com не резолвился (nodename nor servname provided); 12:31Z yt-dlp --simulate: «Sign in to confirm you’re not a bot». Cookies/обход не применялись"
+  },
+  {
+   "source_id": "yt_nauchny_seans",
+   "url": "https://www.youtube.com/watch?v=pu53Q9FaC7M",
+   "title": "Евгений Соколов: про искусственный интеллект в образовании и науке, преподавание и ФКН (Научный сеанс)",
+   "setting": "interview",
+   "identity_check": "обложка: sim 0.696",
+   "access_check": "FAIL: youtube.com не резолвится; VK-копия не найдена"
+  },
+  {
+   "source_id": "yt_cstati_2022",
+   "url": "https://www.youtube.com/watch?v=-1mxwM0bmg4",
+   "title": "Интервью CSTATI с Евгением Соколовым (пост t.me/fcs_hse/1266, 2022-12-02)",
+   "setting": "interview",
+   "identity_check": "обложка: sim 0.657; без бороды",
+   "access_check": "FAIL: youtube.com не резолвится"
+  },
+  {
+   "source_id": "yt_uyutny_5_chatgpt",
+   "url": "https://www.youtube.com/watch?v=IMP1zZ9K4Wc",
+   "title": "Уютный ФКНчик #5: ChatGPT (Д. Ветров и Е. Соколов), 2023-02",
+   "setting": "interview",
+   "identity_check": "обложка: sim 0.419 при 23 px — слабо",
+   "access_check": "FAIL: youtube.com не резолвится"
+  },
+  {
+   "source_id": "yt_tech_talk_ml",
+   "url": "https://www.youtube.com/watch?v=q740GwAd9fU",
+   "title": "ТЕХ ТОК: МАШИННОЕ ОБУЧЕНИЕ (Евгений Соколов на обложке)",
+   "setting": "interview",
+   "identity_check": "обложка: sim 0.612 (центр. лицо)",
+   "access_check": "FAIL: youtube.com не резолвится"
+  },
+  {
+   "source_id": "yt_mo1_2023_lec2",
+   "url": "https://www.youtube.com/watch?v=MA66hFXaq7o",
+   "title": "Курс «Машинное обучение 1». Лекция 2 (Евгений Соколов)",
+   "setting": "lecture_room?",
+   "identity_check": "обложка с фото: sim 0.524; формат съёмки лекции неизвестен",
+   "access_check": "FAIL: youtube.com не резолвится"
+  }
+ ],
+ "rejected": [
+  {
+   "url": "https://rutube.ru/video/a090e3041b73ad22f836e4f81bfac890/",
+   "title": "Интервью Евгений Соколов, Яндекс (канал «Кейт о карьере»)",
+   "reason": "ОДНОФАМИЛЕЦ: топ-менеджер Яндекса, без очков и бороды; ArcFace sim 0.052"
+  },
+  {
+   "url": "https://rutube.ru/video/98762a4435583c80372952dffda27b70/",
+   "title": "МО- 2 Соколов лекция 11 (перезалив 2026-10-30)",
+   "reason": "ТА ЖЕ СЕРИЯ, что v1: длительность 4822 с = лекция-11.mp4 (4821.65 с), веб-камера справа сверху. Также лекции 9 (620f8e81f5fd6b8973a554918ff5afb1), 12 (f8eefdfdf0db60c81d3704f1f06714ef), 16 (7dd5304317978626230577df6b6a3f73) — та же онлайн-серия; не использовать для теста"
+  },
+  {
+   "url": "https://rutube.ru/video/7d82798aae8ad9397f4277133446e72a/",
+   "title": "2. МО-1 ФКН: линейные модели (+ 03/5/6/8/10/13 МО-1, перезаливы)",
+   "reason": "экран планшета/ноутбука без видимого лица или с крошечной плиткой; перезаливы спам-каналов"
+  },
+  {
+   "url": "https://rutube.ru/video/44fe2850ff81082a002e3a1fd5065929/",
+   "title": "Машинное обучение 1, лекция 12 — градиентный бустинг (перезалив)",
+   "reason": "мелкое окно веб-камеры справа сверху — вероятно, раскладка как в v1; не проверено на совпадение серии"
+  },
+  {
+   "url": "https://vkvideo.ru/video-221572132_456239335",
+   "title": "Что станет с образованием в эпоху нейросетей? (ТЕХНО: Яндекс)",
+   "reason": "Соколов не найден в кадрах 100/300/500/700 с (sim ≤0.01); обложка с актёрами"
+  },
+  {
+   "url": "https://vkvideo.ru/video-69306530_456239785",
+   "title": "Какие инструменты ИИ нужны офисным сотрудникам?",
+   "reason": "ведущая — другой человек; Соколов не найден (кадры 300/1500 с)"
+  },
+  {
+   "url": "https://vkvideo.ru/video-69306530_456240066",
+   "title": "Вебинар «Как на ФКН борются со списыванием через ChatGPT»",
+   "reason": "Соколов не найден (4 кадра, sim ≤0.15)"
+  },
+  {
+   "url": "https://vkvideo.ru/video-69306530_456240055",
+   "title": "Круглый стол «Сотрудничество IT-факультетов с индустрией»",
+   "reason": "Соколов не найден (5 кадров, sim ≤0.08)"
+  },
+  {
+   "url": "https://www.vedomosti.ru/partner/characters/2025/08/28/1134423-evgenii-sokolov",
+   "title": "Ведомости&: интервью Е. Соколова",
+   "reason": "текст без фото"
+  },
+  {
+   "url": "https://www.hse.ru/news/communication/930361299.html",
+   "title": "Искусственный интеллект: «поход в качалку для мозга»",
+   "reason": "на фото с подписью найден другой человек (Р. Левкович), Соколов не детектирован"
+  }
+ ]
+}
