@@ -1,0 +1,108 @@
+{
+  "status": "completed",
+  "technical_test": false,
+  "models": [
+    "resnet18",
+    "arcface"
+  ],
+  "synthesis": {
+    "architecture": "resnet18",
+    "checkpoint_sha256": "d669522521eb03e7cc4ae5c1539004d15869959db051c4e3da43d27f6667bacf",
+    "generation": {
+      "steps": 500,
+      "lr": 0.05,
+      "tv_weight": 0.0001,
+      "l2_weight": 1e-05,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "snapshot_every": 25
+    },
+    "technical_test": false,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "selection_partition": "val",
+    "results": [
+      {
+        "seed": 0,
+        "initial_score": 0.013218062929809093,
+        "final_score": 1.0,
+        "final_logit": 96.38703155517578,
+        "weights_unchanged": true,
+        "first_input_gradient_norm": 1.9196820259094238
+      },
+      {
+        "seed": 1,
+        "initial_score": 0.0075304871425032616,
+        "final_score": 1.0,
+        "final_logit": 89.03382873535156,
+        "weights_unchanged": true,
+        "first_input_gradient_norm": 2.3589835166931152
+      },
+      {
+        "seed": 2,
+        "initial_score": 0.013607573695480824,
+        "final_score": 1.0,
+        "final_logit": 92.59385681152344,
+        "weights_unchanged": true,
+        "first_input_gradient_norm": 1.768424153327942
+      },
+      {
+        "seed": 3,
+        "initial_score": 0.01271912083029747,
+        "final_score": 1.0,
+        "final_logit": 93.64606475830078,
+        "weights_unchanged": true,
+        "first_input_gradient_norm": 2.324218273162842
+      },
+      {
+        "seed": 4,
+        "initial_score": 0.01211355347186327,
+        "final_score": 1.0,
+        "final_logit": 92.78678131103516,
+        "weights_unchanged": true,
+        "first_input_gradient_norm": 2.1277709007263184
+      }
+    ],
+    "interpretation": "High classifier score does not guarantee a recognizable face; all seeds are shown."
+  },
+  "best_model": true,
+  "files": {
+    "arcface/confusion_matrix.png": "a2c3ac1e55686359e98d4673e8fa87bddc640efe9adeb8648731e93c479c7e60",
+    "arcface/curves.png": "fff5fb9137266b99746f9d0ff17ee7f9029f7701bf7ae15aa587e46b15ed7ea3",
+    "arcface/scores.png": "f962ed73b5531ea3dbcb4ea3c051eff9b0e68980d24a0f42e29e3c2fd254e24f",
+    "arcface/training.png": "483d977f34d02f826be4d3a88a0217cd4ad4c4fdf7062ccb459f48bf108a3e85",
+    "best_model.json": "355dc35c015a85f36befdc6884947a846c6bce93408dbf8b3437b381433faa38",
+    "data_audit_summary.json": "8bcc4dabb27ec0b097880ad40e6ecfb768bd07201f33bc4fdd5d793d24737c2d",
+    "metrics.csv": "567f15101e2e26b6d80631faf48539b3566f0ddb0ff9c436d31d17d4f33d280c",
+    "metrics.json": "885bdd65bd896a773bb62d513bfc0a7fc678e5d3f7838449e618d9cfe506eed7",
+    "report.html": "02d584c915c9081835dddd97335b5f967cb027e8147311ae69b4fc1d3d1d6d14",
+    "report.md": "a69f851d0a765e33e905320315b81b6fdd7739373cf46fe78b98c17fd433eb3c",
+    "resnet18/confusion_matrix.png": "1009a1afbaea9df146a8814fa6820153d63e6b9a8f7ca7755569c52aa5c37ae7",
+    "resnet18/curves.png": "984c4f01472c396226ed36c623b4bf14f495f7838be816a1c0553831e87e035d",
+    "resnet18/scores.png": "2cd70392b79cbd2d434989d4927d00412b21428ce05610c2181ff95adccd6259",
+    "resnet18/training.png": "1480bf6c92f8ab7823843af71de53a9861626c13395edee18bb888989083da77",
+    "synthesis/scores.png": "d71ffd423b08e67b57dc19de21360c3f0e125f659596ffda3d5124ac43f2882d",
+    "synthesis/seed_0/progression.png": "36f11fcd112024890b42c3e54dab83b04a73646663169cd2ba5c3ff1ebd995c8",
+    "synthesis/seed_0/trajectory.csv": "34cbdce4c247b832b5fbd7727ebe5ba24bb0870fa03254aff44a8ca2cfdaff34",
+    "synthesis/seed_1/progression.png": "1bd54d3003cc38abb982aed5e68d7d443ab1dc657471419606d0e9c3d8f4df8e",
+    "synthesis/seed_1/trajectory.csv": "c5a5d73287e068039153e47d38769900e37ccf8cd77400ed6a90ba4f1229ac2f",
+    "synthesis/seed_2/progression.png": "b8ce6ebd6a98c9aa33e9082f4e4b7bc8cfe590a599788c2e1e6a5a962481a56a",
+    "synthesis/seed_2/trajectory.csv": "cd07db52c3af8c9bc38b256621276a4f371c098d569dbf652567684119e15882",
+    "synthesis/seed_3/progression.png": "2a25d200a109f3463dfd623ca48529dd48f5df980974ca5dd47daafdb9835192",
+    "synthesis/seed_3/trajectory.csv": "b828d25a390ddb78773185f120ea55f882a9f9d00a0d45b1677ace0b8c0d6df7",
+    "synthesis/seed_4/progression.png": "61a3a356f8f645e7d0ef6c95faa2846bf5f9e6bf7b9aca3939511131a73d13ac",
+    "synthesis/seed_4/trajectory.csv": "649788764043f4e373828c2bc0f60fa3ab8a2ac77a4590efb101345be4f85b29",
+    "synthesis/seed_comparison.png": "b4f0490fee7880bcdba7f27b0c87f2e1da31b46bb7e94ea8cf6cfad74148a5c7",
+    "synthesis/summary.json": "23104da0e2b612dce281ded1db7400b20ba383db72727e48e412555731f8477b"
+  }
+}

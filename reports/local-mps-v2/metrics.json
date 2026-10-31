@@ -1,0 +1,348 @@
+{
+  "resnet18": {
+    "evaluation": {
+      "image_level": {
+        "count": 900,
+        "threshold": 0.76998370885849,
+        "metrics": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "mcc": 1.0,
+          "specificity": 1.0,
+          "roc_auc": 1.0,
+          "average_precision": 1.0000000000000002,
+          "log_loss": 0.05625086285046933,
+          "brier_score": 0.006556602479100389
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 750
+          },
+          "sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 150
+          }
+        },
+        "confusion_matrix": [
+          [
+            750,
+            0
+          ],
+          [
+            0,
+            150
+          ]
+        ],
+        "undefined": {}
+      },
+      "face_level": {
+        "count": 894,
+        "threshold": 0.76998370885849,
+        "metrics": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "mcc": 1.0,
+          "specificity": 1.0,
+          "roc_auc": 1.0,
+          "average_precision": 1.0000000000000002,
+          "log_loss": 0.05662838474879461,
+          "brier_score": 0.006600606522584284
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 744
+          },
+          "sokolov": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 150
+          }
+        },
+        "confusion_matrix": [
+          [
+            744,
+            0
+          ],
+          [
+            0,
+            150
+          ]
+        ],
+        "undefined": {}
+      },
+      "coverage": {
+        "total": 900,
+        "usable_faces": 894,
+        "fraction": 0.9933333333333333,
+        "no_face": 3,
+        "multiple_faces": 3,
+        "alignment_failed": 0
+      },
+      "benchmark": {
+        "device": "mps",
+        "batch_size": 32,
+        "warmup_batches": 5,
+        "measured_batches": 20,
+        "images_per_second": 456.2699420272335,
+        "milliseconds_per_image": 2.191685026537016,
+        "scope": "classifier forward only; excludes detection, decoding and transfer"
+      },
+      "checkpoint_bytes": 44808496,
+      "checkpoint_sha256": "d669522521eb03e7cc4ae5c1539004d15869959db051c4e3da43d27f6667bacf",
+      "technical_test": false
+    },
+    "training": {
+      "epochs": 15,
+      "best_validation_ap": 1.0,
+      "training_seconds": 387.7616542910109,
+      "pos_weight": 4.955587392550143,
+      "parameters": 11177025,
+      "pretrained_provenance": {
+        "source": "https://download.pytorch.org/models/resnet18-f37072fd.pth",
+        "state_sha256": "2aead97338b5855cf4b9a3ae47ce15f4fc38b970f800ba309d50d4b7784ac0ee"
+      },
+      "technical_test": false,
+      "data_fingerprint": {
+        "signature": {
+          "raw_sha256": "8b339d207a55b8661136aaa7c58e0b1db754716ce1c837b0e2cb025a4887c7c5",
+          "split": {
+            "validation_fraction": 0.15,
+            "seed": 42,
+            "test_fraction": 0.15,
+            "mode": "random_stratified"
+          },
+          "detector_name": "buffalo_l",
+          "detector_threshold": 0.5,
+          "phash_max_distance": 6,
+          "detector_resize_policy": "shrink_only_top_left_pad_v1",
+          "min_detector_coverage": 0.8,
+          "schema_version": 2
+        },
+        "manifest_sha256": "88336f5834f8b9ed956269f0432ddde29be2c51aba1ed55faf87cc7b07f31d21",
+        "split_sha256": "08871e76c099a4eb7803cbe4cdba62dc145d1fce26f7a8b95bde6d329b38a4d1",
+        "detector": {
+          "name": "SCRFD/det_10g.onnx",
+          "insightface": "0.7.3",
+          "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+          "threshold": 0.5,
+          "input_size": [
+            640,
+            640
+          ],
+          "resize_policy": "shrink_only_top_left_pad_v1",
+          "provider": "CPUExecutionProvider",
+          "intra_op_num_threads": 4
+        }
+      }
+    },
+    "environment": {
+      "source_sha256": "bde86420d1f4f1260f6e1f0deb7acace1dc1ae5751146c0ae783c5b187a04c54",
+      "python": "3.12.15",
+      "platform": "macOS-15.5-arm64-arm-64bit",
+      "packages": {
+        "torch": "2.5.1",
+        "torchvision": "0.20.1",
+        "numpy": "1.26.4",
+        "scikit-learn": "1.6.1",
+        "Pillow": "11.1.0",
+        "ImageHash": "4.3.2",
+        "matplotlib": "3.10.0",
+        "insightface": "0.7.3",
+        "onnxruntime": "1.20.1",
+        "kagglehub": "0.3.12",
+        "scipy": "1.15.2",
+        "scikit-image": "0.25.2",
+        "opencv-python-headless": "4.10.0.84",
+        "Markdown": "3.7",
+        "onnx": "1.17.0"
+      },
+      "git_commit": "d3e24f10a408e558d6926f644d69df358776dee6",
+      "git_dirty": true,
+      "device": "mps"
+    }
+  },
+  "arcface": {
+    "evaluation": {
+      "image_level": {
+        "count": 900,
+        "threshold": 0.6874397397041321,
+        "metrics": {
+          "accuracy": 0.9977777777777778,
+          "balanced_accuracy": 0.9933333333333334,
+          "macro_f1": 0.9959785163406286,
+          "mcc": 0.9919891900577795,
+          "specificity": 1.0,
+          "roc_auc": 0.9994488888888888,
+          "average_precision": 0.998050314465409,
+          "log_loss": 0.33655025531137317,
+          "brier_score": 0.090737181947699
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 0.9973404255319149,
+            "recall": 1.0,
+            "f1": 0.9986684420772304,
+            "support": 750
+          },
+          "sokolov": {
+            "precision": 1.0,
+            "recall": 0.9866666666666667,
+            "f1": 0.9932885906040269,
+            "support": 150
+          }
+        },
+        "confusion_matrix": [
+          [
+            750,
+            0
+          ],
+          [
+            2,
+            148
+          ]
+        ],
+        "undefined": {}
+      },
+      "face_level": {
+        "count": 894,
+        "threshold": 0.6874397397041321,
+        "metrics": {
+          "accuracy": 0.9977628635346756,
+          "balanced_accuracy": 0.9933333333333334,
+          "macro_f1": 0.9959731543624162,
+          "mcc": 0.9919785520469582,
+          "specificity": 1.0,
+          "roc_auc": 0.9994444444444444,
+          "average_precision": 0.998050314465409,
+          "log_loss": 0.33880898118594616,
+          "brier_score": 0.09134615632318693
+        },
+        "classes": {
+          "not_sokolov": {
+            "precision": 0.9973190348525469,
+            "recall": 1.0,
+            "f1": 0.9986577181208054,
+            "support": 744
+          },
+          "sokolov": {
+            "precision": 1.0,
+            "recall": 0.9866666666666667,
+            "f1": 0.9932885906040269,
+            "support": 150
+          }
+        },
+        "confusion_matrix": [
+          [
+            744,
+            0
+          ],
+          [
+            2,
+            148
+          ]
+        ],
+        "undefined": {}
+      },
+      "coverage": {
+        "total": 900,
+        "usable_faces": 894,
+        "fraction": 0.9933333333333333,
+        "no_face": 3,
+        "multiple_faces": 3,
+        "alignment_failed": 0
+      },
+      "benchmark": {
+        "device": "mps",
+        "batch_size": 32,
+        "warmup_batches": 5,
+        "measured_batches": 20,
+        "images_per_second": 144.44237643383207,
+        "milliseconds_per_image": 6.923176042164414,
+        "scope": "classifier forward only; excludes detection, decoding and transfer"
+      },
+      "checkpoint_bytes": 174695850,
+      "checkpoint_sha256": "4c6b7d4a3dfc972f37504bc1397ad0457eac0ceeb1180f360d56280aaf6989ae",
+      "technical_test": false
+    },
+    "training": {
+      "epochs": 5,
+      "best_validation_ap": 0.995646103896104,
+      "training_seconds": 221.5297107080114,
+      "pos_weight": 4.955587392550143,
+      "parameters": 43591361,
+      "pretrained_provenance": {
+        "source": "InsightFace arcface_torch iResNet50/MS1MV3",
+        "sha256": "ef005ba502a2d0f40e7b94245054d3a23e375776f7035080fcbce45ae49cfb01"
+      },
+      "technical_test": false,
+      "data_fingerprint": {
+        "signature": {
+          "raw_sha256": "8b339d207a55b8661136aaa7c58e0b1db754716ce1c837b0e2cb025a4887c7c5",
+          "split": {
+            "validation_fraction": 0.15,
+            "seed": 42,
+            "test_fraction": 0.15,
+            "mode": "random_stratified"
+          },
+          "detector_name": "buffalo_l",
+          "detector_threshold": 0.5,
+          "phash_max_distance": 6,
+          "detector_resize_policy": "shrink_only_top_left_pad_v1",
+          "min_detector_coverage": 0.8,
+          "schema_version": 2
+        },
+        "manifest_sha256": "88336f5834f8b9ed956269f0432ddde29be2c51aba1ed55faf87cc7b07f31d21",
+        "split_sha256": "08871e76c099a4eb7803cbe4cdba62dc145d1fce26f7a8b95bde6d329b38a4d1",
+        "detector": {
+          "name": "SCRFD/det_10g.onnx",
+          "insightface": "0.7.3",
+          "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+          "threshold": 0.5,
+          "input_size": [
+            640,
+            640
+          ],
+          "resize_policy": "shrink_only_top_left_pad_v1",
+          "provider": "CPUExecutionProvider",
+          "intra_op_num_threads": 4
+        }
+      }
+    },
+    "environment": {
+      "source_sha256": "bde86420d1f4f1260f6e1f0deb7acace1dc1ae5751146c0ae783c5b187a04c54",
+      "python": "3.12.15",
+      "platform": "macOS-15.5-arm64-arm-64bit",
+      "packages": {
+        "torch": "2.5.1",
+        "torchvision": "0.20.1",
+        "numpy": "1.26.4",
+        "scikit-learn": "1.6.1",
+        "Pillow": "11.1.0",
+        "ImageHash": "4.3.2",
+        "matplotlib": "3.10.0",
+        "insightface": "0.7.3",
+        "onnxruntime": "1.20.1",
+        "kagglehub": "0.3.12",
+        "scipy": "1.15.2",
+        "scikit-image": "0.25.2",
+        "opencv-python-headless": "4.10.0.84",
+        "Markdown": "3.7",
+        "onnx": "1.17.0"
+      },
+      "git_commit": "d3e24f10a408e558d6926f644d69df358776dee6",
+      "git_dirty": true,
+      "device": "mps"
+    }
+  }
+}

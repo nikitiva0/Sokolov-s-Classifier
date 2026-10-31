@@ -1,0 +1,112 @@
+{
+  "input_count": 6000,
+  "audited_count": 6000,
+  "counts": {
+    "train": {
+      "originals": 4200,
+      "usable": 4157,
+      "labels_original": {
+        "1": 700,
+        "0": 3500
+      },
+      "labels_usable": {
+        "1": 698,
+        "0": 3459
+      },
+      "statuses": {
+        "ok": 4157,
+        "no_face": 11,
+        "multiple_faces": 32
+      },
+      "coverage_by_label": {
+        "1": 0.9971428571428571,
+        "0": 0.9882857142857143
+      }
+    },
+    "val": {
+      "originals": 900,
+      "usable": 891,
+      "labels_original": {
+        "1": 150,
+        "0": 750
+      },
+      "labels_usable": {
+        "1": 150,
+        "0": 741
+      },
+      "statuses": {
+        "ok": 891,
+        "multiple_faces": 7,
+        "no_face": 2
+      },
+      "coverage_by_label": {
+        "1": 1.0,
+        "0": 0.988
+      }
+    },
+    "test": {
+      "originals": 900,
+      "usable": 894,
+      "labels_original": {
+        "1": 150,
+        "0": 750
+      },
+      "labels_usable": {
+        "1": 150,
+        "0": 744
+      },
+      "statuses": {
+        "ok": 894,
+        "no_face": 3,
+        "multiple_faces": 3
+      },
+      "coverage_by_label": {
+        "1": 1.0,
+        "0": 0.992
+      }
+    }
+  },
+  "overlapping_sources": {
+    "лекция-01.mp4": [
+      "test",
+      "train",
+      "val"
+    ],
+    "лекция-03.mp4": [
+      "test",
+      "train",
+      "val"
+    ],
+    "лекция-04.mp4": [
+      "test",
+      "train",
+      "val"
+    ],
+    "лекция-11.mp4": [
+      "test",
+      "train",
+      "val"
+    ]
+  },
+  "warnings": [
+    "Random frame split may share lectures and near-duplicate frames across train/val/test.",
+    "FairFace identity-disjoint splits are not guaranteed.",
+    "Positive and negative classes come from different sources; domain shortcuts are possible.",
+    "Test is not an independent new-lecture benchmark."
+  ],
+  "detector": {
+    "name": "SCRFD/det_10g.onnx",
+    "insightface": "0.7.3",
+    "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+    "threshold": 0.5,
+    "input_size": [
+      640,
+      640
+    ],
+    "resize_policy": "shrink_only_top_left_pad_v1",
+    "provider": "CPUExecutionProvider",
+    "intra_op_num_threads": 4
+  },
+  "detection_seconds": 577.2329670354957,
+  "preparation_seconds": 603.6309784579789
+}
