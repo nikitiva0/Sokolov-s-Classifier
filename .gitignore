@@ -17,6 +17,8 @@ data/raw/*
 !data/raw/sokolov_positive_v1/
 data/processed/
 data/manifests/raw.csv
+data/manifests/local_mps/
+data/manifests/domain_v3/
 data/manifests/*.local.csv
 outputs/runs/
 checkpoints/
@@ -33,12 +35,8 @@ work/
 !.env.example
 .ipynb_checkpoints/
 
-# Android local toolchains and builds
-.gradle/
-android/local.properties
-android/**/build/
+# Archived local build artifacts
 *.apk
-android/.kotlin/
 
 # Harvest tool: local reference embeddings (tools/harvest_faces.py reference); data/raw/_scratch/ is covered by data/raw/*
 data/reference/

@@ -2,10 +2,12 @@
 
 Each [[generation.variants]] entry fixes a parametrization and constraints; every
 variant x seed is one cached run whose trajectory is scored on its exact 8-bit pixels.
+The classifier always sees the checkpoint's own differentiable face preprocessing
+(model.face_preprocessing, preprocessing.py) — the same as training, evaluation and the UI.
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from functools import cache
 import json
 import math
@@ -33,23 +35,36 @@ class VariantRun(SynthesisArtifacts):
 
 def legacy_generation(raw):
     """Checkpoints saved before variants existed hold one pixel baseline (lr/tv/l2)."""
-    raw = dict(raw)
-    if 'variants' not in raw:
-        raw['variants'] = [{'name': 'pixel', 'parametrization': 'pixel', 'lr': raw.pop('lr'),
-                            'tv_weight': raw.pop('tv_weight'), 'l2_weight': raw.pop('l2_weight')}]
     return generation_config(raw)
 
 
+def _restore(cls, raw):
+    """Dataclass from a checkpoint table; missing fields take defaults (older checkpoints)."""
+    known = {f.name for f in fields(cls)}
+    unknown = sorted(set(raw) - known)
+    if unknown:
+        raise ValueError(f'Unknown checkpoint config fields for {cls.__name__}: {unknown}')
+    return cls(**raw)
+
+
 def checkpoint_config(saved):
-    """Restore preprocessing from the checkpoint, without touching data or source weights."""
+    """Restore preprocessing from the checkpoint, without touching data or source weights.
+
+    Older checkpoints: no face_preprocessing -> 'rgb', no augmentation -> 'light';
+    the removed boolean training.augment maps to augmentation 'robust'/'light'.
+    """
     raw = saved['config']
-    return Config(DataConfig(**raw['data']), ModelConfig(**raw['model']),
-                  SplitConfig(**raw['split']), TrainingConfig(**raw['training']),
+    training = dict(raw['training'])
+    if 'augment' in training:
+        augment = training.pop('augment')
+        training.setdefault('augmentation', 'robust' if augment else 'light')
+    return Config(_restore(DataConfig, raw['data']), _restore(ModelConfig, raw['model']),
+                  _restore(SplitConfig, raw['split']), _restore(TrainingConfig, training),
                   legacy_generation(raw['generation']))
 
 
 def select_best_model(run_dir):
-    """Select by validation AP only; ties prefer ResNet18. Persist a self-contained copy."""
+    """Select by the configured validation criterion; ties prefer ResNet18."""
     import torch
     run = Path(run_dir)
     candidates = []
@@ -65,6 +80,7 @@ def select_best_model(run_dir):
         if saved['config']['model']['architecture'] != name:
             raise ValueError('Checkpoint architecture mismatch')
         candidates.append({'architecture': name, 'validation_ap': ap,
+            'selection_metric': saved['config']['training']['selection_metric'],
             'epoch': int(saved['epoch'])+1, 'checkpoint_sha256': sha256(folder/'best.pt'),
             'technical_test': saved['technical_test'], 'data_fingerprint': saved['data_fingerprint']})
         del saved
@@ -74,7 +90,9 @@ def select_best_model(run_dir):
         raise ValueError('Cannot compare a technical test and a real trained model')
     winner = max(candidates, key=lambda c: c['validation_ap'])
     metadata = {k: v for k, v in winner.items() if k != 'data_fingerprint'}
-    metadata.update(selection_partition='val', selection_metric='average_precision',
+    if len({c['selection_metric'] for c in candidates}) != 1:
+        raise ValueError('Models must use the same validation selection criterion')
+    metadata.update(selection_partition='val', selection_metric=winner['selection_metric'],
         tie_break='resnet18', candidates=[{k: v for k, v in c.items() if k != 'data_fingerprint'} for c in candidates])
     target = run/'best_model.pt'
     if not target.exists() or sha256(target) != winner['checkpoint_sha256']:
@@ -85,22 +103,18 @@ def select_best_model(run_dir):
     return target
 
 
-def normalized_pixels(pixels, architecture):
+def normalized_pixels(pixels, architecture, policy='rgb'):
     """Differentiable counterpart of dataset normalization; pixels remain in [0,1]."""
-    if architecture == 'resnet18':
-        mean, std = (.485, .456, .406), (.229, .224, .225)
-    elif architecture == 'arcface':
-        mean = std = (.5, .5, .5)
-    else:
-        raise ValueError('Unknown synthesis architecture')
-    mean = pixels.new_tensor(mean).view(1, 3, 1, 1)
-    std = pixels.new_tensor(std).view(1, 3, 1, 1)
-    return (pixels-mean)/std
+    from .preprocessing import normalized_face
+    return normalized_face(pixels, architecture, policy)
 
 
-def objective_terms(pixels, model, variant, architecture, view=None):
-    """Logit of `view` (transformed image) or of `pixels`; TV and L2 always on `pixels`."""
-    logit = model(normalized_pixels(pixels if view is None else view, architecture)).reshape(-1)
+def objective_terms(pixels, model, variant, architecture, view=None, policy='rgb'):
+    """Logit of `view` (transformed image) or of `pixels`; TV and L2 always on `pixels`.
+
+    policy is the checkpoint's model.face_preprocessing, applied after the random view.
+    """
+    logit = model(normalized_pixels(pixels if view is None else view, architecture, policy)).reshape(-1)
     if logit.numel() != 1:
         raise ValueError('Synthesis expects exactly one binary logit')
     logit = logit[0]
@@ -261,7 +275,8 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, variant=None, out
     variant = _variant(config, variant)
     saved = torch.load(checkpoint, map_location='cpu', weights_only=False)
     stored = checkpoint_config(saved)
-    if stored.model.architecture != config.model.architecture or stored.model.image_size != config.model.image_size:
+    if (stored.model.architecture != config.model.architecture or stored.model.image_size != config.model.image_size
+            or stored.model.face_preprocessing != config.model.face_preprocessing):
         raise ValueError('Synthesis config does not match checkpoint architecture/preprocessing')
     if type(seed) is not int or seed < 0:
         raise ValueError('Synthesis seed must be a nonnegative integer')
@@ -271,8 +286,9 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, variant=None, out
     generation = config.generation
     request = {'checkpoint_sha256': sha256(checkpoint), 'seed': seed, 'device': str(device),
                'architecture': stored.model.architecture, 'image_size': stored.model.image_size,
+               'face_preprocessing': stored.model.face_preprocessing,
                'steps': generation.steps, 'snapshot_every': generation.snapshot_every,
-               'variant': asdict(variant), 'schema_version': 2}
+               'variant': asdict(variant), 'schema_version': 3}
     artifacts = VariantRun(seed, folder/'final.png', folder/'snapshots', folder/'trajectory.csv', variant.name)
     if _verify_completed(folder, request):
         return artifacts
@@ -289,7 +305,7 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, variant=None, out
     model.requires_grad_(False)
     before = state_fingerprint(model.state_dict())
     size = stored.model.image_size
-    architecture = stored.model.architecture
+    architecture, policy = stored.model.architecture, stored.model.face_preprocessing
     parameter, render, generator = image_parametrization(variant, size, seed, device)
     with torch.no_grad():
         initial = render(parameter).detach().cpu().clone()
@@ -304,7 +320,7 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, variant=None, out
             optimizer.zero_grad(set_to_none=True)
             image = render(parameter)
             view, view_parameters = random_view(image, variant, generator) if transforms else (None, {})
-            terms = objective_terms(image, model, variant, architecture, view=view)
+            terms = objective_terms(image, model, variant, architecture, view=view, policy=policy)
             if not all(torch.isfinite(v).item() for v in terms.values()):
                 raise ValueError('Non-finite synthesis objective')
             (-terms['objective']).backward()
@@ -325,7 +341,7 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, variant=None, out
         with torch.no_grad():
             quantized = (render(parameter).detach()*255).round().clamp(0, 255).to(torch.uint8)
             encoded_pixels = quantized.float()/255
-            terms = objective_terms(encoded_pixels, model, variant, architecture)
+            terms = objective_terms(encoded_pixels, model, variant, architecture, policy=policy)
             if not all(torch.isfinite(v).item() for v in terms.values()):
                 raise ValueError('Non-finite saved-image score')
             row = {'step': step, **{k: float(v.item()) for k, v in terms.items()}}
@@ -354,7 +370,8 @@ def synthesize(config: Config, checkpoint: Path, seed: int, *, variant=None, out
         'first_input_gradient_norm': first_grad_norm,
         'gradient_parameter': 'RGB pixels' if variant.parametrization == 'pixel' else 'Fourier spectrum',
         'pixel_min': float(final.min().item()), 'pixel_max': float(final.max().item()),
-        'score_pixels': '8-bit PNG decoded as RGB / 255, then checkpoint normalization; no random transform',
+        'score_pixels': '8-bit PNG decoded as RGB / 255, then checkpoint face preprocessing and normalization; '
+                        'no random transform',
         'optimized_logit': 'logit of the continuous (randomly transformed) image used for the gradient, before the step',
         'optimization_pixels': describe_variant(variant, size)})
     write_json(folder/'completed.json', {'request': request, 'files': {
@@ -370,8 +387,8 @@ def run_experiment(config: Config, checkpoint: Path, *, output_dir=None, run_dir
     root = Path(output_dir) if output_dir else Path(checkpoint).parent/'synthesis'
     generation = json.loads(json.dumps(asdict(config.generation)))
     request = {'checkpoint_sha256': sha256(checkpoint), 'generation': generation,
-               'architecture': config.model.architecture,
-               'device': str(device_for(config.training.device)), 'schema_version': 2}
+               'architecture': config.model.architecture, 'face_preprocessing': config.model.face_preprocessing,
+               'device': str(device_for(config.training.device)), 'schema_version': 3}
     if (root/'request.json').exists() and read_json(root/'request.json') != request:
         raise ValueError('Synthesis experiment changed; choose a new output directory')
     root.mkdir(parents=True, exist_ok=True)
@@ -405,6 +422,7 @@ def run_experiment(config: Config, checkpoint: Path, *, output_dir=None, run_dir
             'devices': sorted({r['device'] for r in own}), 'steps': config.generation.steps}
     technical = read_json(runs[0].trajectory.parent/'metadata.json')['technical_test']
     summary = {'architecture': config.model.architecture, 'image_size': config.model.image_size,
+        'face_preprocessing': config.model.face_preprocessing,
         'checkpoint_sha256': sha256(checkpoint), 'generation': generation, 'technical_test': technical,
         'seeds': list(config.generation.seeds), 'variants': [v.name for v in config.generation.variants],
         'variant_descriptions': {v.name: describe_variant(v, config.model.image_size) for v in config.generation.variants},

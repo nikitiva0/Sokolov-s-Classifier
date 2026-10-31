@@ -12,7 +12,10 @@ from pathlib import Path
 from .io import read_csv, read_json, sha256, write_csv, write_json
 
 MODELS = ('resnet18', 'arcface')
-LOCAL_AUDIT_KEYS = ('exclusions', 'near_duplicate_candidates', 'near_duplicate_excluded')
+# Per-image/per-group details (IDs, file names, person names in group IDs) stay local;
+# the published data_audit_summary.json keeps aggregates and protocol checks.
+LOCAL_AUDIT_KEYS = ('exclusions', 'near_duplicate_candidates', 'near_duplicate_excluded',
+                    'near_duplicate_cross_split', 'phash_linked_groups')
 
 
 def _fmt(value, digits=3):
@@ -32,8 +35,13 @@ def protocol_lines(audit):
             'ровно в одну выборку: кадры одной лекции не делятся между train, validation и test.',
             f"Группы стратифицированы по паре (метка группы, домен): около {summary['validation_fraction']:.0%} групп "
             f"каждого страта — в validation, {summary['test_fraction']:.0%} — в test, seed={summary['seed']}. "
+            'Источники, связанные pHash-кандидатами исходных изображений, до разбиения объединяются в одну группу. '
+            'Группы split.train_only_sources и вручную закреплённые наборы (partition) не перемещаются.',
             'Гарантии: в каждой выборке оба класса; в test есть лекция из набора v1 и web-источники Соколова из '
-            'разных доменов (если они есть); в validation есть позитивная группа.',
+            'разных доменов (если они есть); при достаточном числе независимых web-групп validation и test '
+            f"получают минимум {checks.get('web_held_out_minimum', {}).get('1', 'N/A')} (Соколов) и "
+            f"{checks.get('web_held_out_minimum', {}).get('0', 'N/A')} (другие люди) таких групп; "
+            'в validation есть позитивная группа.',
             f"Проверка: групп сразу в нескольких выборках — {len(checks['groups_in_several_splits'])}; "
             f"лекций v1 в test — {len(checks['test_v1_lectures'])}; web-доменов Соколова в test — "
             f"{', '.join(checks['test_web_positive_domains']) or 'нет'} "
@@ -42,8 +50,10 @@ def protocol_lines(audit):
     elif mode == 'random_stratified':
         lines += ['Случайное стратифицированное разбиение отдельных кадров (явно выбранный устаревший режим). '
                   'Кадры одной лекции могут попасть в разные выборки; метрики test завышены.', '']
-    else:
+    elif mode == 'external':
         lines += ['Внешнее разбиение train/test сохранено; validation выделена из train по группам.', '']
+    else:
+        lines += ['Режим разбиения не записан в аудите (подготовка данных до текущей версии).', '']
     lines.append('Порог решения и лучший checkpoint выбираются только по validation; test используется один раз.')
     if guard:
         excluded = guard['excluded']
@@ -105,8 +115,11 @@ def make_report(run_dir):
             raise ValueError('Models used different data/splits')
         summaries[name] = {'evaluation': metrics, 'training': summary,
                            'environment': read_json(folder/'environment.json')}
-        for level in ('image_level', 'face_level'):
-            result = metrics[level]
+        levels = {level: metrics[level] for level in ('image_level', 'face_level')}
+        levels.update({'positive_domain_'+domain: result for domain, result in
+                       metrics.get('by_positive_domain', {}).items()})
+        for level, result in levels.items():
+            # Group-bootstrap CIs are stored under the same level name (evaluate.py).
             intervals = ((metrics.get('bootstrap') or {}).get(level) or {}).get('intervals') or {}
             for metric, value in (result['metrics'] or {}).items():
                 ci = intervals.get(metric) or {}
@@ -147,6 +160,12 @@ def make_report(run_dir):
         value = f"{row['value']:.6g}" if row['value'] is not None else 'N/A: '+row['undefined_reason']
         interval = f"{row['ci95_low']:.4g}–{row['ci95_high']:.4g}" if row['ci95_low'] != '' else ''
         lines.append(f"| {row['model']} | {row['level']} | {row['metric']} | {value} | {interval} |")
+    if any(s['evaluation'].get('by_positive_domain') for s in summaries.values()):
+        lines += ['', 'Строки positive_domain_web и positive_domain_lecture сравнивают позитивы',
+                  'одного семейства источников (лекции v1 / интернет-, собранные и пользовательские фото)',
+                  'с теми же общими test-негативами. При малом числе портретов доменные оценки',
+                  'нестабильны. Число примеров указано в support. Разбивка по отдельным доменам',
+                  'съёмки и источникам — в разделах моделей ниже.', '']
     for name in MODELS:
         folder = run/name
         plots = report/name
@@ -158,7 +177,11 @@ def make_report(run_dir):
         axes[0].plot([int(r['epoch']) for r in history], [float(r['train_loss']) for r in history])
         axes[0].set(xlabel='Epoch', ylabel='Train loss')
         axes[1].plot([int(r['epoch']) for r in history], [float(r['validation_ap']) for r in history])
-        axes[1].set(xlabel='Epoch', ylabel='Validation AP')
+        if 'selection_score' in history[0]:
+            axes[1].plot([int(r['epoch']) for r in history],
+                         [float(r['selection_score']) for r in history], label='selection score')
+            axes[1].legend()
+        axes[1].set(xlabel='Epoch', ylabel='Validation AP / selection score')
         fig.tight_layout(); fig.savefig(plots/'training.png', dpi=140); plt.close(fig)
         summary = summaries[name]
         lines += ['', f'## {name}', '', '```json', json.dumps({
@@ -168,6 +191,7 @@ def make_report(run_dir):
             'benchmark': summary['evaluation']['benchmark'],
             'coverage': summary['evaluation']['coverage'],
             'pretrained_weights': summary['training']['pretrained_provenance'],
+            'selection_metric': summary['training'].get('selection_metric', 'average_precision'),
             'environment': summary['environment'],
             'threshold': read_json(folder/'threshold.json')}, ensure_ascii=False, indent=2), '```', '']
         for image in ['training.png', 'curves.png', 'confusion_matrix.png', 'scores.png']:
@@ -194,7 +218,7 @@ def make_report(run_dir):
         winner = read_json(run/'best_model.json')
         write_json(report/'best_model.json', winner)
         lines += ['', '## Лучшая сохранённая модель', '',
-                  f"Победитель: **{winner['architecture']}**, validation AP={winner['validation_ap']:.6f}, эпоха {winner['epoch']}.",
+                  f"Победитель: **{winner['architecture']}**, validation {winner.get('selection_metric', 'average_precision')}={winner['validation_ap']:.6f}, эпоха {winner['epoch']}.",
                   'Выбор выполнен по validation, без использования test. Полный checkpoint сохранён локально в best_model.pt.', '']
     if (run/'synthesis').exists():
         from .synthesize import validate_synthesis

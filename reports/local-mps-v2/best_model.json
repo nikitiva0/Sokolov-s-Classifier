@@ -1,0 +1,26 @@
+{
+  "architecture": "resnet18",
+  "validation_ap": 1.0,
+  "epoch": 1,
+  "checkpoint_sha256": "d669522521eb03e7cc4ae5c1539004d15869959db051c4e3da43d27f6667bacf",
+  "technical_test": false,
+  "selection_partition": "val",
+  "selection_metric": "average_precision",
+  "tie_break": "resnet18",
+  "candidates": [
+    {
+      "architecture": "resnet18",
+      "validation_ap": 1.0,
+      "epoch": 1,
+      "checkpoint_sha256": "d669522521eb03e7cc4ae5c1539004d15869959db051c4e3da43d27f6667bacf",
+      "technical_test": false
+    },
+    {
+      "architecture": "arcface",
+      "validation_ap": 0.995646103896104,
+      "epoch": 5,
+      "checkpoint_sha256": "4c6b7d4a3dfc972f37504bc1397ad0457eac0ceeb1180f360d56280aaf6989ae",
+      "technical_test": false
+    }
+  ]
+}

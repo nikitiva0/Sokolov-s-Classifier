@@ -3,6 +3,8 @@ from __future__ import annotations
 import numpy as np
 from sklearn import metrics as m
 
+from .data.families import source_family
+
 
 def binary_metrics(labels, scores, threshold, detected=None):
     y, p = np.asarray(labels, dtype=int), np.asarray(scores, dtype=float)
@@ -39,7 +41,7 @@ def binary_metrics(labels, scores, threshold, detected=None):
             'confusion_matrix': [[int(tn), int(fp)], [int(fn), int(tp)]], 'undefined': undefined}
 
 
-def choose_threshold(labels, scores, detected=None):
+def choose_threshold(labels, scores, detected=None, sample_weight=None):
     y, p = np.asarray(labels, dtype=int), np.asarray(scores, dtype=float)
     if set(y) != {0, 1}:
         raise ValueError('Both validation classes are required to select threshold')
@@ -50,10 +52,31 @@ def choose_threshold(labels, scores, detected=None):
         pred = p >= threshold
         if detected is not None:
             pred &= np.asarray(detected, dtype=bool)
-        score = float(m.f1_score(y, pred, zero_division=0))
+        score = float(m.f1_score(y, pred, zero_division=0, sample_weight=sample_weight))
         best = max(best, (score, float(threshold)))
     return {'threshold': best[1], 'validation_f1': best[0], 'selection_partition': 'val',
-            'tie_break': 'largest_threshold'}
+            'tie_break': 'largest_threshold',
+            'weighting': 'equal_domains_and_sources_within_class' if sample_weight is not None else 'uniform'}
+
+
+def positive_family_subsets(rows):
+    """{family: rows} — positives of one acquisition family (lecture/web) plus all negatives.
+
+    Each family is compared with the same negatives, so a large lecture family cannot hide
+    failures on a few internet photos (source_macro_ap, by_positive_domain).
+    """
+    negatives = [r for r in rows if int(r['label']) == 0]
+    families = {}
+    for row in rows:
+        if int(row['label']) == 1:
+            families.setdefault(source_family(row), []).append(row)
+    return {family: negatives+positives for family, positives in sorted(families.items())}
+
+
+def validation_ap_by_domain(rows):
+    """Each positive acquisition family is evaluated against the same negatives."""
+    return {family: float(m.average_precision_score([int(r['label']) for r in items], [r['score'] for r in items]))
+            for family, items in positive_family_subsets(rows).items()}
 
 
 BOOTSTRAP_METRICS = ('roc_auc', 'average_precision', 'balanced_accuracy')

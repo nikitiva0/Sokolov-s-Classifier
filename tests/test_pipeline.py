@@ -20,7 +20,7 @@ class SplitTests(unittest.TestCase):
         from sokolov.data.split import split_groups
         # Legacy frame-level split stays available only as an explicit option.
         config = replace(load_config(ROOT/'configs/resnet18_face.toml').split,
-                         mode='random_stratified', test_fraction=.15)
+                         mode='random_stratified', test_fraction=.15, train_only_sources=[])
         samples = [RawSample(str(i), Path(str(i)), int(i < 1000), f'lecture-{i%4}', '', None)
                    for i in range(6000)]
         groups = {s.image_id: s.source_id for s in samples}
@@ -56,7 +56,9 @@ class MetricTests(unittest.TestCase):
 
 
 class FakeDetector:
-    metadata = {'name': 'FIXTURE_ONLY', 'sha256': 'fixture', 'version': 1}
+    # Pretends to use the production resize policy so trained fixture runs pass the inference check.
+    metadata = {'name': 'FIXTURE_ONLY', 'sha256': 'fixture', 'version': 1,
+                'resize_policy': 'shrink_only_top_left_pad_v1'}
     def __call__(self, image):
         return [{'bbox': [0, 0, 95, 95], 'confidence': .99,
                  'landmarks': [[32, 35], [64, 35], [48, 51], [35, 69], [63, 69]]}]
@@ -83,11 +85,17 @@ def fixtures(folder, count=40):
     write_csv(positive/'manifest.csv', rows)
     config = load_config(ROOT/'configs/resnet18_face.toml')
     return replace(config, data=replace(config.data,
+        extra_manifest='', reuse_prepared_manifest='',
         positive_dir=str(positive), fairface_dir=str(fairface), negative_count=count//2,
         web_positive_dir=str(folder/'absent_web_positive'), web_negative_dir=str(folder/'absent_web_negative'),
         user_dir=str(folder/'absent_user'),
+        min_detector_coverage=.3,  # Tiny fixture intentionally loses two of three faces in one split.
         raw_manifest=str(folder/'raw.csv'), prepared_manifest=str(folder/'prepared/manifest.csv')),
+        # Group split (default protocol); the fixture has no development photos.
+        split=replace(config.split, train_only_sources=[]),
+        model=replace(config.model, face_preprocessing='rgb'),
         training=replace(config.training, num_workers=0, device='cpu', batch_size=4,
+                         augmentation='light', source_balanced=False, selection_metric='average_precision',
                          head_epochs=2, finetune_epochs=0))
 
 
@@ -280,7 +288,7 @@ class ModelTests(unittest.TestCase):
             select_best_model(run)
             self.assertEqual(read_json(run/'best_model.json')['architecture'], 'resnet18')
             # Arbitrary photos: every detected face is scored, the photo score is the maximum.
-            from sokolov.evaluate import format_prediction, predict_images
+            from sokolov.inference import format_prediction, predict_images
             class TwoFaces(FakeDetector):
                 def __call__(self, image):
                     face = super().__call__(image)[0]

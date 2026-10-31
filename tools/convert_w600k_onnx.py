@@ -187,7 +187,9 @@ def sokolov_faces(folder, per_lecture=4):
     from sokolov.data.prepare import SCRFDDetector, align_face
     detector = SCRFDDetector(SimpleNamespace(detector_name='buffalo_l', detector_threshold=.5,
                                              detector_root=str(ROOT / 'checkpoints/insightface')))
-    resize = transforms(SimpleNamespace(model=SimpleNamespace(image_size=112, architecture='arcface')))
+    # Raw RGB normalization (x - 0.5) / 0.5, as InsightFace ArcFaceONNX expects: no face preprocessing.
+    resize = transforms(SimpleNamespace(model=SimpleNamespace(image_size=112, architecture='arcface',
+                                                              face_preprocessing='rgb')))
     groups = defaultdict(list)
     for path in sorted(Path(folder).glob('*.jpg')):
         groups[path.stem.rsplit('_', 1)[0]].append(path)

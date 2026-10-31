@@ -1,7 +1,10 @@
 """One persisted split, before detection; explicit external test stays untouched.
 
 group_stratified (default): whole groups (lecture/video, known person, FairFace
-file) go to one split; groups are stratified by (group label, domain).
+file, pHash-linked sources) go to one split; groups are stratified by
+(group label, domain). Pins: rows of split.train_only_sources and hand-sorted
+datasets (pinned_split train/test) fix their whole group; unpinned rows of a
+pinned group inherit the pin, conflicting pins are an error.
 """
 from __future__ import annotations
 import math
@@ -9,32 +12,45 @@ import random
 from collections import Counter, defaultdict
 
 from ..contracts import ParentAssignment
+from .families import source_family
 
 SPLITS = ('train', 'val', 'test')
-WEB_POSITIVE = 'web_positive_v2'
 
 
 def _round(value):
     return int(math.floor(value + .5))
 
 
-def group_table(samples, group_ids):
+def _pins(samples, group_ids, train_only_sources=()):
+    """Group -> 'train'/'test'/'' from pinned_split and train_only_sources; conflicts raise."""
+    train_only = set(train_only_sources)
+    pins = defaultdict(set)
+    for s in samples:
+        pin = s.pinned_split or ('train' if s.source_id in train_only else '')
+        pins[group_ids[s.image_id]].add(pin)
+    conflicts = sorted(g for g, p in pins.items() if len(p - {''}) > 1)
+    if conflicts:
+        raise ValueError('Group mixes pinned train and test rows (pinned_split/train_only_sources): '
+                         + ', '.join(conflicts))
+    return {g: next(iter(p - {''}), '') for g, p in pins.items()}
+
+
+def group_table(samples, group_ids, train_only_sources=()):
     """Group label = 1 if it contains Sokolov; domain = most frequent (ties: name order).
 
-    pinned: train/test fixed by a hand-sorted dataset; a group may not mix pins.
+    pinned: train/test fixed by a hand-sorted dataset or split.train_only_sources.
+    web: the group contains internet/harvested/user photos (data.families).
     """
     labels, domains, datasets, images = defaultdict(set), defaultdict(Counter), defaultdict(set), Counter()
-    pins = defaultdict(set)
+    web = defaultdict(bool)
     for s in samples:
         g = group_ids[s.image_id]
         labels[g].add(s.label); domains[g][s.domain] += 1; datasets[g].add(s.dataset); images[g] += 1
-        pins[g].add(s.pinned_split)
-    if any(len(p) > 1 for p in pins.values()):
-        raise ValueError('Group mixes pinned and unpinned/other pinned rows: '
-                         + ', '.join(sorted(g for g, p in pins.items() if len(p) > 1)))
+        web[g] |= source_family(s) == 'web'
+    pins = _pins(samples, group_ids, train_only_sources)
     return {g: {'label': int(1 in labels[g]),
                 'domain': min(domains[g].items(), key=lambda item: (-item[1], item[0]))[0],
-                'datasets': sorted(datasets[g]), 'images': images[g], 'pinned': next(iter(pins[g]))}
+                'datasets': sorted(datasets[g]), 'images': images[g], 'pinned': pins[g], 'web': web[g]}
             for g in sorted(labels)}
 
 
@@ -59,6 +75,19 @@ def _move(assign, info, rank, predicate, target, sources=('train', 'val'), kind=
     return group
 
 
+def web_held_out_minimum(info, label):
+    """Minimum web groups of a label in val and test (0: no requirement).
+
+    With >= 3 independent web groups each split gets one; with >= 5 groups, at least
+    4 of them not pinned to train, val and test get two each (train keeps one).
+    """
+    groups = [g for g in info if info[g]['web'] and info[g]['label'] == label]
+    if len(groups) < 3:
+        return 0
+    held_out = [g for g in groups if info[g]['pinned'] != 'train']
+    return 2 if len(groups) >= 5 and len(held_out) >= 4 else 1
+
+
 def _group_stratified(info, config):
     order = sorted(info)
     random.Random(config.seed).shuffle(order)
@@ -80,8 +109,8 @@ def _group_stratified(info, config):
     v1 = lambda g: 'v1' in info[g]['datasets'] and info[g]['label'] == 1
     if sum(map(v1, info)) >= 2 and not in_split('test', v1):
         _move(assign, info, rank, v1, 'test', kind=lambda g: (info[g]['label'], v1(g)))
-    # Test: web-positive sources from two different domains when available.
-    web = lambda g: WEB_POSITIVE in info[g]['datasets'] and info[g]['label'] == 1
+    # Test: web positive sources from two different domains when available.
+    web = lambda g: info[g]['web'] and info[g]['label'] == 1
     web_domains = {info[g]['domain'] for g in info if web(g)}
     needed = min(2, len(web_domains)) if sum(map(web, info)) >= 2 else 0
     while len({info[g]['domain'] for g in in_split('test', web)}) < needed:
@@ -89,6 +118,21 @@ def _group_stratified(info, config):
         if not _move(assign, info, rank, lambda g: web(g) and info[g]['domain'] not in present, 'test',
                      kind=lambda g: (info[g]['label'], info[g]['domain'])):
             break
+    # Val/test: independent web groups of each label (train keeps at least one).
+    for label in (1, 0):
+        minimum = web_held_out_minimum(info, label)
+        if not minimum:
+            continue
+        own = lambda g, label=label: info[g]['web'] and info[g]['label'] == label
+        for target in ('test', 'val'):
+            while len(in_split(target, own)) < minimum and len(in_split('train', own)) > 1:
+                if not _move(assign, info, rank, own, target, sources=('train',),
+                             kind=lambda g: (info[g]['label'], info[g]['web'])):
+                    break
+        counts = {split: len(in_split(split, own)) for split in SPLITS}
+        if counts['train'] < 1 or counts['val'] < minimum or counts['test'] < minimum:
+            raise ValueError(f'Need enough independent web groups with label {label} in train/val/test: '
+                             f'required 1/{minimum}/{minimum}, got {counts}')
     # Validation: at least one positive group for checkpoint/threshold selection.
     positive = lambda g: info[g]['label'] == 1
     if not in_split('val', positive):
@@ -114,11 +158,15 @@ def split_groups(samples, group_ids, config):
         raise ValueError('Both classes are required')
     indices = list(range(len(samples)))
     explicit = [s.partition is not None for s in samples]
+    train_only_groups = {group_ids[s.image_id] for s in samples
+                         if s.source_id in config.train_only_sources}
     if any(explicit) and not all(explicit):
         raise ValueError('Mixed explicit and missing partitions')
     if config.mode != 'group_stratified' and any(s.pinned_split for s in samples):
         raise ValueError('Pinned datasets (user_dir) require split.mode = group_stratified')
     if all(explicit):
+        if any(s.partition == 'test' and group_ids[s.image_id] in train_only_groups for s in samples):
+            raise ValueError('Train-only source conflicts with external test')
         groups_partitions = defaultdict(set)
         for s in samples:
             if s.partition not in ('train', 'test'):
@@ -136,6 +184,8 @@ def split_groups(samples, group_ids, config):
                                      random_state=config.seed)
         choices = []
         for tr, va in splitter.split(train_pool, y, groups):
+            if train_only_groups.intersection(groups[i] for i in va):
+                continue
             if set(y[tr]) == {0, 1} and set(y[va]) == {0, 1}:
                 cost = abs(len(va)/len(y)-config.validation_fraction) + abs(y[va].mean()-y.mean())
                 choices.append((cost, tr, va))
@@ -146,6 +196,8 @@ def split_groups(samples, group_ids, config):
     elif config.mode == 'external':
         raise ValueError('External mode requires partition=train/test for every row')
     elif config.mode == 'random_stratified':
+        if train_only_groups:
+            raise ValueError('train_only_sources requires group_stratified or external split')
         # Explicit legacy option: frames of one source may cross splits.
         train_val, test = train_test_split(indices, test_size=round(len(samples)*config.test_fraction),
                                           random_state=config.seed, stratify=labels)
@@ -153,7 +205,7 @@ def split_groups(samples, group_ids, config):
             test_size=round(len(samples)*config.validation_fraction),
             random_state=config.seed, stratify=[labels[i] for i in train_val])
     elif config.mode == 'group_stratified':
-        assign = _group_stratified(group_table(samples, group_ids), config)
+        assign = _group_stratified(group_table(samples, group_ids, config.train_only_sources), config)
         parts = {name: [i for i, s in enumerate(samples) if assign[group_ids[s.image_id]] == name]
                  for name in SPLITS}
         train, val, test = parts['train'], parts['val'], parts['test']
@@ -177,15 +229,18 @@ def split_summary(samples, assignments, config):
         cell = cells[(a.split, s.label, s.domain)]
         cell['groups'].add(a.group_id); cell['images'] += 1
         splits_of[a.group_id].add(a.split)
-    info = group_table(samples, {s.image_id: by_id[s.image_id].group_id for s in samples})
+    group_of = {s.image_id: by_id[s.image_id].group_id for s in samples}
+    info = group_table(samples, group_of, config.train_only_sources)
     split_of = {g: next(iter(v)) for g, v in splits_of.items() if len(v) == 1}
     groups_in = lambda split, predicate: sorted(g for g in info if split_of.get(g) == split and predicate(g))
-    web = lambda g: WEB_POSITIVE in info[g]['datasets'] and info[g]['label'] == 1
+    web = lambda g: info[g]['web'] and info[g]['label'] == 1
     totals = {}
     for split in SPLITS:
         labels = Counter(s.label for s in samples if by_id[s.image_id].split == split)
         totals[split] = {'groups': len(groups_in(split, lambda g: True)),
                          'positive_groups': len(groups_in(split, lambda g: info[g]['label'] == 1)),
+                         'web_groups_by_label': {str(label): len(groups_in(split, lambda g, label=label:
+                             info[g]['web'] and info[g]['label'] == label)) for label in (0, 1)},
                          'images': sum(labels.values()), 'images_label_1': labels[1], 'images_label_0': labels[0]}
     return {'mode': config.mode, 'seed': config.seed, 'validation_fraction': config.validation_fraction,
         'test_fraction': config.test_fraction, 'unit': 'group_id',
@@ -198,6 +253,8 @@ def split_summary(samples, assignments, config):
             'test_web_positive_sources': groups_in('test', web),
             'test_web_positive_domains': sorted({info[g]['domain'] for g in groups_in('test', web)}),
             'web_positive_domains_available': sorted({info[g]['domain'] for g in info if web(g)}),
+            'web_held_out_minimum': {str(label): web_held_out_minimum(info, label) for label in (0, 1)},
             'val_positive_groups': totals['val']['positive_groups'],
             'pinned_groups': sum(1 for g in info if info[g]['pinned']),
+            'train_only_sources': list(config.train_only_sources),
             'pinned_violations': sorted(g for g in info if info[g]['pinned'] and split_of.get(g) != info[g]['pinned'])}}

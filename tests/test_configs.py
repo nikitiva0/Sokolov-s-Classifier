@@ -29,7 +29,10 @@ class ExperimentConfigTests(unittest.TestCase):
             [(c.model.architecture, c.data.variant) for c in configs],
             [("resnet18", "face_crop"), ("arcface", "face_crop")],
         )
-        self.assertEqual({c.data.raw_manifest for c in configs}, {"data/manifests/raw.csv"})
+        self.assertEqual({c.data.raw_manifest for c in configs}, {"data/manifests/domain_v3/raw.csv"})
+        self.assertTrue(all(c.split.mode == 'group_stratified' for c in configs))
+        self.assertTrue(all(c.training.augmentation == 'robust' for c in configs))
+        self.assertTrue(all(c.model.face_preprocessing == 'identity_v1' for c in configs))
         self.assertTrue(all(c.split == configs[0].split for c in configs))
         self.assertTrue(all(c.generation == configs[0].generation for c in configs))
         self.assertEqual(configs[0].split.validation_fraction, 0.15)
@@ -39,6 +42,12 @@ class ExperimentConfigTests(unittest.TestCase):
         for filename in ("resnet18_face.toml", "arcface_face.toml"):
             with self.subTest(filename=filename), self.assertRaisesRegex(ValueError, "face_crop"):
                 self.load_changed(filename, 'variant = "face_crop"', 'variant = "full_image"')
+
+    def test_detector_coverage_must_be_a_positive_fraction(self):
+        for invalid in ('0', '1.1', '-0.1', 'true', 'nan'):
+            with self.subTest(value=invalid), self.assertRaises(ValueError):
+                self.load_changed('resnet18_face.toml', 'detector_threshold = 0.5',
+                    'detector_threshold = 0.5\nmin_detector_coverage = '+invalid)
 
     def test_models_reject_wrong_input_size(self):
         for filename, old, new in (
@@ -76,13 +85,14 @@ class ExperimentConfigTests(unittest.TestCase):
                              ("group_stratified", 0.20, 8))
             self.assertEqual((config.data.fairface_dir, config.data.negative_count, config.data.fairface_download),
                              ("data/raw/fairface", 3000, False))
-            self.assertTrue(config.training.augment)
+            self.assertEqual(config.training.augmentation, 'robust')
             self.assertEqual((config.training.head_epochs, config.training.device), (5, "auto"))
         self.assertEqual(load_config(ROOT / "configs/resnet18_face.toml").training.finetune_blocks, 2)
         self.assertEqual(load_config(ROOT / "configs/resnet18_face.toml").training.finetune_epochs, 10)
         for old, new in (('mode = "group_stratified"', 'mode = "by_frame"'),
                          ("dedup_max_distance = 8", "dedup_max_distance = 65"),
-                         ("augment = true", 'augment = "yes"'),
+                         ('augmentation = "robust"', 'augmentation = "heavy"'),
+                         ("aug_translate = 0.0", "aug_translate = 1.5"),
                          ("finetune_blocks = 2", "finetune_blocks = 5"),
                          ("aug_downscale_max = 112", "aug_downscale_max = 16"),
                          ("aug_jpeg_max = 90", "aug_jpeg_max = 101"),

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from collections import Counter
 import hashlib
+import json
 from pathlib import Path
 import shutil
 import time
@@ -18,8 +19,9 @@ CANDIDATE_THRESHOLD = .05  # SCRFD candidates kept only to report max confidence
 REAL_PER_CLASS = 10        # real test crops per class used as a reference
 MAX_REFERENCE = 2000       # train positives averaged into the ArcFace centroid
 REFERENCE_NPZ = Path('data/reference/sokolov_reference.npz')
-PADDING_NOTE = ('image centred on a black 2S x 2S canvas: SCRFD (640 px input) misses faces that fill '
-                'the whole frame of a tightly aligned crop')
+PADDING_NOTE = ('image centred on a black 2S x 2S canvas: SCRFD misses faces that fill the whole frame of a '
+                'tightly aligned crop; the canvas then follows the training detector input policy '
+                '(shrink_only_top_left_pad_v1: no enlargement, black padding to 640 px)')
 
 
 def face_class(faces):
@@ -49,10 +51,12 @@ class FaceTools:
         self.recognizer = get_model(str(recognizer), providers=['CPUExecutionProvider'])
         self.recognizer.prepare(ctx_id=-1)
         self.threshold = data.detector_threshold
+        from .data.prepare import DETECTOR_RESIZE_POLICY
         self.metadata = {'detector': 'SCRFD det_10g.onnx (insightface)', 'detector_sha256': sha256(detector),
             'recognizer': 'ArcFace w600k_r50.onnx (insightface)', 'recognizer_sha256': sha256(recognizer),
             'threshold': self.threshold, 'candidate_threshold': CANDIDATE_THRESHOLD,
-            'input_size': [640, 640], 'padding': PADDING_NOTE, 'provider': 'CPUExecutionProvider'}
+            'input_size': [640, 640], 'resize_policy': DETECTOR_RESIZE_POLICY, 'padding': PADDING_NOTE,
+            'provider': 'CPUExecutionProvider'}
 
     def embed(self, bgr_images):
         import numpy as np
@@ -64,11 +68,15 @@ class FaceTools:
         """Faces >= threshold, max candidate confidence and best ArcFace cosine to the centroid."""
         import numpy as np
         from insightface.utils import face_align
+        from .data.prepare import detector_input
         height, width = rgb.shape[:2]
         canvas = np.zeros((2*height, 2*width, 3), np.uint8)
         canvas[height//2:height//2+height, width//2:width//2+width] = rgb
         bgr = canvas[:, :, ::-1].copy()
-        boxes, landmarks = self.detector.detect(bgr, max_num=0)
+        padded, scale = detector_input(canvas)
+        boxes, landmarks = self.detector.detect(padded, max_num=0)
+        if len(boxes):
+            landmarks = landmarks/scale
         confident = [i for i in range(len(boxes)) if boxes[i, 4] >= self.threshold]
         cosine = None
         if confident and centroid is not None:
@@ -142,6 +150,7 @@ class Scorer:
         self.model.load_state_dict(saved['model'], strict=True)
         self.model.eval().requires_grad_(False)
         self.architecture, self.size = config.model.architecture, config.model.image_size
+        self.policy = config.model.face_preprocessing
         self.data_fingerprint = saved.get('data_fingerprint')
         self.sha256 = sha256(checkpoint)
 
@@ -154,7 +163,7 @@ class Scorer:
             rgb = np.asarray(Image.fromarray(rgb).resize((self.size, self.size), Image.Resampling.BILINEAR))
         x = torch.from_numpy(rgb.copy()).permute(2, 0, 1).float()[None]/255
         with torch.no_grad():
-            return float(self.model(normalized_pixels(x, self.architecture)).reshape(-1)[0])
+            return float(self.model(normalized_pixels(x, self.architecture, self.policy)).reshape(-1)[0])
 
 
 def _sigmoid(value):
@@ -251,7 +260,8 @@ def analyze_experiment(runs, root, *, config, checkpoint, run_dir=None):
             real[name] = aggregate(records)
         real['available'] = bool(real['positive']['n'] or real['negative']['n'])
         real['reason'] = real['reason'] or ('' if real['available'] else 'в test нет пригодных кропов')
-        real['preprocessing'] = 'aligned 224 px crop resized to the model input with PIL bilinear'
+        real['preprocessing'] = ('aligned 224 px crop resized to the model input with PIL bilinear, then the '
+                                 f'checkpoint face preprocessing ({own.policy})')
     result['real'] = real
     result['seconds'] = time.perf_counter()-started
     write_json(root/'analysis.json', result)
@@ -334,9 +344,32 @@ def interpretation(analysis, results):
 
 
 def publication_files(summary):
+    if 'variants' not in summary:  # experiment written before generation variants (e.g. local-mps-v2)
+        return {'synthesis/summary.json', 'synthesis/seed_comparison.png', 'synthesis/scores.png'} | {
+            f'synthesis/seed_{seed}/{name}' for seed in summary['seeds'] for name in ('progression.png', 'trajectory.csv')}
     files = {'synthesis/summary.json', 'synthesis/grid.png', 'synthesis/scores.png',
              'synthesis/trajectories.csv', 'synthesis/analysis.csv'}
     return files | {f'synthesis/seed_{seed}/progression.png' for seed in summary['seeds']}
+
+
+def legacy_report_section(source, destination, summary):
+    """Section for a single-baseline experiment written before generation variants."""
+    lines = ['', '## Генерация из случайного шума', '',
+             'Веса выбранной модели фиксированы. Adam изменяет только пиксели входной картинки.',
+             'Максимизируется логит «Соколов» с TV- и L2-регуляризацией. После каждого шага пиксели ограничены диапазоном [0,1].',
+             'Оценки на графике рассчитаны по сохранённым 8-битным пикселям. Детектор лиц в оптимизации не участвует.',
+             'Высокая оценка не гарантирует узнаваемое лицо. Показаны все начальные шумы; рост оценки не обязан быть монотонным.', '',
+             '```json', json.dumps(summary, ensure_ascii=False, indent=2), '```', '']
+    for image in ('seed_comparison.png', 'scores.png'):
+        shutil.copy2(source/image, destination/image)
+        lines.append(f'![Synthesis {image}](synthesis/{image})')
+    for seed in summary['seeds']:
+        target = destination/f'seed_{seed}'
+        target.mkdir(exist_ok=True)
+        for name in ('progression.png', 'trajectory.csv'):
+            shutil.copy2(source/f'seed_{seed}'/name, target/name)
+        lines += ['', f'### Начальный шум {seed}', '', f'![Steps for seed {seed}](synthesis/seed_{seed}/progression.png)', '']
+    return lines
 
 
 def report_section(run, destination, summary):
@@ -345,6 +378,8 @@ def report_section(run, destination, summary):
     source = run/'synthesis'
     destination.mkdir(parents=True, exist_ok=True)
     write_json(destination/'summary.json', summary)
+    if 'variants' not in summary:
+        return legacy_report_section(source, destination, summary)
     for name in ('grid.png', 'scores.png', 'trajectories.csv', 'analysis.csv'):
         shutil.copy2(source/name, destination/name)
     for seed in summary['seeds']:
@@ -355,6 +390,8 @@ def report_section(run, destination, summary):
     lines = ['', '## Генерация из случайного шума', '',
              f"Модель: {summary['architecture']} ({summary['image_size']}×{summary['image_size']} px), "
              'веса зафиксированы (eval, градиент только по изображению); хеш весов до/после совпадает в каждом запуске.',
+             f"Перед классификатором применяется та же дифференцируемая обработка лица, что при обучении и в UI: "
+             f"{summary.get('face_preprocessing', 'rgb')}.",
              f"Шагов оптимизации: {generation['steps']}, снимки каждые {generation['snapshot_every']} шагов, "
              f"начальные шумы seed {', '.join(map(str, summary['seeds']))}.",
              'Оценка на кривых и в таблицах вычислена по сохранённым 8-битным PNG без случайных преобразований. '

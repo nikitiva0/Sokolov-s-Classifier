@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import math
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, TypeVar
+
+
+# Supported pretrained ArcFace iResNet50 weights (model.weights).
+ARCFACE_WEIGHTS = ("MS1MV3", "WebFace600K (InsightFace buffalo_l w600k_r50, converted)")
 
 
 @dataclass(frozen=True)
@@ -18,16 +22,22 @@ class DataConfig:
     phash_max_distance: int
     positive_dir: str = "data/raw/sokolov_positive_v1"
     fairface_handle: str = "mehmoodsheikh/fairface-dataset"
-    fairface_dir: str = "data/raw/fairface"
-    negative_count: int = 3000
+    fairface_dir: str = ""
+    negative_count: int = 5000
     detector_root: str = "checkpoints/insightface"
     detector_name: str = "buffalo_l"
     detector_threshold: float = 0.5
-    web_positive_dir: str = "data/raw/web_positive_v2"
-    web_negative_dir: str = "data/raw/web_negative_v2"
+    min_detector_coverage: float = 0.8
+    # Импорт дополнительных манифестов — один путь (data.download.import_manifest).
+    # extra_manifest: CSV image_id,path,label,source_id,source_url или HARVEST CONTRACT.
+    extra_manifest: str = ""
+    reuse_prepared_manifest: str = ""
+    # Каталоги HARVEST CONTRACT (manifest.csv внутри); пустая строка — набор не используется.
+    web_positive_dir: str = ""
+    web_negative_dir: str = ""
     # Ручной набор: HARVEST CONTRACT + колонка partition (train/test), группы закреплены.
-    user_dir: str = "data/raw/user_v3"
-    # kagglehub — только явный запасной вариант при отсутствии fairface_dir.
+    user_dir: str = ""
+    # kagglehub: если fairface_dir пуст (исходное поведение) или каталог отсутствует и это явно разрешено.
     fairface_download: bool = False
 
 
@@ -41,14 +51,17 @@ class ModelConfig:
     checkpoint: str
     checkpoint_url: str = ""
     checkpoint_sha256: str = ""
+    face_preprocessing: str = "rgb"
 
 
 @dataclass(frozen=True)
 class SplitConfig:
     validation_fraction: float
     seed: int
-    test_fraction: float = 0.20
+    test_fraction: float = 0.15
     mode: str = "group_stratified"
+    # source_id, чьи группы (вместе с pHash-связанными) закреплены за train.
+    train_only_sources: list[str] = field(default_factory=list)
     # Hamming distance (bits) of 64-bit pHash between aligned crops of different splits.
     dedup_max_distance: int = 8
 
@@ -64,21 +77,32 @@ class TrainingConfig:
     selection_metric: str
     device: str = "auto"
     num_workers: int = 2
-    # ResNet18 finetune stage: number of last residual stages unfrozen (2 = layer3+layer4).
-    finetune_blocks: int = 2
-    # Domain-robust train-only augmentation (both classes); sizes in px.
-    augment: bool = True
-    aug_downscale_min: int = 24
-    aug_downscale_max: int = 112
-    aug_downscale_p: float = 0.5
-    aug_jpeg_min: int = 20
-    aug_jpeg_max: int = 90
-    aug_jpeg_p: float = 0.5
-    aug_blur_p: float = 0.2
-    aug_crop_scale_min: float = 0.85
-    aug_rotation_deg: float = 10.0
-    aug_color_jitter: float = 0.2
-    aug_grayscale_p: float = 0.05
+    # light: flip + слабый ColorJitter (исходный режим); robust: параметры aug_* ниже.
+    augmentation: str = "light"
+    source_balanced: bool = False
+    # ResNet18 finetune stage: number of last residual stages unfrozen (1 = layer4 only, base behaviour).
+    finetune_blocks: int = 1
+    # augmentation="robust": только train, одинаково для обоих классов; размеры в px.
+    # Значения по умолчанию — рецепт robust из docs/DOMAIN_REPAIR.md (дискретный выбор
+    # стороны уменьшения из {32..224} заменён равномерным целым в [min, max]).
+    aug_crop_scale_min: float = 1.0
+    aug_rotation_deg: float = 6.0
+    aug_translate: float = 0.025
+    aug_scale_min: float = 0.95
+    aug_scale_max: float = 1.05
+    aug_color_jitter: float = 0.35
+    aug_saturation: float = 0.3
+    aug_hue: float = 0.04
+    aug_grayscale_p: float = 0.0
+    aug_downscale_min: int = 32
+    aug_downscale_max: int = 160
+    aug_downscale_p: float = 0.75
+    aug_blur_p: float = 0.3
+    aug_blur_sigma_min: float = 0.2
+    aug_blur_sigma_max: float = 1.2
+    aug_jpeg_min: int = 35
+    aug_jpeg_max: int = 95
+    aug_jpeg_p: float = 0.4
 
 
 @dataclass(frozen=True)
@@ -147,10 +171,17 @@ def _number(name: str, value: Any, *, positive: bool = False) -> None:
 
 
 def generation_config(raw: Any) -> GenerationConfig:
-    """Разобрать и проверить [generation] (TOML или словарь из checkpoint)."""
+    """Разобрать и проверить [generation] (TOML или словарь из checkpoint).
+
+    Таблица без [[generation.variants]], но с lr/tv_weight/l2_weight (формат до вариантов:
+    configs/*_local_mps.toml и старые checkpoint) задаёт один вариант pixel.
+    """
     if not isinstance(raw, dict):
         raise ValueError("Отсутствует таблица [generation]")
     raw = dict(raw)
+    if "variants" not in raw and {"lr", "tv_weight", "l2_weight"} <= set(raw):
+        raw["variants"] = [{"name": "pixel", "parametrization": "pixel", "lr": raw.pop("lr"),
+                            "tv_weight": raw.pop("tv_weight"), "l2_weight": raw.pop("l2_weight")}]
     seeds = raw.get("seeds")
     if not isinstance(seeds, (list, tuple)) or not seeds:
         raise ValueError("generation.seeds: ожидается непустой массив целых чисел")
@@ -234,7 +265,7 @@ def load_config(path: str | Path) -> Config:
         if model.checkpoint != "":
             raise ValueError("model.checkpoint: для ResNet18 используем torchvision weights, пустой путь")
     elif model.architecture == "arcface":
-        if model.weights not in ("MS1MV3", "WebFace600K (InsightFace buffalo_l w600k_r50, converted)"):
+        if model.weights not in ARCFACE_WEIGHTS:
             raise ValueError("model.weights: MS1MV3 или конвертированный WebFace600K (buffalo_l)")
         expected_model = ("iresnet50", model.weights, 112, 512)
         if not isinstance(model.checkpoint, str) or not model.checkpoint.strip():
@@ -252,6 +283,14 @@ def load_config(path: str | Path) -> Config:
         raise ValueError("split.validation_fraction должна быть строго между 0 и 1")
     if split.mode not in ("group_stratified", "random_stratified", "external"):
         raise ValueError("split.mode: group_stratified, random_stratified or external")
+    if (not isinstance(split.train_only_sources, list) or
+            any(not isinstance(s, str) or not s for s in split.train_only_sources) or
+            len(set(split.train_only_sources)) != len(split.train_only_sources)):
+        raise ValueError('split.train_only_sources: unique non-empty source names required')
+    if model.face_preprocessing not in ('rgb', 'identity_v1'):
+        raise ValueError('model.face_preprocessing: rgb or identity_v1')
+    if training.augmentation not in ('light', 'robust') or type(training.source_balanced) is not bool:
+        raise ValueError('training: augmentation light/robust and boolean source_balanced required')
     _number("split.test_fraction", split.test_fraction, positive=True)
     if split.validation_fraction + split.test_fraction >= 1:
         raise ValueError("split: train fraction must be positive")
@@ -259,7 +298,8 @@ def load_config(path: str | Path) -> Config:
     if split.dedup_max_distance > 64:
         raise ValueError("split.dedup_max_distance: максимум 64 для 64-битного pHash")
     _integer("data.negative_count", data.negative_count, 1)
-    for field in ("positive_dir", "web_positive_dir", "web_negative_dir", "user_dir", "fairface_dir"):
+    for field in ("positive_dir", "web_positive_dir", "web_negative_dir", "user_dir", "fairface_dir",
+                  "extra_manifest", "reuse_prepared_manifest"):
         if not isinstance(getattr(data, field), str):
             raise ValueError(f"data.{field}: ожидается строка-путь")
     if type(data.fairface_download) is not bool:
@@ -267,6 +307,9 @@ def load_config(path: str | Path) -> Config:
     _number("data.detector_threshold", data.detector_threshold, positive=True)
     if data.detector_threshold > 1:
         raise ValueError("data.detector_threshold must be <= 1")
+    _number("data.min_detector_coverage", data.min_detector_coverage, positive=True)
+    if data.min_detector_coverage > 1:
+        raise ValueError("data.min_detector_coverage must be <= 1")
     if data.detector_name != "buffalo_l":
         raise ValueError("data.detector_name: supported SCRFD pack is buffalo_l")
     if model.checkpoint_sha256 and (len(model.checkpoint_sha256) != 64 or
@@ -286,26 +329,33 @@ def load_config(path: str | Path) -> Config:
     for field in ("head_lr", "finetune_lr"):
         _number(f"training.{field}", getattr(training, field), positive=True)
     _number("training.weight_decay", training.weight_decay)
-    if training.selection_metric != "average_precision":
-        raise ValueError("training.selection_metric: предусмотрен average_precision")
+    if training.selection_metric not in ("average_precision", "source_macro_ap"):
+        raise ValueError("training.selection_metric: average_precision or source_macro_ap")
     _integer("training.finetune_blocks", training.finetune_blocks, 1)
     if training.finetune_blocks > 4:
         raise ValueError("training.finetune_blocks: у ResNet18 четыре блока layer1..layer4")
-    if type(training.augment) is not bool:
-        raise ValueError("training.augment: ожидается true/false")
     _integer("training.aug_downscale_min", training.aug_downscale_min, 8)
     _integer("training.aug_downscale_max", training.aug_downscale_max, training.aug_downscale_min)
     _integer("training.aug_jpeg_min", training.aug_jpeg_min, 1)
     _integer("training.aug_jpeg_max", training.aug_jpeg_max, training.aug_jpeg_min)
     if training.aug_jpeg_max > 100:
         raise ValueError("training.aug_jpeg_max: качество JPEG не больше 100")
-    for field in ("aug_downscale_p", "aug_jpeg_p", "aug_blur_p", "aug_grayscale_p", "aug_color_jitter"):
+    for field in ("aug_downscale_p", "aug_jpeg_p", "aug_blur_p", "aug_grayscale_p", "aug_color_jitter",
+                  "aug_saturation", "aug_translate"):
         _number(f"training.{field}", getattr(training, field))
         if getattr(training, field) > 1:
             raise ValueError(f"training.{field}: ожидается значение в [0, 1]")
-    _number("training.aug_crop_scale_min", training.aug_crop_scale_min, positive=True)
+    _number("training.aug_hue", training.aug_hue)
+    if training.aug_hue > .5:
+        raise ValueError("training.aug_hue: ожидается значение в [0, 0.5]")
+    for field in ("aug_crop_scale_min", "aug_scale_min", "aug_scale_max", "aug_blur_sigma_min", "aug_blur_sigma_max"):
+        _number(f"training.{field}", getattr(training, field), positive=True)
     if training.aug_crop_scale_min > 1:
         raise ValueError("training.aug_crop_scale_min: ожидается (0, 1]")
+    if not training.aug_scale_min <= training.aug_scale_max <= 2:
+        raise ValueError("training: ожидается 0 < aug_scale_min <= aug_scale_max <= 2")
+    if training.aug_blur_sigma_min > training.aug_blur_sigma_max:
+        raise ValueError("training: ожидается aug_blur_sigma_min <= aug_blur_sigma_max")
     _number("training.aug_rotation_deg", training.aug_rotation_deg)
     if training.aug_rotation_deg > 180:
         raise ValueError("training.aug_rotation_deg: не больше 180°")

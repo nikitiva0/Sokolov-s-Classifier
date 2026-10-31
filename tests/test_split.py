@@ -194,7 +194,7 @@ class ManifestMergeTests(unittest.TestCase):
         for i in range(6):
             image(root/f'data/raw/fairface/train/{i}.jpg', 500+i)
         (root/'data/raw/fairface/SOURCE.md').write_text('FairFace, CC BY 4.0')
-        return replace(CONFIG, data=replace(CONFIG.data, positive_dir=str(v1), negative_count=5,
+        return replace(CONFIG, data=replace(CONFIG.data, positive_dir=str(v1), negative_count=5, extra_manifest='',
             fairface_dir=str(root/'data/raw/fairface'), web_positive_dir=str(root/'data/raw/web_positive_v2'),
             web_negative_dir=str(root/'data/raw/web_negative_v2'), user_dir=str(root/'data/raw/user_v3'),
             raw_manifest=str(root/'manifests/raw.csv')))
@@ -305,7 +305,7 @@ class AugmentationTests(unittest.TestCase):
             evaluation = transforms(config, train=False)
             self.assertTrue(torch.equal(evaluation(image), evaluation(image)))
             self.assertNotIn('Random', repr(evaluation))
-            legacy = transforms(replace(config, training=replace(config.training, augment=False)), train=True)
+            legacy = transforms(replace(config, training=replace(config.training, augmentation='light')), train=True)
             self.assertNotIn('RandomJPEG', repr(legacy))
         torch.manual_seed(0)
         low = np.asarray(RandomDownscale(24, 24, 1.)(image), dtype=float)

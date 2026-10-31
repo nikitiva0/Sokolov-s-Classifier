@@ -1,8 +1,9 @@
-# План эксперимента. Значения предстоит проверить на реальных данных.
+# План эксперимента (Kaggle и общий запуск). Значения предстоит проверить на реальных данных.
+# Локальный запуск на Apple MPS: configs/*_local_mps.toml.
 [data]
 variant = "face_crop"
-raw_manifest = "data/manifests/raw.csv"
-prepared_manifest = "data/processed/face_crop/manifest.csv"
+raw_manifest = "data/manifests/domain_v3/raw.csv"
+prepared_manifest = "data/processed/domain_v3/manifest.csv"
 artifacts_dir = "outputs/runs"
 phash_max_distance = 6
 positive_dir = "data/raw/sokolov_positive_v1"
@@ -10,29 +11,41 @@ fairface_handle = "mehmoodsheikh/fairface-dataset"
 fairface_dir = "data/raw/fairface"
 negative_count = 3000
 fairface_download = false
-web_positive_dir = "data/raw/web_positive_v2"
-web_negative_dir = "data/raw/web_negative_v2"
-user_dir = "data/raw/user_v3"
 detector_root = "checkpoints/insightface"
 detector_name = "buffalo_l"
 detector_threshold = 0.5
+min_detector_coverage = 0.8
+# Один путь импорта (sokolov.data.download.import_manifest), два формата:
+# CSV дополнения (docs/DOMAIN_REPAIR.md) и HARVEST CONTRACT (docs/HARVEST.md).
+# Отсутствующий extra_manifest — ошибка; отсутствующий каталог HARVEST — предупреждение.
+extra_manifest = "data/manifests/domain_v3/web.csv"
+web_positive_dir = "data/raw/web_positive_v2"
+web_negative_dir = "data/raw/web_negative_v2"
+user_dir = "data/raw/user_v3"
+reuse_prepared_manifest = ""
 
 [model]
 architecture = "arcface"
 backbone = "iresnet50"
+# Альтернатива: weights = "MS1MV3", checkpoint = путь к backbone.pth и его SHA-256
+# (как в configs/arcface_local_mps.toml) или CLI --arcface-checkpoint/--arcface-weights.
 weights = "WebFace600K (InsightFace buffalo_l w600k_r50, converted)"
 image_size = 112
 embedding_dim = 512
+face_preprocessing = "identity_v1"
 checkpoint = "checkpoints/arcface/iresnet50_w600k.pt"
 checkpoint_url = ""
 checkpoint_sha256 = "8060e285754ba598293a466fe7fcff59713dbc3fc5305c2e36df595cab1e6cef"
 
 [split]
-# Целые группы (лекция/видео/человек/файл FairFace) в одной выборке.
+# Целые группы (лекция/видео/человек/файл FairFace; pHash-связанные источники) в одной выборке.
 validation_fraction = 0.15
 test_fraction = 0.20
 mode = "group_stratified"
+# Пять фото разработки из data.extra_manifest — только train (вместе со связанными по pHash).
+train_only_sources = ["web:user_provided_batch"]
 seed = 42
+# pHash выровненных лиц: val/test ближе этого порога к train (test — к val) исключаются из оценки.
 dedup_max_distance = 8
 
 [training]
@@ -42,25 +55,35 @@ finetune_epochs = 0
 head_lr = 0.001
 finetune_lr = 0.0001
 weight_decay = 0.0001
-selection_metric = "average_precision"
+selection_metric = "source_macro_ap"
+source_balanced = true
 device = "auto"
 num_workers = 2
-# Train-only domain-robust augmentation; sizes in px.
-augment = true
+# Аугментации только train, одинаково для обоих классов; размеры в px.
+# Рецепт этой ветки (значения по умолчанию в коде — рецепт configs/*_local_mps.toml).
+augmentation = "robust"
+aug_crop_scale_min = 0.85
+aug_rotation_deg = 10.0
+aug_translate = 0.0
+aug_scale_min = 1.0
+aug_scale_max = 1.0
+aug_color_jitter = 0.2
+aug_saturation = 0.2
+aug_hue = 0.0
+aug_grayscale_p = 0.05
 aug_downscale_min = 24
 aug_downscale_max = 112
 aug_downscale_p = 0.5
+aug_blur_p = 0.2
+aug_blur_sigma_min = 0.1
+aug_blur_sigma_max = 2.0
 aug_jpeg_min = 20
 aug_jpeg_max = 90
 aug_jpeg_p = 0.5
-aug_blur_p = 0.2
-aug_crop_scale_min = 0.85
-aug_rotation_deg = 10.0
-aug_color_jitter = 0.2
-aug_grayscale_p = 0.05
 
 [generation]
 # Общие для всех вариантов: число шагов Adam, начальные шумы, период снимков (шаги).
+# Перед классификатором — та же обработка лица (model.face_preprocessing), что при обучении.
 steps = 500
 seeds = [0, 1, 2, 3, 4]
 snapshot_every = 25

@@ -1,0 +1,70 @@
+{
+  "architecture": "resnet18",
+  "checkpoint_sha256": "d669522521eb03e7cc4ae5c1539004d15869959db051c4e3da43d27f6667bacf",
+  "generation": {
+    "steps": 500,
+    "lr": 0.05,
+    "tv_weight": 0.0001,
+    "l2_weight": 1e-05,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "snapshot_every": 25
+  },
+  "technical_test": false,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "selection_partition": "val",
+  "results": [
+    {
+      "seed": 0,
+      "initial_score": 0.013218062929809093,
+      "final_score": 1.0,
+      "final_logit": 96.38703155517578,
+      "weights_unchanged": true,
+      "first_input_gradient_norm": 1.9196820259094238
+    },
+    {
+      "seed": 1,
+      "initial_score": 0.0075304871425032616,
+      "final_score": 1.0,
+      "final_logit": 89.03382873535156,
+      "weights_unchanged": true,
+      "first_input_gradient_norm": 2.3589835166931152
+    },
+    {
+      "seed": 2,
+      "initial_score": 0.013607573695480824,
+      "final_score": 1.0,
+      "final_logit": 92.59385681152344,
+      "weights_unchanged": true,
+      "first_input_gradient_norm": 1.768424153327942
+    },
+    {
+      "seed": 3,
+      "initial_score": 0.01271912083029747,
+      "final_score": 1.0,
+      "final_logit": 93.64606475830078,
+      "weights_unchanged": true,
+      "first_input_gradient_norm": 2.324218273162842
+    },
+    {
+      "seed": 4,
+      "initial_score": 0.01211355347186327,
+      "final_score": 1.0,
+      "final_logit": 92.78678131103516,
+      "weights_unchanged": true,
+      "first_input_gradient_norm": 2.1277709007263184
+    }
+  ],
+  "interpretation": "High classifier score does not guarantee a recognizable face; all seeds are shown."
+}

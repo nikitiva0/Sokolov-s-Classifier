@@ -6,6 +6,16 @@ HARVEST CONTRACT: один кроп = одно лицо, `manifest.csv` с фи�
 `data/sources/<dataset>.json` с метаданными источников. Изображения в Git не попадают
 (`data/raw/*` игнорируется); в Git идут только код, пороги и `data/sources/*.json` без изображений.
 
+## Подключение к обучению
+
+Каталоги подключаются ключами `data.web_positive_dir`, `data.web_negative_dir` и `data.user_dir`
+(в `configs/*_face.toml` заданы; в локальных MPS-конфигах пусты). Манифесты читает тот же импорт,
+что и CSV дополнения `data.extra_manifest` (`sokolov.data.download.import_manifest`): в raw.csv
+попадают только строки `review_status=accepted`; `group_id` определяет группу разбиения,
+`user_v3` дополнительно требует колонку `partition` (train/test) и закрепляет группу целиком.
+Отсутствующий каталог даёт предупреждение, а не ошибку. Детекция при подготовке выполняется заново
+тем же SCRFD (`shrink_only_top_left_pad_v1`), что и для остальных данных.
+
 ## Окружение
 
 ```bash

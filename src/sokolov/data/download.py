@@ -1,6 +1,11 @@
-"""Raw manifest v2: v1 positives + harvested web faces + local FairFace negatives.
+"""Raw manifest: v1 positives + imported manifests + FairFace negatives.
 
-Nothing is downloaded unless data.fairface_download=true and fairface_dir is missing.
+All additional data goes through one import path (import_manifest) that accepts two
+formats: the simple extra CSV (image_id,path,label,source_id,source_url; data.extra_manifest,
+docs/DOMAIN_REPAIR.md) and the HARVEST CONTRACT (docs/HARVEST.md; data.web_positive_dir,
+data.web_negative_dir, data.user_dir with an extra partition column).
+FairFace is read from data.fairface_dir; kagglehub is used only when fairface_dir is empty
+(original behaviour) or when data.fairface_download=true.
 """
 from __future__ import annotations
 
@@ -12,12 +17,15 @@ from PIL import Image, ImageOps
 
 from ..io import read_csv, read_json, sha256, write_csv, write_json
 
+RAW_SCHEMA_VERSION = 3
 RAW_FIELDS = ['image_id', 'path', 'label', 'source_id', 'group_id', 'domain', 'dataset', 'person',
               'source_url', 'timestamp_seconds', 'partition', 'pixel_sha256', 'pinned_split']
 HARVEST_FIELDS = ['image_id', 'path', 'label', 'source_id', 'group_id', 'domain', 'person', 'source_url',
                   'timestamp_seconds', 'det_score', 'face_px', 'sokolov_similarity', 'review_status', 'notes']
+EXTRA_FIELDS = ['image_id', 'path', 'label', 'source_id', 'source_url']
 DOMAINS = ('lecture_webcam', 'lecture_room', 'talk_stage', 'interview', 'photo', 'fairface')
 IMAGE_SUFFIXES = {'.jpg', '.jpeg', '.png', '.webp'}
+EXTRA_DATASET = 'extra'
 
 
 def image_info(path):
@@ -28,51 +36,79 @@ def image_info(path):
     return image, digest
 
 
-def _resolve(path, folder):
-    """Harvest paths are relative to the repository root: folder/../../.. for data/raw/<name>, else cwd."""
+def legacy_fields(row):
+    """dataset/domain of raw rows written before these columns existed (source_id prefix only)."""
+    source = row.get('source_id', '')
+    if source.startswith('fairface:'):
+        return 'fairface', 'fairface'
+    if source.startswith('web:'):
+        return EXTRA_DATASET, 'photo'
+    return '', ''
+
+
+def _resolve(path, folder, prefer_cwd=False):
+    """Relative paths: repository root (three levels above data/<kind>/<name>/manifest.csv) or cwd."""
     path = Path(path)
     if path.is_absolute():
         return path.resolve()
     candidates = [Path.cwd()/path]
     if len(folder.resolve().parents) > 2:
-        candidates.insert(0, folder.resolve().parents[2]/path)
+        candidates.insert(len(candidates) if prefer_cwd else 0, folder.resolve().parents[2]/path)
     return next((c.resolve() for c in candidates if c.exists()), candidates[0].resolve())
 
 
-def harvest_rows(folder, dataset, pinned=False):
-    """Accepted rows of a HARVEST CONTRACT manifest; (rows, exclusions, warnings).
+def import_manifest(manifest, dataset, *, folder=None, pinned=False):
+    """Rows of an import manifest in either supported format; (rows, exclusions, warnings).
 
-    pinned: the manifest has an extra partition column (train/test) fixing whole groups.
+    HARVEST CONTRACT (columns start with HARVEST_FIELDS): only review_status=accepted rows,
+    invalid rows become exclusions; folder (when given) must contain every image.
+    Extra CSV (EXTRA_FIELDS, optional group_id/domain/person/timestamp_seconds): every row is
+    a verified label, invalid label/source_id fails the import; group_id defaults to source_id.
+    pinned: an extra partition column (train/test) fixes whole groups.
     """
-    folder = Path(folder)
-    manifest = folder/'manifest.csv'
+    manifest = Path(manifest)
     if not manifest.is_file():
         return [], [], [f'{dataset}: {manifest} not found; dataset skipped']
     rows, exclusions, warnings, ids = [], [], [], set()
     table = read_csv(manifest)
-    if table and list(table[0])[:len(HARVEST_FIELDS)] != HARVEST_FIELDS:
-        raise ValueError(f'{manifest}: columns must start with {HARVEST_FIELDS}')
+    columns = list(table[0]) if table else []
+    harvest = columns[:len(HARVEST_FIELDS)] == HARVEST_FIELDS
+    if table and not harvest and not set(EXTRA_FIELDS) <= set(columns):
+        raise ValueError(f'{manifest}: expected HARVEST CONTRACT columns {HARVEST_FIELDS} '
+                         f'or extra manifest columns {EXTRA_FIELDS}')
+    base = manifest.parent
     for item in table:
         image_id = item['image_id']
         if image_id in ids:
             raise ValueError(f'{manifest}: duplicate image_id {image_id}')
         ids.add(image_id)
-        if item['review_status'] != 'accepted':
-            exclusions.append({'image_id': image_id, 'dataset': dataset, 'reason': 'review_status=' + item['review_status']})
+        status = item.get('review_status') or 'accepted'
+        if status != 'accepted':
+            exclusions.append({'image_id': image_id, 'dataset': dataset, 'reason': 'review_status=' + status})
             continue
+        if harvest:
+            group, domain, person = item['group_id'], item['domain'], item['person']
+        else:
+            if item['label'] not in ('0', '1') or not item['source_id']:
+                raise ValueError('Extra manifest requires verified label and source_id')
+            group = item.get('group_id') or item['source_id']
+            domain = item.get('domain') or ('photo' if item['source_id'].startswith('web:') else '')
+            person = item.get('person') or ('sokolov' if item['label'] == '1' else 'unknown')
+            if domain and (domain not in DOMAINS or domain == 'fairface'):
+                raise ValueError(f'{manifest}: invalid domain {domain!r} for {image_id}')
         problem = None
         if item['label'] not in ('0', '1'):
             problem = 'invalid label'
-        elif (item['label'] == '1') != (item['person'] == 'sokolov'):
+        elif (item['label'] == '1') != (person == 'sokolov'):
             problem = 'label/person mismatch'
-        elif item['domain'] not in DOMAINS or item['domain'] == 'fairface':
+        elif harvest and (domain not in DOMAINS or domain == 'fairface'):
             problem = 'invalid domain'
-        elif not item['source_id'] or not item['group_id'] or not image_id.isascii():
+        elif not item['source_id'] or not group or not image_id.isascii():
             problem = 'missing source_id/group_id or non-ASCII image_id'
         elif pinned and item.get('partition') not in ('train', 'test'):
             problem = 'pinned dataset needs partition=train/test'
-        path = _resolve(item['path'], folder)
-        if problem is None and not path.is_relative_to(folder.resolve()):
+        path = _resolve(item['path'], base, prefer_cwd=not harvest)
+        if problem is None and folder is not None and not path.is_relative_to(Path(folder).resolve()):
             problem = 'path outside dataset folder'
         elif problem is None and not path.is_file():
             problem = 'file missing'
@@ -80,13 +116,32 @@ def harvest_rows(folder, dataset, pinned=False):
             exclusions.append({'image_id': image_id, 'dataset': dataset, 'reason': problem})
             continue
         rows.append({'image_id': image_id, 'path': path, 'label': int(item['label']),
-                     'source_id': item['source_id'], 'group_id': item['group_id'], 'domain': item['domain'],
-                     'dataset': dataset, 'person': item['person'], 'source_url': item['source_url'],
-                     'timestamp_seconds': item['timestamp_seconds'],
+                     'source_id': item['source_id'], 'group_id': group, 'domain': domain,
+                     'dataset': dataset, 'person': person, 'source_url': item.get('source_url', ''),
+                     'timestamp_seconds': item.get('timestamp_seconds', ''),
                      'pinned_split': item['partition'] if pinned else ''})
     if not rows:
         warnings.append(f'{dataset}: no accepted rows')
     return rows, exclusions, warnings
+
+
+def harvest_rows(folder, dataset, pinned=False):
+    """Accepted rows of a dataset folder with manifest.csv (HARVEST CONTRACT or extra CSV)."""
+    folder = Path(folder)
+    return import_manifest(folder/'manifest.csv', dataset, folder=folder, pinned=pinned)
+
+
+def import_sources(data):
+    """(manifest, dataset, folder, pinned) for every configured import, in priority order."""
+    sources = []
+    if data.extra_manifest:
+        sources.append((Path(data.extra_manifest), EXTRA_DATASET, None, False))
+    for folder, dataset, pinned in ((data.web_positive_dir, 'web_positive_v2', False),
+                                    (data.web_negative_dir, 'web_negative_v2', False),
+                                    (data.user_dir, 'user_v3', True)):
+        if folder:
+            sources.append((Path(folder)/'manifest.csv', dataset, Path(folder), pinned))
+    return sources
 
 
 def _fairface_folder(data, override):
@@ -94,29 +149,39 @@ def _fairface_folder(data, override):
     folder = Path(local).resolve() if local else None
     if folder and folder.is_dir():
         return folder
-    if not data.fairface_download:
-        raise FileNotFoundError(f'FairFace directory not found: {local or "(empty)"}. Put FairFace images '
-                                'there (see data/raw/fairface/SOURCE.md) or set data.fairface_download=true')
-    import kagglehub  # optional fallback; large download, run only when requested
-    print(f'FairFace: {local or "fairface_dir"} missing; downloading {data.fairface_handle} via kagglehub', flush=True)
+    if local and not data.fairface_download:
+        raise FileNotFoundError(f'FairFace directory not found: {local}. Put FairFace images there '
+                                '(see data/raw/fairface/SOURCE.md), pass --fairface-dir, or set '
+                                'data.fairface_download=true (--download-fairface)')
+    import kagglehub  # empty fairface_dir or explicit opt-in; large download
+    print(f'FairFace: {local or "fairface_dir is empty"}; downloading {data.fairface_handle} via kagglehub', flush=True)
     return Path(kagglehub.dataset_download(data.fairface_handle)).resolve()
 
 
 def _request(config, fairface_dir):
     data = config.data
-    def digest(folder):
-        path = Path(folder)/'manifest.csv'
+    def digest(path):
+        path = Path(path)
         return sha256(path) if path.is_file() else None
-    return {'handle': data.fairface_handle, 'local_dir': str(fairface_dir or data.fairface_dir),
-            'positive_dir': str(Path(data.positive_dir).resolve()), 'positive_manifest': digest(data.positive_dir),
-            'web_positive_dir': str(Path(data.web_positive_dir).resolve()), 'web_positive_manifest': digest(data.web_positive_dir),
-            'web_negative_dir': str(Path(data.web_negative_dir).resolve()), 'web_negative_manifest': digest(data.web_negative_dir),
-            'user_dir': str(Path(data.user_dir).resolve()), 'user_manifest': digest(data.user_dir),
-            'negative_count': data.negative_count, 'seed': config.split.seed, 'schema_version': 2}
+    request = {'handle': data.fairface_handle, 'local_dir': str(fairface_dir or data.fairface_dir),
+               'positive_dir': str(Path(data.positive_dir).resolve()),
+               'positive_manifest': digest(Path(data.positive_dir)/'manifest.csv'),
+               'negative_count': data.negative_count, 'seed': config.split.seed,
+               'schema_version': RAW_SCHEMA_VERSION}
+    if data.extra_manifest:
+        # An explicitly configured CSV must exist (harvest folders may be absent: warning only).
+        if not Path(data.extra_manifest).is_file():
+            raise FileNotFoundError(f'data.extra_manifest not found: {data.extra_manifest}. Build it with '
+                                    'tools/build_domain_dataset.py or set extra_manifest = ""')
+        request['extra_manifest_sha256'] = sha256(data.extra_manifest)
+    for manifest, dataset, folder, _ in import_sources(data):
+        if folder is not None:
+            request[dataset] = {'dir': str(folder.resolve()), 'manifest_sha256': digest(manifest)}
+    return request
 
 
 def download_data(config, fairface_dir=None):
-    """Build data/manifests/raw.csv (cached; changed inputs require a new raw path)."""
+    """Build data.raw_manifest (cached; changed inputs require a new raw path)."""
     data = config.data
     raw = Path(data.raw_manifest)
     selection = raw.parent / 'selection.local.json'
@@ -128,7 +193,7 @@ def download_data(config, fairface_dir=None):
             if read_json(selection).get('raw_sha256') != sha256(raw):
                 raise ValueError('Cached raw manifest was modified')
             return raw
-        raise ValueError('Raw manifest exists with different inputs (harvest manifests, FairFace, seed); '
+        raise ValueError('Raw manifest exists with different inputs (import manifests, FairFace, seed, schema); '
                          'delete it or set data.raw_manifest to a new path')
     rows, seen, exclusions, warnings = [], {}, [], []
 
@@ -162,15 +227,14 @@ def download_data(config, fairface_dir=None):
             raise ValueError('Positive path escapes dataset directory')
         add(path, 1, path.stem, item['source_video'], 'v1:' + item['source_video'], 'lecture_webcam',
             'v1', 'sokolov', '', item.get('timestamp_seconds', ''))
-    for folder, dataset, pinned in ((data.web_positive_dir, 'web_positive_v2', False),
-                                    (data.web_negative_dir, 'web_negative_v2', False), (data.user_dir, 'user_v3', True)):
-        accepted, excluded, notes = harvest_rows(folder, dataset, pinned)
+    for manifest, dataset, folder, pinned in import_sources(data):
+        accepted, excluded, notes = import_manifest(manifest, dataset, folder=folder, pinned=pinned)
         exclusions += excluded
         warnings += notes
         for item in accepted:
-            add(item.pop('path'), item.pop('label'), item.pop('image_id'), item.pop('source_id'),
-                item.pop('group_id'), item.pop('domain'), item.pop('dataset'), item.pop('person'),
-                item.pop('source_url'), item.pop('timestamp_seconds'), item.pop('pinned_split'))
+            add(item['path'], item['label'], item['image_id'], item['source_id'], item['group_id'],
+                item['domain'], item['dataset'], item['person'], item['source_url'],
+                item['timestamp_seconds'], item['pinned_split'])
     folder = _fairface_folder(data, fairface_dir)
     candidates = sorted(p for p in folder.rglob('*') if p.suffix.lower() in IMAGE_SUFFIXES and p.is_file())
     random.Random(config.split.seed).shuffle(candidates)

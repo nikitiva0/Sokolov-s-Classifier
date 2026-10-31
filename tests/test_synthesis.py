@@ -29,7 +29,7 @@ def save_checkpoint(config, path, seed=42, **extra):
     return model
 
 
-def png_score(model, path, architecture):
+def png_score(model, path, architecture, policy='rgb'):
     import numpy as np
     import torch
     from PIL import Image
@@ -37,7 +37,7 @@ def png_score(model, path, architecture):
     with Image.open(path) as image:
         x = torch.from_numpy(np.array(image.convert('RGB')).copy()).permute(2, 0, 1).float()[None]/255
     with torch.no_grad():
-        return model(normalized_pixels(x, architecture)).sigmoid().item(), image.size
+        return model(normalized_pixels(x, architecture, policy)).sigmoid().item(), image.size
 
 
 class SynthesisTests(unittest.TestCase):
@@ -140,9 +140,12 @@ class SynthesisTests(unittest.TestCase):
                 self.assertEqual(digest, sha256(checkpoint))
                 for row in rows:
                     if row['snapshot']:
-                        score, size = png_score(model, first.trajectory.parent/row['snapshot'], architecture)
+                        # Scores use the checkpoint face preprocessing (identity_v1 in the configs).
+                        score, size = png_score(model, first.trajectory.parent/row['snapshot'], architecture,
+                                                config.model.face_preprocessing)
                         self.assertEqual(size, (config.model.image_size,)*2)
                         self.assertAlmostEqual(score, float(row['score']), places=6)
+                # Repeated seed and same checkpoint reproduce exactly, including PNG quantization.
                 again = synthesize(config, checkpoint, 7, output_dir=root/'replay')
                 self.assertEqual(first.final_image.read_bytes(), again.final_image.read_bytes())
                 self.assertEqual(rows, read_csv(again.trajectory))
@@ -182,7 +185,8 @@ class SynthesisTests(unittest.TestCase):
                         self.assertTrue(all(r['optimized_logit'] != '' for r in rows[1:]))
                         transformed = variant.name != 'pixel'
                         self.assertEqual(all(r['scale'] != '' for r in rows[1:]), transformed)
-                        score, _ = png_score(model, run.final_image, architecture)
+                        score, _ = png_score(model, run.final_image, architecture,
+                                             config.model.face_preprocessing)
                         self.assertAlmostEqual(score, float(rows[-1]['score']), places=6)
                         again = synthesize(config, checkpoint, 7, variant=variant.name, output_dir=root/'replay')
                         self.assertEqual(run.final_image.read_bytes(), again.final_image.read_bytes())

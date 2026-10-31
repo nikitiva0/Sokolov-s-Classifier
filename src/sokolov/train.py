@@ -46,6 +46,7 @@ def training_fingerprint(config):
 
 
 def validate_prepared(config):
+    from .data.prepare import DETECTOR_RESIZE_POLICY, SCHEMA_VERSION, validate_detector_coverage
     path = Path(config.data.prepared_manifest)
     metadata = read_json(path.parent / 'prepared.json')
     if metadata['manifest_sha256'] != sha256(path):
@@ -53,15 +54,19 @@ def validate_prepared(config):
     if metadata['split_sha256'] != sha256(path.parent / 'split.csv'):
         raise ValueError('Split fingerprint mismatch')
     signature = metadata['signature']
-    if (signature['raw_sha256'] != sha256(config.data.raw_manifest) or
+    if (signature.get('schema_version') != SCHEMA_VERSION or
+            signature.get('detector_resize_policy') != DETECTOR_RESIZE_POLICY or
+            signature.get('min_detector_coverage') != config.data.min_detector_coverage or
+            signature['raw_sha256'] != sha256(config.data.raw_manifest) or
             signature['detector_name'] != config.data.detector_name or
             signature['detector_threshold'] != config.data.detector_threshold or
             signature['phash_max_distance'] != config.data.phash_max_distance):
         raise ValueError('Preparation config/input differs from training config')
     if metadata['signature']['split'] != asdict(config.split):
         raise ValueError('Prepared split settings differ from training config')
+    validate_detector_coverage(read_json(path.parent / 'data_audit.json'), config.data.min_detector_coverage)
     for row in read_csv(path):
-        if row['status'] == 'ok' and sha256(row['crop_path']) != row['crop_sha256']:
+        if row['crop_path'] and sha256(row['crop_path']) != row['crop_sha256']:
             raise ValueError('Prepared crop fingerprint mismatch')
     return metadata
 
@@ -173,12 +178,27 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
             current_stage = finetune
         frozen_eval(model)
         generator = torch.Generator().manual_seed(config.split.seed+epoch)
-        loader = DataLoader(dataset, batch_size=config.training.batch_size, shuffle=True,
+        sampler = None
+        if config.training.source_balanced:
+            from torch.utils.data import WeightedRandomSampler
+            from .data.dataset import source_sampling_weights
+            sampler = WeightedRandomSampler(source_sampling_weights(dataset.rows), len(dataset),
+                                            replacement=True, generator=generator)
+        loader = DataLoader(dataset, batch_size=config.training.batch_size, shuffle=sampler is None,
+                            sampler=sampler,
                             num_workers=config.training.num_workers, generator=generator,
                             drop_last=(config.model.architecture == 'arcface' and finetune))
         loss_sum = 0.
         count = 0
-        for images, targets, _ in loader:
+        def progress(batch, phase):
+            write_json(folder / 'progress.json', {
+                'epoch': epoch+1, 'total_epochs': total_epochs,
+                'batch': batch, 'batches': len(loader), 'phase': phase,
+                'overall_percent': 100*(epoch+batch/max(1, len(loader)))/total_epochs,
+                'loss': loss_sum/count if count else None, 'device': str(device),
+                'updated': time.time()})
+        progress(0, 'training')
+        for batch_index, (images, targets, _) in enumerate(loader, 1):
             images, targets = images.to(device), targets.to(device)
             optimizer.zero_grad(set_to_none=True)
             loss = loss_fn(model(images).flatten(), targets)
@@ -188,16 +208,24 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
             optimizer.step()
             loss_sum += loss.item()*len(images)
             count += len(images)
+            if batch_index % 5 == 0 or batch_index == len(loader):
+                progress(batch_index, 'training')
         if not count:
             raise ValueError('No training batches; reduce batch_size for this training stage')
+        progress(len(loader), 'validation')
         val = predict(config, model, device, 'val')
         ap = float(average_precision_score([int(r['label']) for r in val], [r['score'] for r in val]))
+        from .metrics import validation_ap_by_domain
+        domain_ap = validation_ap_by_domain(val)
+        selection_score = sum(domain_ap.values())/len(domain_ap) if (
+            config.training.selection_metric == 'source_macro_ap') else ap
         history.append({'epoch': epoch+1, 'stage': 'finetune' if finetune else 'head',
                         'train_loss': loss_sum/count, 'validation_ap': ap,
+                        'selection_score': selection_score, 'domain_ap': json.dumps(domain_ap),
                         'learning_rate': optimizer.param_groups[0]['lr']})
-        improved = ap > best_ap
+        improved = selection_score > best_ap
         if improved:
-            best_ap = ap
+            best_ap = selection_score
         payload = {'model': model.state_dict(), 'optimizer': optimizer.state_dict(),
             'epoch': epoch, 'stage': finetune, 'history': history, 'best_ap': best_ap,
             'config': asdict(config), 'config_fingerprint': training_fingerprint(config),
@@ -215,11 +243,13 @@ def train(config, run_dir, *, resume=False, pretrained=True, stop_after_epoch=No
             shutil.copyfile(folder / 'last.pt', folder / 'best.pt')
             torch.save(model.state_dict(), folder / 'best_weights.pt')
         write_csv(folder / 'training.csv', history)
-        print(f'{config.model.architecture} epoch {epoch+1}/{total_epochs}: loss={loss_sum/count:.4f} val_AP={ap:.4f}', flush=True)
+        print(f'{config.model.architecture} epoch {epoch+1}/{total_epochs}: loss={loss_sum/count:.4f} '
+              f'val_AP={ap:.4f} selection[{config.training.selection_metric}]={selection_score:.4f}', flush=True)
         if stop_after_epoch and epoch+1 >= stop_after_epoch and epoch+1 < total_epochs:
             return None
     last = torch.load(folder / 'last.pt', map_location='cpu', weights_only=False)
     write_json(folder / 'training_summary.json', {'epochs': len(last['history']),
+        'selection_metric': config.training.selection_metric,
         'best_validation_ap': last['best_ap'], 'training_seconds': last['training_seconds'],
         'pos_weight': last['pos_weight'], 'parameters': sum(p.numel() for p in model.parameters()),
         'pretrained_provenance': last['pretrained_provenance'],
