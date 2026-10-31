@@ -177,6 +177,44 @@ class DomainTests(unittest.TestCase):
             self.assertIn('positive_domain_web', (report/'metrics.csv').read_text())
             self.assertIn('positive_domain_web', (report/'report.html').read_text())
 
+    def test_published_report_omits_other_peoples_ids_and_sources(self):
+        # Harvested negatives: image/source IDs carry the names of other people.
+        from PIL import Image
+        from sokolov.metrics import binary_metrics
+        from sokolov.io import write_json
+        from sokolov.report import make_report, validate_publication
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            result = binary_metrics([0, 1], [.1, .9], .5)
+            photo = root/'photo.png'
+            Image.new('RGB', (20, 20)).save(photo)
+            for name in ('resnet18', 'arcface'):
+                folder = root/name
+                write_json(folder/'status.json', {'status': 'evaluated', 'technical_test': False})
+                write_json(folder/'test_metrics.json', {'image_level': result, 'face_level': result,
+                    'checkpoint_bytes': 1, 'benchmark': {}, 'coverage': {}})
+                write_json(folder/'training_summary.json', {'data_fingerprint': {'split': 'shared'},
+                    'training_seconds': 0, 'parameters': 1, 'pretrained_provenance': {}})
+                write_json(folder/'environment.json', {'device': 'cpu'})
+                write_json(folder/'threshold.json', {'threshold': .5, 'selection_partition': 'val'})
+                write_csv(folder/'training.csv', [{'epoch': 1, 'train_loss': 1, 'validation_ap': .9}])
+                write_csv(folder/'errors.csv', [{'image_id': 'wn2_teachin_shabanov_0001', 'label': 0,
+                    'score': .97, 'error_type': 'FP', 'path': str(photo)}])
+                (folder/'plots').mkdir()
+                for plot in ('curves', 'confusion_matrix', 'scores'):
+                    Image.new('RGB', (10, 10)).save(folder/'plots'/f'{plot}.png')
+            write_json(root/'data/data_audit.json', {'warnings': ['Fixture only'], 'counts': {},
+                'exclusions': [], 'near_duplicate_candidates': [], 'detection_seconds': 0,
+                'detector': {'name': 'fixture'}, 'overlapping_sources': {'teachin_shabanov': ['train', 'val']},
+                'overlapping_groups': {'person:shabanov_da': ['train', 'val']}})
+            report = make_report(root)
+            _, completed = validate_publication(root)
+            for relative in completed['files']:
+                if relative.endswith(('.md', '.html', '.json', '.csv')):
+                    self.assertNotIn('shabanov', (report/relative).read_text(), relative)
+            self.assertIn('| FP |', (report/'report.md').read_text())
+            self.assertIn('wn2_teachin_shabanov_0001', (root/'resnet18/errors.csv').read_text())  # local only
+
     def test_development_photos_and_linked_variants_are_train_only(self):
         from sokolov.contracts import RawSample
         from sokolov.data.split import split_groups

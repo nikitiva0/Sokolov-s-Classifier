@@ -12,14 +12,35 @@ from pathlib import Path
 from .io import read_csv, read_json, sha256, write_csv, write_json
 
 MODELS = ('resnet18', 'arcface')
-# Per-image/per-group details (IDs, file names, person names in group IDs) stay local;
+# Per-image/per-group details (IDs, file names, person names in group/source IDs) stay local;
 # the published data_audit_summary.json keeps aggregates and protocol checks.
+# overlapping_*: harvested negative source IDs name other people (e.g. a lecturer's video).
 LOCAL_AUDIT_KEYS = ('exclusions', 'near_duplicate_candidates', 'near_duplicate_excluded',
-                    'near_duplicate_cross_split', 'phash_linked_groups')
+                    'near_duplicate_cross_split', 'phash_linked_groups', 'overlapping_sources',
+                    'overlapping_groups')
 
 
 def _fmt(value, digits=3):
     return 'N/A' if value is None else f'{value:.{digits}f}'
+
+
+def public_audit(audit):
+    """Audit without per-image/per-source details (published data_audit_summary.json)."""
+    return {k: v for k, v in audit.items() if k not in LOCAL_AUDIT_KEYS}
+
+
+def error_lines(errors, limit=20):
+    """Published error examples: opaque reference = first 12 hex of SHA-256(image_id).
+
+    Harvested image IDs embed source/person names of people other than Sokolov; the
+    readable IDs and paths stay in the local errors.csv.
+    """
+    import hashlib
+    lines = ['| Ссылка (SHA-256 image_id, 12 симв.) | Истинная метка | Оценка | Тип |', '|---|---|---|---|']
+    for row in errors[:limit]:
+        reference = hashlib.sha256(row['image_id'].encode()).hexdigest()[:12]
+        lines.append(f"| {reference} | {row['label']} | {float(row['score']):.5f} | {row['error_type']} |")
+    return lines
 
 
 def protocol_lines(audit):
@@ -135,7 +156,7 @@ def make_report(run_dir):
     report.mkdir(exist_ok=True)
     audit = read_json(run/'data/data_audit.json')
     write_json(report/'metrics.json', summaries)
-    write_json(report/'data_audit_summary.json', {k: v for k, v in audit.items() if k not in LOCAL_AUDIT_KEYS})
+    write_json(report/'data_audit_summary.json', public_audit(audit))
     write_csv(report/'metrics.csv', table)
     title = '# Соколов / не Соколов — техническая проверка' if technical else '# Соколов / не Соколов — сравнение моделей'
     lines = [title, '', 'Это технический прогон со случайными весами, не результат качества моделей.'
@@ -198,11 +219,8 @@ def make_report(run_dir):
             lines.append(f'![{name} {image}]({name}/{image})')
         lines += breakdown_lines(name, summary['evaluation'])
         errors = read_csv(folder/'errors.csv')
-        lines += ['', 'Примеры ошибок (полный список и исходные пути — в локальном errors.csv):', '',
-                  '| ID | Истинная метка | Оценка | Тип |', '|---|---|---|---|']
-        for row in errors[:20]:
-            image_id = row['image_id'].replace('|', '\\|').replace('\n', ' ')
-            lines.append(f"| {image_id} | {row['label']} | {float(row['score']):.5f} | {row['error_type']} |")
+        lines += ['', 'Примеры ошибок (полный список, ID и исходные пути — в локальном errors.csv):', '']
+        lines += error_lines(errors)
         # Local-only visual examples; never copied by publication allowlist.
         from PIL import Image, ImageDraw
         sheet = Image.new('RGB', (5*160, 4*150), 'white')
