@@ -210,26 +210,32 @@ def score_pair(score, threshold):
     return left, right
 
 
-def format_reply(result, threshold):
+def format_reply(result, threshold, max_chars=None):
+    """max_chars: обрезать список лиц, чтобы ответ уместился в подпись к фото (один ответ на фото)."""
     faces = result.get('faces') or []
-    lines = [VERDICTS.get(result.get('status'), 'Не удалось проверить фото'), f'Найдено лиц: {len(faces)}']
-    if faces:
-        lines += [f'Порог модели: {threshold:.4f}', '']
-        for number, face in enumerate(faces[:MAX_FACE_LINES], 1):
-            if face.get('score') is None:
-                lines.append(f'Лицо {number}: не удалось проверить (жёлтая рамка)')
-                continue
-            score, limit = score_pair(face['score'], threshold)
-            if face.get('positive'):
-                lines.append(f'Лицо {number}: {score} ≥ {limit} — Соколов (зелёная рамка)')
-            else:
-                lines.append(f'Лицо {number}: {score} < {limit} — не Соколов (красная рамка)')
-        if len(faces) > MAX_FACE_LINES:
-            lines.append(f'…и ещё лиц: {len(faces) - MAX_FACE_LINES}')
-    else:
-        lines.append('Попробуйте фото, где лицо видно крупнее и ближе к анфас.')
-    lines += ['', 'Учебная модель: оценка — не вероятность и не доказательство личности.']
-    return '\n'.join(lines)
+    head = [VERDICTS.get(result.get('status'), 'Не удалось проверить фото'), f'Найдено лиц: {len(faces)}']
+    footer = ['', 'Учебная модель: оценка — не вероятность и не доказательство личности.']
+    if not faces:
+        return '\n'.join(head + ['Попробуйте фото, где лицо видно крупнее и ближе к анфас.'] + footer)
+    head += [f'Порог модели: {threshold:.4f}', '']
+    face_lines = []
+    for number, face in enumerate(faces[:MAX_FACE_LINES], 1):
+        if face.get('score') is None:
+            face_lines.append(f'Лицо {number}: не удалось проверить (жёлтая рамка)')
+            continue
+        score, limit = score_pair(face['score'], threshold)
+        if face.get('positive'):
+            face_lines.append(f'Лицо {number}: {score} ≥ {limit} — Соколов (зелёная рамка)')
+        else:
+            face_lines.append(f'Лицо {number}: {score} < {limit} — не Соколов (красная рамка)')
+    shown = len(face_lines)
+
+    def build(count):
+        more = [f'…и ещё лиц: {len(faces) - count}'] if count < len(faces) else []
+        return '\n'.join(head + face_lines[:count] + more + footer)
+    while max_chars and shown and len(build(shown)) > max_chars:
+        shown -= 1
+    return build(shown)
 
 
 def annotate(data, faces, *, max_side=1600):
@@ -345,17 +351,19 @@ class SokolovBot:
         text = format_reply(result, self.classifier.threshold)
         text_sent = False
         if faces:
+            # Ровно один ответ: фото с рамками и подписью, укороченной до лимита Telegram.
             try:
                 image = annotate(data, faces)
-                caption = text if len(text) <= CAPTION_LIMIT else None
-                if caption is None:
-                    self.send_text(chat_id, message_id, text)
-                    text_sent = True
-                    caption = 'Зелёная рамка — Соколов, красная — не Соколов.'
+                caption = format_reply(result, self.classifier.threshold, max_chars=CAPTION_LIMIT)
                 self.api.call('sendPhoto', {'chat_id': chat_id, 'caption': caption,
                                             'reply_parameters': self.reply_to(message_id)},
                               files={'photo': ('faces.jpg', image, 'image/jpeg')}, timeout=60)
                 text_sent = True
+            except TelegramError as error:
+                # После сетевого таймаута фото могло уже дойти: текст не дублируем.
+                text_sent = error.network
+                self.log(f'chat={chat_id} annotated photo not confirmed: {type(error).__name__}'
+                         f'{" (network; text not resent)" if error.network else ""}')
             except Exception as error:
                 self.log(f'chat={chat_id} annotated photo not sent: {type(error).__name__}')
         if not text_sent:
